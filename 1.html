@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>نظام المحمدية</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+
+  :root {
+    --ink: #0f1923;
+    --ink-soft: #3d5166;
+    --gold: #c8922a;
+    --gold-light: #f5e8d0;
+    --gold-pale: #fdf8f0;
+    --teal: #0d6b6b;
+    --teal-light: #e0f2f1;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --green: #1a7a4a;
+    --green-light: #e8f5ee;
+    --surface: #ffffff;
+    --bg: #f4f6f9;
+    --border: #dde3ec;
+    --shadow: 0 2px 12px rgba(15,25,35,0.08);
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Cairo', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── TOP NAV ── */
+  .topbar {
+    background: var(--ink);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .topbar-title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .topbar-title span { color: var(--gold); }
+  .topbar-date { font-size: 12px; color: #8fa0b4; }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: 57px;
+    z-index: 99;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex: 1;
+    min-width: 90px;
+    padding: 13px 10px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink-soft);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+  .tab-btn .tab-icon { font-size: 16px; display: block; margin-bottom: 2px; }
+
+  /* ── CONTENT ── */
+  .page { display: none; padding: 16px; padding-bottom: 80px; }
+  .page.active { display: block; }
+
+  /* ── STATS STRIP ── */
+  .stats-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .stat-label { font-size: 11px; color: var(--ink-soft); margin-bottom: 4px; }
+  .stat-value { font-size: 20px; font-weight: 900; color: var(--ink); }
+  .stat-value.gold { color: var(--gold); }
+  .stat-value.red { color: var(--red); }
+  .stat-value.green { color: var(--green); }
+  .stat-unit { font-size: 11px; font-weight: 400; color: var(--ink-soft); margin-right: 2px; }
+
+  /* ── SECTION HEADING ── */
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-title::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 18px;
+    background: var(--gold);
+    border-radius: 2px;
+  }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { margin-bottom: 12px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 5px;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: #f8fafc;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type=number] { -moz-appearance: textfield; }
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  input:focus, select:focus { border-color: var(--gold); background: white; }
+  .btn-primary {
+    background: var(--ink);
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+    margin-top: 4px;
+  }
+  .btn-primary:active { background: var(--teal); }
+
+  /* ── CLIENT CARDS ── */
+  .client-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .client-card.delayed { border-right: 4px solid var(--red); }
+  .client-card.completed { border-right: 4px solid var(--green); }
+  .client-card.on-track { border-right: 4px solid var(--gold); }
+
+  .client-head {
+    padding: 14px 16px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .client-name { font-size: 16px; font-weight: 700; color: var(--ink); }
+  .client-phone { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .badge-completed { background: var(--green-light); color: var(--green); }
+  .badge-delayed { background: var(--red-light); color: var(--red); }
+  .badge-on-track { background: var(--gold-light); color: #8a5c0e; }
+
+  .client-body { padding: 0 16px 14px; }
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    font-size: 12.5px;
+  }
+  .info-item { }
+  .info-item .lbl { color: var(--ink-soft); font-size: 11px; }
+  .info-item .val { font-weight: 700; color: var(--ink); font-size: 13px; }
+  .info-item .val.danger { color: var(--red); }
+  .info-item .val.success { color: var(--green); }
+
+  /* Progress bar */
+  .progress-wrap {
+    margin: 12px 0 10px;
+  }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-bottom: 5px;
+  }
+  .progress-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--gold));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Action buttons */
+  .client-actions {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .action-btn {
+    flex: 1;
+    padding: 9px 8px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: opacity 0.2s;
+  }
+  .action-btn:active { opacity: 0.75; }
+  .btn-pay { background: var(--teal-light); color: var(--teal); }
+  .btn-details { background: var(--gold-light); color: #7a5010; }
+  .btn-del { background: var(--red-light); color: var(--red); }
+
+  /* ── DELAY TABLE inside details ── */
+  .detail-panel {
+    background: #f8fafc;
+    border-top: 1px dashed var(--border);
+    padding: 14px 16px;
+    display: none;
+  }
+  .detail-panel.open { display: block; }
+  .detail-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .month-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .month-table th {
+    background: var(--ink);
+    color: white;
+    padding: 8px 10px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .month-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .month-table tr.paid-row td { background: var(--green-light); color: var(--green); }
+  .month-table tr.delayed-row td { background: var(--red-light); color: var(--red); font-weight: 700; }
+  .month-table tr.upcoming-row td { background: #f0f4f8; color: var(--ink-soft); }
+
+  /* ── REPORT PAGE ── */
+  .report-controls {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 14px;
+  }
+  .report-type-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .report-type-btn {
+    padding: 14px 10px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: white;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .report-type-btn.active { border-color: var(--gold); background: var(--gold-pale); color: #7a5010; }
+  .report-type-btn .icon { font-size: 22px; display: block; margin-bottom: 4px; }
+
+  .btn-pdf {
+    background: var(--red);
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+  }
+  .btn-pdf:active { background: #a52b1e; }
+
+  .report-preview {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .report-preview-head {
+    background: var(--ink);
+    color: white;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .preview-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .preview-table th {
+    background: var(--gold-pale);
+    color: #7a5010;
+    padding: 10px;
+    font-weight: 700;
+    border-bottom: 2px solid var(--gold);
+  }
+  .preview-table td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .preview-table tr:last-child td { border-bottom: none; }
+  .empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--ink-soft);
+  }
+  .empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; }
+  .empty-state p { font-size: 14px; }
+
+  /* ── SEARCH ── */
+  .search-box {
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .search-box input {
+    background: white;
+    padding-right: 40px;
+  }
+  .search-icon {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    pointer-events: none;
+  }
+
+  /* ── FILTER CHIPS ── */
+  .filter-chips {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .filter-chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: white;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--ink-soft);
+    transition: all 0.15s;
+  }
+  .chip.active { background: var(--ink); color: white; border-color: var(--ink); }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,25,35,0.6);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: white;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 20px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+  .modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--ink);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 999;
+    transition: transform 0.3s;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.gold { background: var(--gold); }
+  .toast.green { background: var(--green); }
+  .toast.red { background: var(--red); }
+
+  /* ── DEFERRED SALES ── */
+  .deferred-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .deferred-card.near-due {
+    border: 2px solid var(--gold);
+    animation: pulse-border 1.4s ease-in-out infinite;
+  }
+  .deferred-card.overdue {
+    border: 2px solid var(--red);
+    animation: pulse-border-red 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse-border {
+    0%,100% { box-shadow: 0 0 0 0 rgba(200,146,42,0.35); }
+    50%      { box-shadow: 0 0 0 6px rgba(200,146,42,0); }
+  }
+  @keyframes pulse-border-red {
+    0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.35); }
+    50%      { box-shadow: 0 0 0 6px rgba(192,57,43,0); }
+  }
+  .deferred-head {
+    padding: 14px 16px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .deferred-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .deferred-desc { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .deferred-body { padding: 0 16px 12px; }
+  .due-countdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .due-countdown.soon { background: var(--gold-light); color: #7a5010; }
+  .due-countdown.overdue { background: var(--red-light); color: var(--red); }
+  .due-countdown.normal { background: #f0f4f8; color: var(--ink-soft); }
+  .deferred-actions {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .btn-settle { background: var(--green-light); color: var(--green); }
+  .btn-whatsapp { background: #e8fdf0; color: #128c7e; flex: 0 0 42px !important; font-size: 16px; }
+  .alert-banner {
+    background: linear-gradient(135deg, #7a5010, var(--gold));
+    color: white;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    animation: pulse-border 1.4s ease-in-out infinite;
+  }
+  .alert-banner .alert-icon { font-size: 22px; flex-shrink: 0; }
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-title">نظام <span>المحمدية</span></div>
+    <div class="topbar-date" id="today-date"></div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <button onclick="exportBackup()" title="تصدير نسخة احتياطية"
+      style="background:none;border:1px solid rgba(255,255,255,0.25);color:white;padding:5px 10px;border-radius:8px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer">
+      💾 نسخ احتياطي
+    </button>
+    <div style="font-size:22px;">💼</div>
+  </div>
+</div>
+
+<!-- hidden import input -->
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(event)">
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('home')">
+    <span class="tab-icon">🏠</span>الرئيسية
+  </button>
+  <button class="tab-btn" onclick="switchTab('clients')">
+    <span class="tab-icon">👥</span>العملاء
+  </button>
+  <button class="tab-btn" onclick="switchTab('add')">
+    <span class="tab-icon">➕</span>إضافة
+  </button>
+  <button class="tab-btn" onclick="switchTab('reports')">
+    <span class="tab-icon">📊</span>التقارير
+  </button>
+  <button class="tab-btn" id="tab-deferred" onclick="switchTab('deferred')">
+    <span class="tab-icon">🗓️</span>آجل
+  </button>
+</div>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="stats-strip" id="stats-strip"></div>
+  <div class="section-head">
+    <div class="section-title">المتأخرون عن السداد</div>
+  </div>
+  <div id="delayed-list"></div>
+</div>
+
+<!-- CLIENTS -->
+<div id="page-clients" class="page">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-input" placeholder="ابحث عن عميل..." oninput="renderClients()">
+  </div>
+  <div class="filter-chips">
+    <span class="chip active" data-filter="all" onclick="setFilter(this,'all')">الكل</span>
+    <span class="chip" data-filter="delayed" onclick="setFilter(this,'delayed')">متأخر</span>
+    <span class="chip" data-filter="on-track" onclick="setFilter(this,'on-track')">منتظم</span>
+    <span class="chip" data-filter="completed" onclick="setFilter(this,'completed')">مكتمل</span>
+  </div>
+  <div id="clients-list"></div>
+</div>
+
+<!-- ADD -->
+<div id="page-add" class="page">
+  <div class="form-card">
+    <div class="section-title" style="margin-bottom:16px;">بيانات العقد الجديد</div>
+    <div class="form-group">
+      <label>اسم العميل الكامل *</label>
+      <input type="text" id="f-name" placeholder="محمد أحمد العمري">
+    </div>
+    <div class="form-group">
+      <label>رقم الجوال</label>
+      <input type="tel" id="f-phone" inputmode="tel" placeholder="05xxxxxxxx">
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>المبلغ الإجمالي (ريال) *</label>
+        <input type="number" id="f-total" inputmode="decimal" step="any" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label>القسط الشهري (ريال) *</label>
+        <input type="number" id="f-monthly" inputmode="decimal" step="any" placeholder="0.00">
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>تاريخ أول قسط *</label>
+        <input type="date" id="f-start">
+      </div>
+      <div class="form-group">
+        <label>يوم الاستحقاق (1-28)</label>
+        <input type="number" id="f-day" inputmode="numeric" placeholder="20" min="1" max="28">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>ملاحظات</label>
+      <input type="text" id="f-notes" placeholder="أي تفاصيل إضافية...">
+    </div>
+    <button class="btn-primary" onclick="addClient()">
+      <span>💾</span> حفظ العقد
+    </button>
+  </div>
+</div>
+
+<!-- REPORTS -->
+<div id="page-reports" class="page">
+  <div class="report-controls">
+    <div class="report-type-btns">
+      <button class="report-type-btn active" id="rtype-payers" onclick="selectReportType('payers')">
+        <span class="icon">✅</span>
+        قائمة المسددين<br><small style="font-weight:400;font-size:11px;">بتاريخ 20 من الشهر</small>
+      </button>
+      <button class="report-type-btn" id="rtype-delayed" onclick="selectReportType('delayed')">
+        <span class="icon">⚠️</span>
+        قائمة المتأخرين<br><small style="font-weight:400;font-size:11px;">بتاريخ 2 من الشهر</small>
+      </button>
+    </div>
+    <div class="form-grid" style="margin-bottom:12px;">
+      <div class="form-group" style="margin:0">
+        <label>الشهر</label>
+        <select id="r-month">
+          <option value="1">يناير</option><option value="2">فبراير</option>
+          <option value="3">مارس</option><option value="4">أبريل</option>
+          <option value="5">مايو</option><option value="6">يونيو</option>
+          <option value="7">يوليو</option><option value="8">أغسطس</option>
+          <option value="9">سبتمبر</option><option value="10">أكتوبر</option>
+          <option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label>السنة</label>
+        <input type="number" id="r-year" inputmode="numeric" placeholder="2025">
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>رقم واتساب المحصّل (مع رمز الدولة)</label>
+      <input type="tel" id="r-collector-phone" inputmode="tel" placeholder="مثال: 966501234567"
+        oninput="localStorage.setItem('collector_phone', this.value)">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="btn-pdf" style="background:var(--ink)" onclick="exportPDF()">
+        <span>📥</span> تحميل PDF
+      </button>
+      <button class="btn-pdf" style="background:#25d366" onclick="sendWhatsApp()">
+        <span>📲</span> إرسال واتساب
+      </button>
+    </div>
+  </div>
+  <div class="report-preview">
+    <div class="report-preview-head">
+      <span id="preview-title">معاينة التقرير</span>
+      <span id="preview-count" style="font-size:12px;color:#8fa0b4;"></span>
+    </div>
+    <div id="preview-body" style="overflow-x:auto;"></div>
+  </div>
+</div>
+
+<!-- DEFERRED SALES -->
+<div id="page-deferred" class="page">
+  <div id="deferred-alert-banner"></div>
+  <div class="form-card">
+    <div class="section-title" style="margin-bottom:16px;">تسجيل مبيعة آجلة</div>
+    <div class="form-group">
+      <label>اسم العميل *</label>
+      <input type="text" id="d-name" placeholder="اسم العميل الكامل">
+    </div>
+    <div class="form-group">
+      <label>رقم الجوال</label>
+      <input type="tel" id="d-phone" inputmode="tel" placeholder="05xxxxxxxx">
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>المبلغ الآجل (ريال) *</label>
+        <input type="number" id="d-amount" inputmode="decimal" step="any" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label>تاريخ الاستحقاق *</label>
+        <input type="date" id="d-due">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>البضاعة / الوصف</label>
+      <input type="text" id="d-desc" placeholder="وصف المبيعة أو البضاعة...">
+    </div>
+    <button class="btn-primary" onclick="addDeferred()">
+      <span>💾</span> حفظ المبيعة الآجلة
+    </button>
+  </div>
+  <div class="section-head">
+    <div class="section-title">قائمة المبيعات الآجلة</div>
+  </div>
+  <div id="deferred-list"></div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-client-name"></div>
+    <div id="modal-body"></div>
+    <button class="btn-primary" style="margin-top:16px;background:var(--ink-soft)" onclick="closeModal()">إغلاق</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────
+// DATA LAYER
+// ─────────────────────────────────────────
+let clients = JSON.parse(localStorage.getItem('iqsat_v2')) || [];
+let currentFilter = 'all';
+let currentReportType = 'payers';
+
+const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو',
+                   'يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+function save() {
+  try {
+    localStorage.setItem('iqsat_v2', JSON.stringify(clients));
+    // backup copy
+    localStorage.setItem('iqsat_v2_backup', JSON.stringify(clients));
+  } catch(e) {
+    showToast('⚠️ تعذّر الحفظ، مساحة التخزين ممتلئة', 'red');
+  }
+}
+
+// ─────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────
+function today() { return new Date(); }
+
+function fmt(n) {
+  return parseFloat(n || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function dateLabel(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('ar-SA', { year:'numeric', month:'short', day:'numeric', calendar:'gregory' });
+}
+
+// Generate schedule for a client
+function generateSchedule(client) {
+  const schedule = [];
+  const start = new Date(client.startDate);
+  const dueDay = client.dueDay || start.getDate();
+  let remaining = client.total;
+  let month = new Date(start.getFullYear(), start.getMonth(), 1);
+  let idx = 0;
+
+  while (remaining > 0.001) {
+    const dueDate = new Date(month.getFullYear(), month.getMonth(),
+      Math.min(dueDay, new Date(month.getFullYear(), month.getMonth()+1, 0).getDate()));
+    const amount = Math.min(client.monthly, remaining);
+    remaining = parseFloat((remaining - amount).toFixed(2));
+
+    // Check if this installment was paid
+    const paid = idx < (client.paymentsLog || []).length;
+    const payDate = paid ? (client.paymentsLog[idx] || null) : null;
+
+    schedule.push({ idx, dueDate, amount, paid, payDate });
+    month = new Date(month.getFullYear(), month.getMonth() + 1, 1);
+    idx++;
+    if (idx > 120) break; // safety
+  }
+  return schedule;
+}
+
+// Status: completed / delayed / on-track
+function getStatus(client) {
+  if (client.remaining <= 0.001) return 'completed';
+  const schedule = generateSchedule(client);
+  const now = today();
+  const hasDelayed = schedule.some(s => !s.paid && s.dueDate < now);
+  return hasDelayed ? 'delayed' : 'on-track';
+}
+
+// Get delayed months
+function getDelayedMonths(client) {
+  const schedule = generateSchedule(client);
+  const now = today();
+  return schedule.filter(s => !s.paid && s.dueDate < now);
+}
+
+// ─────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 2800);
+}
+
+// ─────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (tab === 'home') renderHome();
+  if (tab === 'clients') renderClients();
+  if (tab === 'reports') renderReportPreview();
+  if (tab === 'deferred') renderDeferred();
+}
+
+// ─────────────────────────────────────────
+// HOME
+// ─────────────────────────────────────────
+function renderHome() {
+  // Stats
+  const totalRemaining = clients.reduce((s,c) => s + c.remaining, 0);
+  const totalPaid = clients.reduce((s,c) => s + c.paid, 0);
+  const active = clients.filter(c => c.remaining > 0.001).length;
+  const delayed = clients.filter(c => getStatus(c) === 'delayed').length;
+
+  document.getElementById('stats-strip').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label" style="font-weight:900;font-size:13px;color:var(--ink)">المؤشر</div>
+      <div class="stat-value gold">${fmt(totalRemaining)} <span class="stat-unit">ر.س</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">المؤشر</div>
+      <div class="stat-value green">${fmt(totalPaid)} <span class="stat-unit">ر.س</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">عملاء نشطون</div>
+      <div class="stat-value">${active}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">متأخرون</div>
+      <div class="stat-value red">${delayed}</div>
+    </div>
+  `;
+
+  // Delayed list
+  const delayedClients = clients.filter(c => getStatus(c) === 'delayed');
+  const dl = document.getElementById('delayed-list');
+  if (delayedClients.length === 0) {
+    dl.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div><p>لا يوجد عملاء متأخرون حالياً</p></div>`;
+    return;
+  }
+  dl.innerHTML = delayedClients.map(c => clientCardHTML(c)).join('');
+}
+
+// ─────────────────────────────────────────
+// CLIENTS PAGE
+// ─────────────────────────────────────────
+function setFilter(el, val) {
+  currentFilter = val;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderClients();
+}
+
+function renderClients() {
+  const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+  let list = clients;
+  if (q) list = list.filter(c => c.name.toLowerCase().includes(q) || (c.phone||'').includes(q));
+  if (currentFilter === 'delayed') list = list.filter(c => getStatus(c) === 'delayed');
+  else if (currentFilter === 'on-track') list = list.filter(c => getStatus(c) === 'on-track');
+  else if (currentFilter === 'completed') list = list.filter(c => getStatus(c) === 'completed');
+
+  const container = document.getElementById('clients-list');
+  if (list.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>لا توجد نتائج</p></div>`;
+    return;
+  }
+  container.innerHTML = list.map(c => clientCardHTML(c)).join('');
+}
+
+function clientCardHTML(client) {
+  const status = getStatus(client);
+  const statusLabels = { completed: ['مكتمل','badge-completed'], delayed: ['متأخر','badge-delayed'], 'on-track': ['منتظم','badge-on-track'] };
+  const [label, badgeClass] = statusLabels[status];
+  const pct = Math.min(100, ((client.paid / client.total) * 100)).toFixed(0);
+  const delayed = getDelayedMonths(client);
+
+  return `<div class="client-card ${status}">
+    <div class="client-head">
+      <div>
+        <div class="client-name">${client.name}</div>
+        ${client.phone ? `<div class="client-phone">📱 ${client.phone}</div>` : ''}
+      </div>
+      <span class="status-badge ${badgeClass}">${label}</span>
+    </div>
+    <div class="client-body">
+      <div class="progress-wrap">
+        <div class="progress-labels">
+          <span>المسدد ${fmt(client.paid)} ر.س</span>
+          <span>${pct}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="info-grid">
+        <div class="info-item"><div class="lbl">الإجمالي</div><div class="val">${fmt(client.total)} ر.س</div></div>
+        <div class="info-item"><div class="lbl">القسط</div><div class="val">${fmt(client.monthly)} ر.س</div></div>
+        <div class="info-item"><div class="lbl">المتبقي</div><div class="val danger">${fmt(client.remaining)} ر.س</div></div>
+        <div class="info-item"><div class="lbl">بداية العقد</div><div class="val">${dateLabel(client.startDate)}</div></div>
+        ${delayed.length > 0 ? `<div class="info-item" style="grid-column:1/-1"><div class="lbl">الأشهر المتأخرة</div><div class="val danger">⚠️ ${delayed.length} شهر متأخر</div></div>` : ''}
+      </div>
+    </div>
+    <div class="client-actions">
+      ${status !== 'completed' ? `<button class="action-btn btn-pay" onclick="payInstallment(${client.id})">💵 تحصيل</button>` : ''}
+      <button class="action-btn btn-details" onclick="openDetail(${client.id})">📋 التفاصيل</button>
+      ${client.phone ? `<button class="action-btn btn-whatsapp" onclick="notifyClient(${client.id})" title="إرسال إشعار واتساب">
+        <span>📲</span>
+      </button>` : ''}
+      <button class="action-btn btn-del" onclick="deleteClient(${client.id})">🗑️</button>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────
+// ADD CLIENT
+// ─────────────────────────────────────────
+function addClient() {
+  const name = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const total = parseFloat(document.getElementById('f-total').value) || 0;
+  const monthly = parseFloat(document.getElementById('f-monthly').value) || 0;
+  const startDate = document.getElementById('f-start').value;
+  const dueDay = parseInt(document.getElementById('f-day').value) || null;
+  const notes = document.getElementById('f-notes').value.trim();
+
+  if (!name || !total || !monthly || !startDate) {
+    showToast('⚠️ يرجى ملء جميع الحقول المطلوبة', 'red'); return;
+  }
+  if (monthly > total) {
+    showToast('⚠️ القسط الشهري أكبر من المبلغ الإجمالي', 'red'); return;
+  }
+
+  const client = {
+    id: Date.now(),
+    name, phone, total, monthly,
+    remaining: total,
+    paid: 0,
+    startDate,
+    dueDay: dueDay || new Date(startDate).getDate(),
+    notes,
+    paymentsLog: []
+  };
+  clients.push(client);
+  save();
+  showToast('✅ تم حفظ العقد بنجاح', 'green');
+  ['f-name','f-phone','f-total','f-monthly','f-start','f-day','f-notes'].forEach(id => document.getElementById(id).value = '');
+  switchTab('clients');
+  document.querySelectorAll('.tab-btn')[1].classList.add('active');
+  document.querySelectorAll('.tab-btn')[2].classList.remove('active');
+}
+
+// ─────────────────────────────────────────
+// PAY
+// ─────────────────────────────────────────
+function payInstallment(id) {
+  clients = clients.map(c => {
+    if (c.id === id) {
+      const amount = Math.min(c.monthly, c.remaining);
+      c.remaining = parseFloat((c.remaining - amount).toFixed(2));
+      c.paid = parseFloat((c.paid + amount).toFixed(2));
+      if (!c.paymentsLog) c.paymentsLog = [];
+      c.paymentsLog.push(new Date().toISOString().split('T')[0]);
+    }
+    return c;
+  });
+  save();
+  showToast('💰 تم تسجيل القسط', 'green');
+  renderHome();
+  renderClients();
+}
+
+// ─────────────────────────────────────────
+// DELETE
+// ─────────────────────────────────────────
+function deleteClient(id) {
+  if (!confirm('هل أنت متأكد من حذف هذا العميل نهائياً؟')) return;
+  clients = clients.filter(c => c.id !== id);
+  save();
+  showToast('🗑️ تم حذف العميل', 'red');
+  renderHome();
+  renderClients();
+}
+
+// ─────────────────────────────────────────
+// WHATSAPP CLIENT NOTIFICATION
+// ─────────────────────────────────────────
+function notifyClient(id) {
+  const client = clients.find(c => c.id === id);
+  if (!client || !client.phone) return;
+
+  const status = getStatus(client);
+  const delayed = getDelayedMonths(client);
+  const schedule = generateSchedule(client);
+  const nextDue = schedule.find(s => !s.paid);
+
+  let phone = client.phone.trim().replace(/\s|-/g,'').replace(/^\+|^00/,'');
+  // إذا يبدأ بـ 0 استبدله بـ 966
+  if (phone.startsWith('0')) phone = '966' + phone.slice(1);
+
+  let msg = '';
+
+  if (status === 'completed') {
+    // رسالة إتمام السداد
+    msg =
+`السلام عليكم ورحمة الله وبركاته
+العميل المحترم / ${client.name}
+
+🎉 نُهنّئكم بإتمام سداد كامل مستحقاتكم البالغة:
+💰 ${fmt(client.total)} ريال
+
+شكراً لثقتكم وتعاملكم الكريم، ونسعد بخدمتكم دائماً. 🌟`;
+
+  } else if (status === 'delayed') {
+    // رسالة تذكير بالتأخير
+    const delayedAmt = delayed.reduce((s,d) => s + d.amount, 0);
+    msg =
+`السلام عليكم ورحمة الله وبركاته
+العميل المحترم / ${client.name}
+
+نُذكّركم بأن لديكم أقساطاً متأخرة عن موعد السداد:
+
+⚠️ عدد الأشهر المتأخرة: ${delayed.length} شهر
+💵 إجمالي المبلغ المتأخر: ${fmt(delayedAmt)} ريال
+📊 المتبقي من العقد: ${fmt(client.remaining)} ريال
+
+نرجو التواصل معنا في أقرب وقت لتسوية الأقساط المتأخرة.
+جزاكم الله خيراً وبارك في أموالكم. 🙏`;
+
+  } else {
+    // رسالة تذكير بموعد القسط القادم
+    const nextAmt = nextDue ? nextDue.amount : client.monthly;
+    const nextDate = nextDue ? dateLabel(nextDue.dueDate) : '—';
+    msg =
+`السلام عليكم ورحمة الله وبركاته
+العميل المحترم / ${client.name}
+
+نُذكّركم بموعد قسطكم القادم:
+
+📅 تاريخ الاستحقاق: ${nextDate}
+💵 قيمة القسط: ${fmt(nextAmt)} ريال
+📊 المتبقي من العقد: ${fmt(client.remaining)} ريال
+
+نشكركم على التزامكم ونسعد دائماً بخدمتكم. 😊`;
+  }
+
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+
+function openDetail(id) {
+  const client = clients.find(c => c.id === id);
+  if (!client) return;
+  document.getElementById('modal-client-name').textContent = client.name;
+
+  const schedule = generateSchedule(client);
+  const now = today();
+
+  const rows = schedule.map(s => {
+    let cls = '';
+    let statusText = '';
+    if (s.paid) {
+      cls = 'paid-row';
+      statusText = `✅ مدفوع ${s.payDate ? dateLabel(s.payDate) : ''}`;
+    } else if (s.dueDate < now) {
+      cls = 'delayed-row';
+      statusText = '⚠️ متأخر';
+    } else {
+      cls = 'upcoming-row';
+      statusText = '🔜 قادم';
+    }
+    return `<tr class="${cls}">
+      <td>${s.idx + 1}</td>
+      <td>${dateLabel(s.dueDate)}</td>
+      <td>${fmt(s.amount)} ر.س</td>
+      <td>${statusText}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('modal-body').innerHTML = `
+    <table class="month-table">
+      <thead><tr>
+        <th>#</th><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>الحالة</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${client.notes ? `<div style="margin-top:14px;padding:12px;background:#f8fafc;border-radius:10px;font-size:13px;color:var(--ink-soft)">📝 ${client.notes}</div>` : ''}
+  `;
+
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('detail-modal').classList.remove('open');
+}
+document.getElementById('detail-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('detail-modal')) closeModal();
+});
+
+// ─────────────────────────────────────────
+// REPORTS
+// ─────────────────────────────────────────
+function selectReportType(type) {
+  currentReportType = type;
+  document.getElementById('rtype-payers').classList.toggle('active', type === 'payers');
+  document.getElementById('rtype-delayed').classList.toggle('active', type === 'delayed');
+  renderReportPreview();
+}
+
+function renderReportPreview() {
+  const month = parseInt(document.getElementById('r-month').value);
+  const year = parseInt(document.getElementById('r-year').value) || new Date().getFullYear();
+  const isPayers = currentReportType === 'payers';
+
+  const reportDate = isPayers
+    ? `20 ${MONTHS_AR[month-1]} ${year}`
+    : `2 ${MONTHS_AR[month-1]} ${year}`;
+
+  document.getElementById('preview-title').textContent =
+    isPayers ? `✅ قائمة المسددين — ${reportDate}` : `⚠️ قائمة المتأخرين — ${reportDate}`;
+
+  const data = getReportData(month, year, isPayers);
+  document.getElementById('preview-count').textContent = `${data.length} عميل`;
+
+  if (data.length === 0) {
+    document.getElementById('preview-body').innerHTML =
+      `<div class="empty-state"><div class="empty-icon">${isPayers?'📭':'🎉'}</div><p>${isPayers?'لا يوجد مسددون في هذا الشهر':'لا يوجد متأخرون في هذا الشهر'}</p></div>`;
+    return;
+  }
+
+  const rows = data.map((d, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td style="text-align:right;font-weight:700">${d.name}</td>
+      <td>${d.phone || '—'}</td>
+      <td>${fmt(d.amount)} ر.س</td>
+      <td>${isPayers ? (d.payDate ? dateLabel(d.payDate) : 'هذا الشهر') : `${d.delayedMonths} شهر`}</td>
+    </tr>`).join('');
+
+  document.getElementById('preview-body').innerHTML = `
+    <table class="preview-table">
+      <thead><tr>
+        <th>#</th><th>الاسم</th><th>الجوال</th><th>المبلغ</th>
+        <th>${isPayers ? 'تاريخ السداد' : 'عدد الأشهر المتأخرة'}</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function getReportData(month, year, isPayers) {
+  const result = [];
+  clients.forEach(client => {
+    const schedule = generateSchedule(client);
+    const now = today();
+
+    if (isPayers) {
+      // Paid in the given month
+      schedule.forEach(s => {
+        if (s.paid && s.payDate) {
+          const d = new Date(s.payDate);
+          if (d.getMonth()+1 === month && d.getFullYear() === year) {
+            result.push({ name: client.name, phone: client.phone, amount: s.amount, payDate: s.payDate });
+          }
+        }
+      });
+    } else {
+      // Delayed: due in or before given month, unpaid
+      const cutoff = new Date(year, month - 1, 28);
+      const delayed = schedule.filter(s => !s.paid && s.dueDate <= cutoff && s.dueDate < now);
+      if (delayed.length > 0) {
+        result.push({ name: client.name, phone: client.phone,
+          amount: delayed.reduce((s,d) => s + d.amount, 0),
+          delayedMonths: delayed.length });
+      }
+    }
+  });
+  return result;
+}
+
+// ─────────────────────────────────────────
+// PDF EXPORT
+// ─────────────────────────────────────────
+async function exportPDF() {
+  const month = parseInt(document.getElementById('r-month').value);
+  const year = parseInt(document.getElementById('r-year').value) || new Date().getFullYear();
+  const isPayers = currentReportType === 'payers';
+  const data = getReportData(month, year, isPayers);
+
+  if (data.length === 0) {
+    showToast('لا توجد بيانات لتصدير', 'red'); return;
+  }
+
+  showToast('⏳ جاري إنشاء ملف PDF...', '');
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const reportDayNum = isPayers ? 20 : 2;
+  const reportTitle = isPayers ? 'قائمة المسددين الشهرية' : 'قائمة المتأخرين عن السداد';
+  const reportDate = `${reportDayNum} / ${month} / ${year}`;
+
+  // Header background
+  doc.setFillColor(15, 25, 35);
+  doc.rect(0, 0, 210, 40, 'F');
+
+  doc.setFillColor(200, 146, 42);
+  doc.rect(0, 38, 210, 2, 'F');
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18);
+  doc.text(reportTitle, 105, 16, { align: 'center' });
+
+  doc.setFontSize(12);
+  doc.setTextColor(200, 146, 42);
+  doc.text(`نظام المحمدية`, 105, 26, { align: 'center' });
+
+  doc.setFontSize(10);
+  doc.setTextColor(180, 200, 220);
+  doc.text(`تاريخ التقرير: ${reportDate}   |   عدد العملاء: ${data.length}`, 105, 35, { align: 'center' });
+
+  // Table header
+  let y = 52;
+  doc.setFillColor(245, 232, 208);
+  doc.rect(10, y - 6, 190, 10, 'F');
+  doc.setTextColor(122, 80, 16);
+  doc.setFontSize(10);
+
+  const cols = isPayers
+    ? [['#', 10], ['الاسم', 40], ['الجوال', 90], ['المبلغ', 130], ['تاريخ السداد', 160]]
+    : [['#', 10], ['الاسم', 40], ['الجوال', 90], ['المبلغ المتراكم', 120], ['الأشهر المتأخرة', 160]];
+
+  cols.forEach(([lbl, x]) => {
+    doc.text(lbl, x + (isPayers ? 5 : 5), y, { align: 'left' });
+  });
+
+  y += 4;
+  doc.setDrawColor(200, 146, 42);
+  doc.setLineWidth(0.5);
+  doc.line(10, y, 200, y);
+  y += 6;
+
+  doc.setTextColor(15, 25, 35);
+  doc.setFontSize(9);
+
+  data.forEach((d, i) => {
+    if (y > 270) {
+      doc.addPage();
+      y = 20;
+    }
+    if (i % 2 === 0) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(10, y - 5, 190, 8, 'F');
+    }
+    doc.text(String(i+1), 15, y);
+    doc.text(d.name || '', 40, y);
+    doc.text(d.phone || '—', 90, y);
+    doc.text(fmt(d.amount) + ' ر.س', isPayers ? 130 : 120, y);
+    if (isPayers) {
+      doc.text(d.payDate ? dateLabel(d.payDate) : 'هذا الشهر', 162, y);
+    } else {
+      doc.text(String(d.delayedMonths) + ' شهر', 162, y);
+    }
+    y += 9;
+  });
+
+  // Footer
+  doc.setDrawColor(200, 146, 42);
+  doc.line(10, 280, 200, 280);
+  doc.setFontSize(8);
+  doc.setTextColor(130, 150, 170);
+  doc.text(`إجمالي المبالغ: ${fmt(data.reduce((s,d)=>s+d.amount,0))} ر.س   |   طُبع بتاريخ ${new Date().toLocaleDateString('ar-SA')}`, 105, 287, { align: 'center' });
+
+  const fileName = isPayers
+    ? `مسددون_${MONTHS_AR[month-1]}_${year}.pdf`
+    : `متأخرون_${MONTHS_AR[month-1]}_${year}.pdf`;
+
+  doc.save(fileName);
+  showToast('✅ تم تحميل ملف PDF', 'green');
+}
+
+// ─────────────────────────────────────────
+// WHATSAPP SEND
+// ─────────────────────────────────────────
+function sendWhatsApp() {
+  const month = parseInt(document.getElementById('r-month').value);
+  const year  = parseInt(document.getElementById('r-year').value) || new Date().getFullYear();
+  const isPayers = currentReportType === 'payers';
+  const data  = getReportData(month, year, isPayers);
+  let phone   = (document.getElementById('r-collector-phone').value || '').trim().replace(/\s|-/g,'');
+
+  if (!phone) {
+    showToast('⚠️ أدخل رقم واتساب المحصّل أولاً', 'red'); return;
+  }
+  // Remove leading + or 00
+  phone = phone.replace(/^\+|^00/, '');
+
+  if (data.length === 0) {
+    showToast('لا توجد بيانات لإرسالها', 'red'); return;
+  }
+
+  const reportTitle = isPayers ? '✅ قائمة المسددين' : '⚠️ قائمة المتأخرين';
+  const reportDay   = isPayers ? 20 : 2;
+  const totalAmt    = data.reduce((s,d) => s + d.amount, 0);
+
+  // Build text message with full list
+  let msg = `${reportTitle}\n`;
+  msg += `📅 التاريخ: ${reportDay}/${month}/${year}\n`;
+  msg += `👥 العدد: ${data.length} عميل\n`;
+  msg += `💰 الإجمالي: ${fmt(totalAmt)} ر.س\n`;
+  msg += `${'─'.repeat(28)}\n`;
+
+  data.forEach((d, i) => {
+    msg += `\n${i+1}. ${d.name}`;
+    if (d.phone) msg += `\n    📱 ${d.phone}`;
+    msg += `\n    💵 ${fmt(d.amount)} ر.س`;
+    if (isPayers && d.payDate) msg += `\n    📆 سدّد: ${dateLabel(d.payDate)}`;
+    if (!isPayers) msg += `\n    ⏳ تأخر: ${d.delayedMonths} شهر`;
+    msg += '\n';
+  });
+
+  msg += `${'─'.repeat(28)}\n`;
+  msg += `📌 ملاحظة: يُرجى تحميل ملف PDF من التطبيق وإرفاقه مع هذه القائمة.`;
+
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+
+  // Also trigger PDF download so collector can attach it
+  exportPDF();
+
+  setTimeout(() => {
+    window.open(url, '_blank');
+    showToast('📲 تم فتح واتساب', 'green');
+  }, 800);
+}
+
+// ─────────────────────────────────────────
+// DEFERRED SALES
+// ─────────────────────────────────────────
+let deferred = JSON.parse(localStorage.getItem('iqsat_deferred')) || [];
+
+function saveDeferred() {
+  try {
+    localStorage.setItem('iqsat_deferred', JSON.stringify(deferred));
+    localStorage.setItem('iqsat_deferred_backup', JSON.stringify(deferred));
+  } catch(e) {
+    showToast('⚠️ تعذّر الحفظ، مساحة التخزين ممتلئة', 'red');
+  }
+}
+
+function addDeferred() {
+  const name   = document.getElementById('d-name').value.trim();
+  const phone  = document.getElementById('d-phone').value.trim();
+  const amount = parseFloat(document.getElementById('d-amount').value) || 0;
+  const due    = document.getElementById('d-due').value;
+  const desc   = document.getElementById('d-desc').value.trim();
+
+  if (!name || !amount || !due) {
+    showToast('⚠️ يرجى ملء الحقول المطلوبة', 'red'); return;
+  }
+
+  deferred.push({ id: Date.now(), name, phone, amount, due, desc, settled: false });
+  saveDeferred();
+  showToast('✅ تم حفظ المبيعة الآجلة', 'green');
+  ['d-name','d-phone','d-amount','d-due','d-desc'].forEach(id => document.getElementById(id).value = '');
+  renderDeferred();
+  updateDeferredTabBadge();
+}
+
+function settleDeferred(id) {
+  if (!confirm('هل تم تحصيل هذه المبيعة الآجلة؟')) return;
+  deferred = deferred.map(d => d.id === id ? { ...d, settled: true, settledDate: new Date().toISOString().split('T')[0] } : d);
+  saveDeferred();
+  showToast('💰 تم تسوية المبيعة', 'green');
+  renderDeferred();
+  updateDeferredTabBadge();
+}
+
+function deleteDeferred(id) {
+  if (!confirm('هل أنت متأكد من الحذف؟')) return;
+  deferred = deferred.filter(d => d.id !== id);
+  saveDeferred();
+  showToast('🗑️ تم الحذف', 'red');
+  renderDeferred();
+  updateDeferredTabBadge();
+}
+
+function daysUntil(dateStr) {
+  const due = new Date(dateStr);
+  due.setHours(0,0,0,0);
+  const now = new Date();
+  now.setHours(0,0,0,0);
+  return Math.round((due - now) / 86400000);
+}
+
+function renderDeferred() {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const active = deferred.filter(d => !d.settled);
+  const settled = deferred.filter(d => d.settled);
+
+  // Alert banner for near-due items
+  const alertBanner = document.getElementById('deferred-alert-banner');
+  const nearDue = active.filter(d => { const diff = daysUntil(d.due); return diff >= 0 && diff <= 10; });
+  const overdue = active.filter(d => daysUntil(d.due) < 0);
+
+  if (overdue.length > 0) {
+    alertBanner.innerHTML = `<div class="alert-banner">
+      <span class="alert-icon">🚨</span>
+      <span>${overdue.length} مبيعة آجلة تجاوزت تاريخ الاستحقاق — بادر بالتحصيل الآن!</span>
+    </div>`;
+  } else if (nearDue.length > 0) {
+    alertBanner.innerHTML = `<div class="alert-banner" style="background:linear-gradient(135deg,#7a5010,var(--gold))">
+      <span class="alert-icon">⏰</span>
+      <span>${nearDue.length} مبيعة آجلة تستحق خلال 10 أيام أو أقل</span>
+    </div>`;
+  } else {
+    alertBanner.innerHTML = '';
+  }
+
+  const container = document.getElementById('deferred-list');
+  if (active.length === 0 && settled.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><p>لا توجد مبيعات آجلة مسجلة</p></div>`;
+    return;
+  }
+
+  const sortedActive = [...active].sort((a,b) => new Date(a.due) - new Date(b.due));
+  const sortedSettled = [...settled].sort((a,b) => new Date(b.settledDate||b.due) - new Date(a.settledDate||a.due)).slice(0,5);
+
+  let html = '';
+
+  if (sortedActive.length > 0) {
+    html += `<div class="section-title" style="margin-bottom:10px;">⏳ قيد التحصيل (${sortedActive.length})</div>`;
+    html += sortedActive.map(d => {
+      const diff = daysUntil(d.due);
+      let cardClass = 'deferred-card';
+      let countdownClass = 'normal';
+      let countdownText = '';
+      if (diff < 0) {
+        cardClass += ' overdue';
+        countdownClass = 'overdue';
+        countdownText = `🚨 متأخر ${Math.abs(diff)} يوم`;
+      } else if (diff <= 10) {
+        cardClass += ' near-due';
+        countdownClass = 'soon';
+        countdownText = diff === 0 ? '⚡ اليوم هو يوم الاستحقاق!' : `⏰ يستحق بعد ${diff} يوم`;
+      } else {
+        countdownText = `📅 يستحق بعد ${diff} يوم`;
+      }
+      return `<div class="${cardClass}">
+        <div class="deferred-head">
+          <div>
+            <div class="deferred-name">${d.name}</div>
+            ${d.phone ? `<div class="deferred-desc">📱 ${d.phone}</div>` : ''}
+            ${d.desc ? `<div class="deferred-desc">📦 ${d.desc}</div>` : ''}
+          </div>
+          <div style="text-align:left">
+            <div style="font-size:17px;font-weight:900;color:var(--ink)">${fmt(d.amount)} <span style="font-size:11px;font-weight:400;color:var(--ink-soft)">ر.س</span></div>
+          </div>
+        </div>
+        <div class="deferred-body">
+          <div class="info-grid">
+            <div class="info-item"><div class="lbl">تاريخ الاستحقاق</div><div class="val">${dateLabel(d.due)}</div></div>
+          </div>
+          <div class="due-countdown ${countdownClass}">${countdownText}</div>
+        </div>
+        <div class="deferred-actions">
+          <button class="action-btn btn-settle" onclick="settleDeferred(${d.id})">✅ تسوية</button>
+          <button class="action-btn btn-del" onclick="deleteDeferred(${d.id})">🗑️ حذف</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  if (sortedSettled.length > 0) {
+    html += `<div class="section-title" style="margin:14px 0 10px;">✅ محصّلة مؤخراً</div>`;
+    html += sortedSettled.map(d => `
+      <div class="deferred-card" style="opacity:0.65">
+        <div class="deferred-head">
+          <div>
+            <div class="deferred-name">${d.name}</div>
+            ${d.desc ? `<div class="deferred-desc">📦 ${d.desc}</div>` : ''}
+          </div>
+          <span class="status-badge badge-completed">محصّل</span>
+        </div>
+        <div class="deferred-body">
+          <div class="info-grid">
+            <div class="info-item"><div class="lbl">المبلغ</div><div class="val success">${fmt(d.amount)} ر.س</div></div>
+            <div class="info-item"><div class="lbl">تاريخ التسوية</div><div class="val">${dateLabel(d.settledDate)}</div></div>
+          </div>
+        </div>
+        <div class="deferred-actions">
+          <button class="action-btn btn-del" onclick="deleteDeferred(${d.id})">🗑️ حذف</button>
+        </div>
+      </div>`).join('');
+  }
+
+  container.innerHTML = html;
+}
+
+function updateDeferredTabBadge() {
+  const active = deferred.filter(d => !d.settled);
+  const urgent = active.filter(d => daysUntil(d.due) <= 10);
+  const tabBtn = document.getElementById('tab-deferred');
+  if (!tabBtn) return;
+  const badge = urgent.length > 0 ? ` <span style="background:var(--red);color:white;border-radius:10px;padding:1px 6px;font-size:10px;vertical-align:middle">${urgent.length}</span>` : '';
+  tabBtn.innerHTML = `<span class="tab-icon">🗓️</span>آجل${badge}`;
+}
+
+// ─────────────────────────────────────────
+// BACKUP & RESTORE
+// ─────────────────────────────────────────
+function exportBackup() {
+  const data = {
+    version: 2,
+    exportDate: new Date().toISOString(),
+    clients: clients,
+    deferred: deferred
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `نسخة_احتياطية_${new Date().toLocaleDateString('ar-SA').replace(/\//g,'-')}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ تم تصدير النسخة الاحتياطية', 'green');
+}
+
+function importBackup(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.clients) throw new Error('ملف غير صالح');
+      clients = data.clients;
+      if (data.deferred) deferred = data.deferred;
+      save();
+      saveDeferred();
+      renderHome();
+      renderClients();
+      updateDeferredTabBadge();
+      showToast('✅ تم استعادة البيانات بنجاح', 'green');
+    } catch(err) {
+      showToast('⚠️ ملف النسخة الاحتياطية غير صالح', 'red');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+function init() {
+  const now = new Date();
+  document.getElementById('today-date').textContent =
+    now.toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric', calendar:'gregory' });
+
+  // Set default month/year for reports
+  document.getElementById('r-month').value = now.getMonth() + 1;
+  document.getElementById('r-year').value = now.getFullYear();
+
+  // Load saved collector phone
+  const savedPhone = localStorage.getItem('collector_phone') || '';
+  if (savedPhone) document.getElementById('r-collector-phone').value = savedPhone;
+
+  renderHome();
+  updateDeferredTabBadge();
+}
+
+init();
+</script>
+</body>
+</html>
