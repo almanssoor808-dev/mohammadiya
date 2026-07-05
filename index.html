@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>نظام المحمدية</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
 
@@ -194,6 +195,24 @@
     margin-top: 4px;
   }
   .btn-primary:active { background: var(--teal); }
+  .btn-secondary {
+    background: var(--gold-light);
+    color: #7a5010;
+    border: none;
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+    margin-top: 4px;
+  }
 
   /* ── CLIENT CARDS ── */
   .client-card {
@@ -217,6 +236,7 @@
   }
   .client-name { font-size: 16px; font-weight: 700; color: var(--ink); }
   .client-phone { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .client-phone a { color: inherit; text-decoration: none; }
 
   .status-badge {
     padding: 4px 10px;
@@ -272,9 +292,11 @@
     gap: 8px;
     padding: 10px 16px 14px;
     border-top: 1px solid var(--border);
+    flex-wrap: wrap;
   }
   .action-btn {
     flex: 1;
+    min-width: 64px;
     padding: 9px 8px;
     border-radius: 8px;
     border: none;
@@ -291,6 +313,7 @@
   .action-btn:active { opacity: 0.75; }
   .btn-pay { background: var(--teal-light); color: var(--teal); }
   .btn-details { background: var(--gold-light); color: #7a5010; }
+  .btn-edit { background: #e6edf7; color: #2952a3; }
   .btn-del { background: var(--red-light); color: var(--red); }
 
   /* ── DELAY TABLE inside details ── */
@@ -323,6 +346,16 @@
   .month-table tr.paid-row td { background: var(--green-light); color: var(--green); }
   .month-table tr.delayed-row td { background: var(--red-light); color: var(--red); font-weight: 700; }
   .month-table tr.upcoming-row td { background: #f0f4f8; color: var(--ink-soft); }
+  .mini-edit-btn {
+    border: none;
+    background: rgba(15,25,35,0.08);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+  }
 
   /* ── REPORT PAGE ── */
   .report-controls {
@@ -404,6 +437,12 @@
     text-align: center;
   }
   .preview-table tr:last-child td { border-bottom: none; }
+  .preview-table td a.call-link {
+    color: var(--teal);
+    text-decoration: none;
+    font-weight: 700;
+    white-space: nowrap;
+  }
   .empty-state {
     text-align: center;
     padding: 32px 16px;
@@ -586,6 +625,66 @@
     animation: pulse-border 1.4s ease-in-out infinite;
   }
   .alert-banner .alert-icon { font-size: 22px; flex-shrink: 0; }
+
+  /* ── PRINTABLE REPORT (used to render the Arabic PDF via html2canvas) ── */
+  #pdf-render-area {
+    position: fixed;
+    top: -99999px;
+    left: -99999px;
+    width: 794px;
+    background: #ffffff;
+    direction: rtl;
+    font-family: 'Cairo', sans-serif;
+  }
+  .pdf-page {
+    width: 794px;
+    min-height: 1122px;
+    background: #ffffff;
+    padding: 36px 40px;
+    box-sizing: border-box;
+  }
+  .pdf-header {
+    background: var(--ink);
+    color: #fff;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .pdf-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0; left: 0;
+    height: 4px;
+    background: var(--gold);
+  }
+  .pdf-header h1 { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+  .pdf-header .pdf-sub { color: var(--gold); font-size: 14px; font-weight: 700; }
+  .pdf-header .pdf-meta { color: #b4c8dc; font-size: 12px; margin-top: 8px; }
+  .pdf-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .pdf-table thead th {
+    background: var(--gold-light);
+    color: #7a5010;
+    padding: 10px 8px;
+    font-weight: 700;
+    border-bottom: 2px solid var(--gold);
+  }
+  .pdf-table tbody td {
+    padding: 9px 8px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .pdf-table tbody tr:nth-child(even) { background: #f8fafc; }
+  .pdf-footer {
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 2px solid var(--gold);
+    font-size: 11px;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+  }
 
 </style>
 </head>
@@ -792,7 +891,59 @@
   </div>
 </div>
 
+<!-- EDIT CLIENT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">تعديل بيانات العميل</div>
+    <input type="hidden" id="e-id">
+    <div class="form-group">
+      <label>اسم العميل الكامل *</label>
+      <input type="text" id="e-name">
+    </div>
+    <div class="form-group">
+      <label>رقم الجوال</label>
+      <input type="tel" id="e-phone" inputmode="tel">
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>المبلغ الإجمالي (ريال) *</label>
+        <input type="number" id="e-total" inputmode="decimal" step="any">
+      </div>
+      <div class="form-group">
+        <label>القسط الشهري (ريال) *</label>
+        <input type="number" id="e-monthly" inputmode="decimal" step="any">
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>تاريخ أول قسط *</label>
+        <input type="date" id="e-start">
+      </div>
+      <div class="form-group">
+        <label>يوم الاستحقاق (1-28)</label>
+        <input type="number" id="e-day" inputmode="numeric" min="1" max="28">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>إجمالي المبلغ المسدد حتى الآن (ريال)</label>
+      <input type="number" id="e-paid" inputmode="decimal" step="any">
+    </div>
+    <div class="form-group">
+      <label>ملاحظات</label>
+      <input type="text" id="e-notes">
+    </div>
+    <button class="btn-primary" onclick="saveClientEdit()">
+      <span>💾</span> حفظ التعديلات
+    </button>
+    <button class="btn-secondary" onclick="closeEditModal()">إلغاء</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
+
+<!-- Hidden render area used only to generate the Arabic PDF via html2canvas -->
+<div id="pdf-render-area"></div>
 
 <script>
 // ─────────────────────────────────────────
@@ -830,29 +981,35 @@ function dateLabel(d) {
   return dt.toLocaleDateString('ar-SA', { year:'numeric', month:'short', day:'numeric', calendar:'gregory' });
 }
 
-// Generate schedule for a client
+// Generate schedule for a client. Paid installments use the ACTUAL amount
+// collected (from paymentsLog), so edits to a collected amount are reflected everywhere.
 function generateSchedule(client) {
   const schedule = [];
   const start = new Date(client.startDate);
   const dueDay = client.dueDay || start.getDate();
+  const log = client.paymentsLog || [];
+
+  // Total remaining is driven by client.remaining (kept in sync by payment/edit functions),
+  // but future installment amounts are still projected using the monthly value.
   let remaining = client.total;
   let month = new Date(start.getFullYear(), start.getMonth(), 1);
   let idx = 0;
 
-  while (remaining > 0.001) {
+  while (remaining > 0.001 || idx < log.length) {
     const dueDate = new Date(month.getFullYear(), month.getMonth(),
       Math.min(dueDay, new Date(month.getFullYear(), month.getMonth()+1, 0).getDate()));
-    const amount = Math.min(client.monthly, remaining);
+
+    const paid = idx < log.length;
+    // Normalize legacy log entries (plain date strings) to {date, amount}
+    const logEntry = paid ? (typeof log[idx] === 'string' ? { date: log[idx], amount: client.monthly } : log[idx]) : null;
+    const amount = paid ? logEntry.amount : Math.min(client.monthly, remaining);
+
     remaining = parseFloat((remaining - amount).toFixed(2));
 
-    // Check if this installment was paid
-    const paid = idx < (client.paymentsLog || []).length;
-    const payDate = paid ? (client.paymentsLog[idx] || null) : null;
-
-    schedule.push({ idx, dueDate, amount, paid, payDate });
+    schedule.push({ idx, dueDate, amount, paid, payDate: paid ? logEntry.date : null });
     month = new Date(month.getFullYear(), month.getMonth() + 1, 1);
     idx++;
-    if (idx > 120) break; // safety
+    if (idx > 240) break; // safety
   }
   return schedule;
 }
@@ -909,11 +1066,11 @@ function renderHome() {
 
   document.getElementById('stats-strip').innerHTML = `
     <div class="stat-card">
-      <div class="stat-label" style="font-weight:900;font-size:13px;color:var(--ink)">المؤشر</div>
+      <div class="stat-label" style="font-weight:900;font-size:13px;color:var(--ink)">المبلغ المتبقي</div>
       <div class="stat-value gold">${fmt(totalRemaining)} <span class="stat-unit">ر.س</span></div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">المؤشر</div>
+      <div class="stat-label" style="font-weight:900;font-size:13px;color:var(--ink)">المبلغ المستحصل</div>
       <div class="stat-value green">${fmt(totalPaid)} <span class="stat-unit">ر.س</span></div>
     </div>
     <div class="stat-card">
@@ -973,7 +1130,7 @@ function clientCardHTML(client) {
     <div class="client-head">
       <div>
         <div class="client-name">${client.name}</div>
-        ${client.phone ? `<div class="client-phone">📱 ${client.phone}</div>` : ''}
+        ${client.phone ? `<div class="client-phone">📱 <a href="tel:${client.phone}">${client.phone}</a></div>` : ''}
       </div>
       <span class="status-badge ${badgeClass}">${label}</span>
     </div>
@@ -996,6 +1153,7 @@ function clientCardHTML(client) {
     <div class="client-actions">
       ${status !== 'completed' ? `<button class="action-btn btn-pay" onclick="payInstallment(${client.id})">💵 تحصيل</button>` : ''}
       <button class="action-btn btn-details" onclick="openDetail(${client.id})">📋 التفاصيل</button>
+      <button class="action-btn btn-edit" onclick="openEditModal(${client.id})">✏️ تعديل</button>
       ${client.phone ? `<button class="action-btn btn-whatsapp" onclick="notifyClient(${client.id})" title="إرسال إشعار واتساب">
         <span>📲</span>
       </button>` : ''}
@@ -1043,16 +1201,92 @@ function addClient() {
 }
 
 // ─────────────────────────────────────────
+// EDIT CLIENT (info + total paid amount)
+// ─────────────────────────────────────────
+function openEditModal(id) {
+  const client = clients.find(c => c.id === id);
+  if (!client) return;
+  document.getElementById('e-id').value = client.id;
+  document.getElementById('e-name').value = client.name;
+  document.getElementById('e-phone').value = client.phone || '';
+  document.getElementById('e-total').value = client.total;
+  document.getElementById('e-monthly').value = client.monthly;
+  document.getElementById('e-start').value = client.startDate;
+  document.getElementById('e-day').value = client.dueDay || '';
+  document.getElementById('e-paid').value = client.paid;
+  document.getElementById('e-notes').value = client.notes || '';
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+}
+document.getElementById('edit-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('edit-modal')) closeEditModal();
+});
+
+function saveClientEdit() {
+  const id = parseInt(document.getElementById('e-id').value);
+  const name = document.getElementById('e-name').value.trim();
+  const phone = document.getElementById('e-phone').value.trim();
+  const total = parseFloat(document.getElementById('e-total').value) || 0;
+  const monthly = parseFloat(document.getElementById('e-monthly').value) || 0;
+  const startDate = document.getElementById('e-start').value;
+  const dueDay = parseInt(document.getElementById('e-day').value) || null;
+  const paid = parseFloat(document.getElementById('e-paid').value) || 0;
+  const notes = document.getElementById('e-notes').value.trim();
+
+  if (!name || !total || !monthly || !startDate) {
+    showToast('⚠️ يرجى ملء جميع الحقول المطلوبة', 'red'); return;
+  }
+  if (monthly > total) {
+    showToast('⚠️ القسط الشهري أكبر من المبلغ الإجمالي', 'red'); return;
+  }
+  if (paid > total) {
+    showToast('⚠️ المبلغ المسدد أكبر من الإجمالي', 'red'); return;
+  }
+
+  clients = clients.map(c => {
+    if (c.id !== id) return c;
+    return {
+      ...c,
+      name, phone, total, monthly, startDate,
+      dueDay: dueDay || new Date(startDate).getDate(),
+      notes,
+      paid: parseFloat(paid.toFixed(2)),
+      remaining: parseFloat((total - paid).toFixed(2))
+    };
+  });
+  save();
+  closeEditModal();
+  showToast('✅ تم تحديث بيانات العميل', 'green');
+  renderHome();
+  renderClients();
+}
+
+// ─────────────────────────────────────────
 // PAY
 // ─────────────────────────────────────────
 function payInstallment(id) {
+  const client = clients.find(c => c.id === id);
+  if (!client) return;
+  const suggested = Math.min(client.monthly, client.remaining);
+  const input = prompt('أدخل المبلغ المستحصل (ريال):', suggested.toFixed(2));
+  if (input === null) return; // cancelled
+  const amount = parseFloat(input);
+  if (isNaN(amount) || amount <= 0) {
+    showToast('⚠️ مبلغ غير صالح', 'red'); return;
+  }
+  if (amount > client.remaining + 0.001) {
+    showToast('⚠️ المبلغ أكبر من المتبقي على العميل', 'red'); return;
+  }
+
   clients = clients.map(c => {
     if (c.id === id) {
-      const amount = Math.min(c.monthly, c.remaining);
       c.remaining = parseFloat((c.remaining - amount).toFixed(2));
       c.paid = parseFloat((c.paid + amount).toFixed(2));
       if (!c.paymentsLog) c.paymentsLog = [];
-      c.paymentsLog.push(new Date().toISOString().split('T')[0]);
+      c.paymentsLog.push({ date: new Date().toISOString().split('T')[0], amount: parseFloat(amount.toFixed(2)) });
     }
     return c;
   });
@@ -1060,6 +1294,41 @@ function payInstallment(id) {
   showToast('💰 تم تسجيل القسط', 'green');
   renderHome();
   renderClients();
+}
+
+// Edit a previously collected installment amount (from the details modal)
+function editPayment(clientId, paymentIdx) {
+  const client = clients.find(c => c.id === clientId);
+  if (!client || !client.paymentsLog || !client.paymentsLog[paymentIdx]) return;
+  const entry = client.paymentsLog[paymentIdx];
+  const oldAmount = typeof entry === 'string' ? client.monthly : entry.amount;
+  const input = prompt('تعديل المبلغ المستحصل لهذا القسط (ريال):', oldAmount.toFixed(2));
+  if (input === null) return;
+  const newAmount = parseFloat(input);
+  if (isNaN(newAmount) || newAmount < 0) {
+    showToast('⚠️ مبلغ غير صالح', 'red'); return;
+  }
+
+  clients = clients.map(c => {
+    if (c.id !== clientId) return c;
+    const log = (c.paymentsLog || []).map((p, i) => {
+      if (i !== paymentIdx) return p;
+      const date = typeof p === 'string' ? p : p.date;
+      return { date, amount: parseFloat(newAmount.toFixed(2)) };
+    });
+    const totalPaid = log.reduce((s, p) => s + (typeof p === 'string' ? c.monthly : p.amount), 0);
+    return {
+      ...c,
+      paymentsLog: log,
+      paid: parseFloat(totalPaid.toFixed(2)),
+      remaining: parseFloat((c.total - totalPaid).toFixed(2))
+    };
+  });
+  save();
+  showToast('✅ تم تعديل مبلغ القسط', 'green');
+  renderHome();
+  renderClients();
+  openDetail(clientId); // refresh modal in place
 }
 
 // ─────────────────────────────────────────
@@ -1154,7 +1423,8 @@ function openDetail(id) {
     let statusText = '';
     if (s.paid) {
       cls = 'paid-row';
-      statusText = `✅ مدفوع ${s.payDate ? dateLabel(s.payDate) : ''}`;
+      statusText = `✅ مدفوع ${s.payDate ? dateLabel(s.payDate) : ''}
+        <button class="mini-edit-btn" onclick="editPayment(${client.id}, ${s.idx})">✏️ تعديل</button>`;
     } else if (s.dueDate < now) {
       cls = 'delayed-row';
       statusText = '⚠️ متأخر';
@@ -1225,7 +1495,7 @@ function renderReportPreview() {
     <tr>
       <td>${i+1}</td>
       <td style="text-align:right;font-weight:700">${d.name}</td>
-      <td>${d.phone || '—'}</td>
+      <td>${d.phone ? `<a class="call-link" href="tel:${d.phone}">📞 ${d.phone}</a>` : '—'}</td>
       <td>${fmt(d.amount)} ر.س</td>
       <td>${isPayers ? (d.payDate ? dateLabel(d.payDate) : 'هذا الشهر') : `${d.delayedMonths} شهر`}</td>
     </tr>`).join('');
@@ -1271,7 +1541,8 @@ function getReportData(month, year, isPayers) {
 }
 
 // ─────────────────────────────────────────
-// PDF EXPORT
+// PDF EXPORT (Arabic-correct, rendered from real HTML via html2canvas
+// so Cairo font + RTL shaping is handled natively by the browser)
 // ─────────────────────────────────────────
 async function exportPDF() {
   const month = parseInt(document.getElementById('r-month').value);
@@ -1285,83 +1556,64 @@ async function exportPDF() {
 
   showToast('⏳ جاري إنشاء ملف PDF...', '');
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
   const reportDayNum = isPayers ? 20 : 2;
   const reportTitle = isPayers ? 'قائمة المسددين الشهرية' : 'قائمة المتأخرين عن السداد';
   const reportDate = `${reportDayNum} / ${month} / ${year}`;
+  const totalAmt = data.reduce((s,d) => s + d.amount, 0);
 
-  // Header background
-  doc.setFillColor(15, 25, 35);
-  doc.rect(0, 0, 210, 40, 'F');
+  // Paginate rows manually (about 22 rows per A4 page under the header)
+  const ROWS_PER_PAGE = 22;
+  const pages = [];
+  for (let i = 0; i < data.length; i += ROWS_PER_PAGE) pages.push(data.slice(i, i + ROWS_PER_PAGE));
 
-  doc.setFillColor(200, 146, 42);
-  doc.rect(0, 38, 210, 2, 'F');
+  const renderArea = document.getElementById('pdf-render-area');
+  renderArea.innerHTML = pages.map((pageRows, pIdx) => `
+    <div class="pdf-page" id="pdf-page-${pIdx}">
+      <div class="pdf-header">
+        <h1>${reportTitle}</h1>
+        <div class="pdf-sub">نظام المحمدية</div>
+        <div class="pdf-meta">تاريخ التقرير: ${reportDate} &nbsp;|&nbsp; عدد العملاء: ${data.length} &nbsp;|&nbsp; صفحة ${pIdx+1} من ${pages.length}</div>
+      </div>
+      <table class="pdf-table">
+        <thead>
+          <tr>
+            <th>#</th><th>الاسم</th><th>الجوال</th><th>المبلغ</th>
+            <th>${isPayers ? 'تاريخ السداد' : 'عدد الأشهر المتأخرة'}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${pageRows.map((d, i) => `
+            <tr>
+              <td>${pIdx * ROWS_PER_PAGE + i + 1}</td>
+              <td style="text-align:right;font-weight:700">${d.name}</td>
+              <td>${d.phone || '—'}</td>
+              <td>${fmt(d.amount)} ر.س</td>
+              <td>${isPayers ? (d.payDate ? dateLabel(d.payDate) : 'هذا الشهر') : `${d.delayedMonths} شهر`}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+      <div class="pdf-footer">
+        <span>إجمالي المبالغ: ${fmt(totalAmt)} ر.س</span>
+        <span>طُبع بتاريخ ${new Date().toLocaleDateString('ar-SA')}</span>
+      </div>
+    </div>
+  `).join('');
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(18);
-  doc.text(reportTitle, 105, 16, { align: 'center' });
+  // Wait a tick for fonts/layout to settle
+  await new Promise(r => setTimeout(r, 60));
 
-  doc.setFontSize(12);
-  doc.setTextColor(200, 146, 42);
-  doc.text(`نظام المحمدية`, 105, 26, { align: 'center' });
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-  doc.setFontSize(10);
-  doc.setTextColor(180, 200, 220);
-  doc.text(`تاريخ التقرير: ${reportDate}   |   عدد العملاء: ${data.length}`, 105, 35, { align: 'center' });
+  for (let pIdx = 0; pIdx < pages.length; pIdx++) {
+    const pageEl = document.getElementById(`pdf-page-${pIdx}`);
+    const canvas = await html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    if (pIdx > 0) doc.addPage();
+    doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+  }
 
-  // Table header
-  let y = 52;
-  doc.setFillColor(245, 232, 208);
-  doc.rect(10, y - 6, 190, 10, 'F');
-  doc.setTextColor(122, 80, 16);
-  doc.setFontSize(10);
-
-  const cols = isPayers
-    ? [['#', 10], ['الاسم', 40], ['الجوال', 90], ['المبلغ', 130], ['تاريخ السداد', 160]]
-    : [['#', 10], ['الاسم', 40], ['الجوال', 90], ['المبلغ المتراكم', 120], ['الأشهر المتأخرة', 160]];
-
-  cols.forEach(([lbl, x]) => {
-    doc.text(lbl, x + (isPayers ? 5 : 5), y, { align: 'left' });
-  });
-
-  y += 4;
-  doc.setDrawColor(200, 146, 42);
-  doc.setLineWidth(0.5);
-  doc.line(10, y, 200, y);
-  y += 6;
-
-  doc.setTextColor(15, 25, 35);
-  doc.setFontSize(9);
-
-  data.forEach((d, i) => {
-    if (y > 270) {
-      doc.addPage();
-      y = 20;
-    }
-    if (i % 2 === 0) {
-      doc.setFillColor(248, 250, 252);
-      doc.rect(10, y - 5, 190, 8, 'F');
-    }
-    doc.text(String(i+1), 15, y);
-    doc.text(d.name || '', 40, y);
-    doc.text(d.phone || '—', 90, y);
-    doc.text(fmt(d.amount) + ' ر.س', isPayers ? 130 : 120, y);
-    if (isPayers) {
-      doc.text(d.payDate ? dateLabel(d.payDate) : 'هذا الشهر', 162, y);
-    } else {
-      doc.text(String(d.delayedMonths) + ' شهر', 162, y);
-    }
-    y += 9;
-  });
-
-  // Footer
-  doc.setDrawColor(200, 146, 42);
-  doc.line(10, 280, 200, 280);
-  doc.setFontSize(8);
-  doc.setTextColor(130, 150, 170);
-  doc.text(`إجمالي المبالغ: ${fmt(data.reduce((s,d)=>s+d.amount,0))} ر.س   |   طُبع بتاريخ ${new Date().toLocaleDateString('ar-SA')}`, 105, 287, { align: 'center' });
+  renderArea.innerHTML = '';
 
   const fileName = isPayers
     ? `مسددون_${MONTHS_AR[month-1]}_${year}.pdf`
@@ -1541,7 +1793,7 @@ function renderDeferred() {
         <div class="deferred-head">
           <div>
             <div class="deferred-name">${d.name}</div>
-            ${d.phone ? `<div class="deferred-desc">📱 ${d.phone}</div>` : ''}
+            ${d.phone ? `<div class="deferred-desc">📱 <a href="tel:${d.phone}" style="color:inherit;text-decoration:none">${d.phone}</a></div>` : ''}
             ${d.desc ? `<div class="deferred-desc">📦 ${d.desc}</div>` : ''}
           </div>
           <div style="text-align:left">
