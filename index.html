@@ -1058,11 +1058,24 @@ function switchTab(tab) {
 // HOME
 // ─────────────────────────────────────────
 function renderHome() {
-  // Stats
-  const totalRemaining = clients.reduce((s,c) => s + c.remaining, 0);
-  const totalPaid = clients.reduce((s,c) => s + c.paid, 0);
-  const active = clients.filter(c => c.remaining > 0.001).length;
-  const delayed = clients.filter(c => getStatus(c) === 'delayed').length;
+  // ── Installment-plan (clients) figures ──
+  const clientsRemaining = clients.reduce((s,c) => s + c.remaining, 0);
+  const clientsPaid = clients.reduce((s,c) => s + c.paid, 0);
+  const activeClients = clients.filter(c => c.remaining > 0.001).length;
+  const delayedClients = clients.filter(c => getStatus(c) === 'delayed');
+
+  // ── Deferred-sales figures ──
+  const activeDeferred = deferred.filter(d => !d.settled);
+  const settledDeferred = deferred.filter(d => d.settled);
+  const overdueDeferred = activeDeferred.filter(d => daysUntil(d.due) < 0);
+  const deferredRemaining = activeDeferred.reduce((s,d) => s + d.amount, 0);
+  const deferredCollected = settledDeferred.reduce((s,d) => s + d.amount, 0);
+
+  // ── Merged indicator (installment plans + deferred sales) ──
+  const totalRemaining = clientsRemaining + deferredRemaining;
+  const totalPaid = clientsPaid + deferredCollected;
+  const active = activeClients + activeDeferred.length;
+  const delayed = delayedClients.length + overdueDeferred.length;
 
   document.getElementById('stats-strip').innerHTML = `
     <div class="stat-card">
@@ -1074,7 +1087,7 @@ function renderHome() {
       <div class="stat-value green">${fmt(totalPaid)} <span class="stat-unit">ر.س</span></div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">عملاء نشطون</div>
+      <div class="stat-label">عملاء/مبيعات نشطة</div>
       <div class="stat-value">${active}</div>
     </div>
     <div class="stat-card">
@@ -1083,14 +1096,16 @@ function renderHome() {
     </div>
   `;
 
-  // Delayed list
-  const delayedClients = clients.filter(c => getStatus(c) === 'delayed');
+  // ── Merged delayed list: delayed installment clients + overdue deferred sales ──
   const dl = document.getElementById('delayed-list');
-  if (delayedClients.length === 0) {
-    dl.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div><p>لا يوجد عملاء متأخرون حالياً</p></div>`;
+  if (delayedClients.length === 0 && overdueDeferred.length === 0) {
+    dl.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div><p>لا يوجد متأخرون حالياً</p></div>`;
     return;
   }
-  dl.innerHTML = delayedClients.map(c => clientCardHTML(c)).join('');
+  const sortedOverdueDeferred = [...overdueDeferred].sort((a,b) => new Date(a.due) - new Date(b.due));
+  dl.innerHTML =
+    delayedClients.map(c => clientCardHTML(c)).join('') +
+    sortedOverdueDeferred.map(d => deferredCardHTML(d)).join('');
 }
 
 // ─────────────────────────────────────────
@@ -1736,6 +1751,48 @@ function daysUntil(dateStr) {
   return Math.round((due - now) / 86400000);
 }
 
+// Builds the card markup for a single active (unsettled) deferred sale.
+// Shared by the Home dashboard (merged indicator) and the Deferred Sales tab.
+function deferredCardHTML(d) {
+  const diff = daysUntil(d.due);
+  let cardClass = 'deferred-card';
+  let countdownClass = 'normal';
+  let countdownText = '';
+  if (diff < 0) {
+    cardClass += ' overdue';
+    countdownClass = 'overdue';
+    countdownText = `🚨 متأخر ${Math.abs(diff)} يوم`;
+  } else if (diff <= 10) {
+    cardClass += ' near-due';
+    countdownClass = 'soon';
+    countdownText = diff === 0 ? '⚡ اليوم هو يوم الاستحقاق!' : `⏰ يستحق بعد ${diff} يوم`;
+  } else {
+    countdownText = `📅 يستحق بعد ${diff} يوم`;
+  }
+  return `<div class="${cardClass}">
+    <div class="deferred-head">
+      <div>
+        <div class="deferred-name">🗓️ ${d.name}</div>
+        ${d.phone ? `<div class="deferred-desc">📱 <a href="tel:${d.phone}" style="color:inherit;text-decoration:none">${d.phone}</a></div>` : ''}
+        ${d.desc ? `<div class="deferred-desc">📦 ${d.desc}</div>` : ''}
+      </div>
+      <div style="text-align:left">
+        <div style="font-size:17px;font-weight:900;color:var(--ink)">${fmt(d.amount)} <span style="font-size:11px;font-weight:400;color:var(--ink-soft)">ر.س</span></div>
+      </div>
+    </div>
+    <div class="deferred-body">
+      <div class="info-grid">
+        <div class="info-item"><div class="lbl">تاريخ الاستحقاق</div><div class="val">${dateLabel(d.due)}</div></div>
+      </div>
+      <div class="due-countdown ${countdownClass}">${countdownText}</div>
+    </div>
+    <div class="deferred-actions">
+      <button class="action-btn btn-settle" onclick="settleDeferred(${d.id})">✅ تسوية</button>
+      <button class="action-btn btn-del" onclick="deleteDeferred(${d.id})">🗑️ حذف</button>
+    </div>
+  </div>`;
+}
+
 function renderDeferred() {
   const now = new Date(); now.setHours(0,0,0,0);
   const active = deferred.filter(d => !d.settled);
@@ -1773,45 +1830,7 @@ function renderDeferred() {
 
   if (sortedActive.length > 0) {
     html += `<div class="section-title" style="margin-bottom:10px;">⏳ قيد التحصيل (${sortedActive.length})</div>`;
-    html += sortedActive.map(d => {
-      const diff = daysUntil(d.due);
-      let cardClass = 'deferred-card';
-      let countdownClass = 'normal';
-      let countdownText = '';
-      if (diff < 0) {
-        cardClass += ' overdue';
-        countdownClass = 'overdue';
-        countdownText = `🚨 متأخر ${Math.abs(diff)} يوم`;
-      } else if (diff <= 10) {
-        cardClass += ' near-due';
-        countdownClass = 'soon';
-        countdownText = diff === 0 ? '⚡ اليوم هو يوم الاستحقاق!' : `⏰ يستحق بعد ${diff} يوم`;
-      } else {
-        countdownText = `📅 يستحق بعد ${diff} يوم`;
-      }
-      return `<div class="${cardClass}">
-        <div class="deferred-head">
-          <div>
-            <div class="deferred-name">${d.name}</div>
-            ${d.phone ? `<div class="deferred-desc">📱 <a href="tel:${d.phone}" style="color:inherit;text-decoration:none">${d.phone}</a></div>` : ''}
-            ${d.desc ? `<div class="deferred-desc">📦 ${d.desc}</div>` : ''}
-          </div>
-          <div style="text-align:left">
-            <div style="font-size:17px;font-weight:900;color:var(--ink)">${fmt(d.amount)} <span style="font-size:11px;font-weight:400;color:var(--ink-soft)">ر.س</span></div>
-          </div>
-        </div>
-        <div class="deferred-body">
-          <div class="info-grid">
-            <div class="info-item"><div class="lbl">تاريخ الاستحقاق</div><div class="val">${dateLabel(d.due)}</div></div>
-          </div>
-          <div class="due-countdown ${countdownClass}">${countdownText}</div>
-        </div>
-        <div class="deferred-actions">
-          <button class="action-btn btn-settle" onclick="settleDeferred(${d.id})">✅ تسوية</button>
-          <button class="action-btn btn-del" onclick="deleteDeferred(${d.id})">🗑️ حذف</button>
-        </div>
-      </div>`;
-    }).join('');
+    html += sortedActive.map(d => deferredCardHTML(d)).join('');
   }
 
   if (sortedSettled.length > 0) {
