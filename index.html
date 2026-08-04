@@ -944,7 +944,7 @@
             <th>اسم الكفيل</th>
             <th>رقم جوال الكفيل</th>
             <th>القسط الشهري</th>
-            <th>الحالة</th>
+            <th>ملاحظات</th>
           </tr>
         </thead>
         <tbody id="all-clients-table-body">
@@ -1332,18 +1332,16 @@ function openAllClientsSummary() {
   }
 
   const tbody = document.getElementById('all-clients-table-body');
-  const statusLabels = { completed: 'مكتمل', delayed: 'متأخر', 'on-track': 'منتظم' };
 
   tbody.innerHTML = clients.map((c, idx) => {
-    const status = getStatus(c);
     return `<tr>
       <td>${idx + 1}</td>
       <td style="text-align:right;font-weight:700">${c.name}</td>
       <td>${c.phone || '—'}</td>
       <td style="text-align:right">${c.guarantor || '—'}</td>
       <td>${c.guarantorPhone || '—'}</td>
-      <td>[ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</td>
-      <td><b>${statusLabels[status]}</b></td>
+      <td><b>${fmt(c.monthly)} ر.س</b></td>
+      <td>[ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</td>
     </tr>`;
   }).join('');
 
@@ -1359,7 +1357,6 @@ async function exportAllClientsPDF() {
   showToast('⏳ جاري إنشاء ملف PDF للتقرير الشامل...', '');
 
   const renderArea = document.getElementById('pdf-render-area');
-  const statusLabels = { completed: 'مكتمل', delayed: 'متأخر', 'on-track': 'منتظم' };
 
   renderArea.innerHTML = `
     <div class="pdf-page" id="pdf-full-page" style="width: 794px; background: #fff; padding: 36px 40px; direction: rtl; font-family: 'Cairo', sans-serif;">
@@ -1377,7 +1374,7 @@ async function exportAllClientsPDF() {
             <th>اسم الكفيل</th>
             <th>رقم جوال الكفيل</th>
             <th>القسط الشهري</th>
-            <th>الحالة</th>
+            <th>ملاحظات</th>
           </tr>
         </thead>
         <tbody>
@@ -1388,8 +1385,8 @@ async function exportAllClientsPDF() {
               <td>${c.phone || '—'}</td>
               <td style="text-align:right">${c.guarantor || '—'}</td>
               <td>${c.guarantorPhone || '—'}</td>
-              <td>[ &nbsp;&nbsp;&nbsp; ]</td>
-              <td><b>${statusLabels[getStatus(c)]}</b></td>
+              <td><b>${fmt(c.monthly)} ر.س</b></td>
+              <td></td>
             </tr>`).join('')}
         </tbody>
       </table>
