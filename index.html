@@ -289,15 +289,15 @@
   /* Action buttons */
   .client-actions {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     padding: 10px 16px 14px;
     border-top: 1px solid var(--border);
     flex-wrap: wrap;
   }
   .action-btn {
     flex: 1;
-    min-width: 64px;
-    padding: 9px 8px;
+    min-width: 60px;
+    padding: 9px 6px;
     border-radius: 8px;
     border: none;
     font-family: 'Cairo', sans-serif;
@@ -307,55 +307,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
+    gap: 4px;
     transition: opacity 0.2s;
   }
   .action-btn:active { opacity: 0.75; }
   .btn-pay { background: var(--teal-light); color: var(--teal); }
   .btn-details { background: var(--gold-light); color: #7a5010; }
   .btn-edit { background: #e6edf7; color: #2952a3; }
-  .btn-del { background: var(--red-light); color: var(--red); }
-
-  /* ── DELAY TABLE inside details ── */
-  .detail-panel {
-    background: #f8fafc;
-    border-top: 1px dashed var(--border);
-    padding: 14px 16px;
-    display: none;
-  }
-  .detail-panel.open { display: block; }
-  .detail-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: 10px;
-  }
-  .month-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .month-table th {
-    background: var(--ink);
-    color: white;
-    padding: 8px 10px;
-    font-weight: 600;
-    text-align: center;
-  }
-  .month-table td {
-    padding: 8px 10px;
-    border-bottom: 1px solid var(--border);
-    text-align: center;
-  }
-  .month-table tr.paid-row td { background: var(--green-light); color: var(--green); }
-  .month-table tr.delayed-row td { background: var(--red-light); color: var(--red); font-weight: 700; }
-  .month-table tr.upcoming-row td { background: #f0f4f8; color: var(--ink-soft); }
-  .mini-edit-btn {
-    border: none;
-    background: rgba(15,25,35,0.08);
-    color: var(--ink);
-    border-radius: 6px;
-    padding: 2px 7px;
-    font-size: 11px;
-    cursor: pointer;
-    font-family: 'Cairo', sans-serif;
-  }
+  .btn-del { background: var(--red-light); color: var(--red); flex: 0 0 42px !important; }
 
   /* ── REPORT PAGE ── */
   .report-controls {
@@ -368,24 +327,24 @@
   }
   .report-type-btns {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
     margin-bottom: 14px;
   }
   .report-type-btn {
-    padding: 14px 10px;
+    padding: 12px 6px;
     border-radius: 10px;
     border: 2px solid var(--border);
     background: white;
     font-family: 'Cairo', sans-serif;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     text-align: center;
     transition: all 0.2s;
   }
   .report-type-btn.active { border-color: var(--gold); background: var(--gold-pale); color: #7a5010; }
-  .report-type-btn .icon { font-size: 22px; display: block; margin-bottom: 4px; }
+  .report-type-btn .icon { font-size: 18px; display: block; margin-bottom: 2px; }
 
   .btn-pdf {
     background: var(--red);
@@ -626,7 +585,7 @@
   }
   .alert-banner .alert-icon { font-size: 22px; flex-shrink: 0; }
 
-  /* ── PRINTABLE REPORT (used to render the Arabic PDF via html2canvas) ── */
+  /* ── PRINTABLE REPORT ── */
   #pdf-render-area {
     position: fixed;
     top: -99999px;
@@ -695,7 +654,11 @@
     <div class="topbar-title">نظام <span>المحمدية</span></div>
     <div class="topbar-date" id="today-date"></div>
   </div>
-  <div style="display:flex;gap:10px;align-items:center">
+  <div style="display:flex;gap:8px;align-items:center">
+    <button onclick="openAllClientsSummary()" title="عرض جميع العملاء والكفلاء والقسط الفارغ"
+      style="background:rgba(200,146,42,0.2);border:1px solid var(--gold);color:white;padding:5px 10px;border-radius:8px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer">
+      📋 تقرير الشامل
+    </button>
     <button onclick="exportBackup()" title="تصدير نسخة احتياطية"
       style="background:none;border:1px solid rgba(255,255,255,0.25);color:white;padding:5px 10px;border-radius:8px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer">
       💾 نسخ احتياطي
@@ -704,7 +667,6 @@
   </div>
 </div>
 
-<!-- hidden import input -->
 <input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(event)">
 
 <div class="tabs">
@@ -738,7 +700,7 @@
 <div id="page-clients" class="page">
   <div class="search-box">
     <span class="search-icon">🔍</span>
-    <input type="text" id="search-input" placeholder="ابحث عن عميل..." oninput="renderClients()">
+    <input type="text" id="search-input" placeholder="ابحث عن عميل أو كفيل..." oninput="renderClients()">
   </div>
   <div class="filter-chips">
     <span class="chip active" data-filter="all" onclick="setFilter(this,'all')">الكل</span>
@@ -758,8 +720,18 @@
       <input type="text" id="f-name" placeholder="محمد أحمد العمري">
     </div>
     <div class="form-group">
-      <label>رقم الجوال</label>
+      <label>رقم جوال العميل</label>
       <input type="tel" id="f-phone" inputmode="tel" placeholder="05xxxxxxxx">
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>اسم الكفيل</label>
+        <input type="text" id="f-guarantor" placeholder="اسم الكفيل الكامل">
+      </div>
+      <div class="form-group">
+        <label>رقم جوال الكفيل</label>
+        <input type="tel" id="f-guarantor-phone" inputmode="tel" placeholder="05xxxxxxxx">
+      </div>
     </div>
     <div class="form-grid">
       <div class="form-group">
@@ -797,30 +769,29 @@
     <div class="report-type-btns">
       <button class="report-type-btn active" id="rtype-payers" onclick="selectReportType('payers')">
         <span class="icon">✅</span>
-        قائمة المسددين<br><small style="font-weight:400;font-size:11px;">بتاريخ 20 من الشهر</small>
+        المسددين<br><small style="font-weight:400;font-size:10px;">حتى 20 من الشهر</small>
       </button>
       <button class="report-type-btn" id="rtype-delayed" onclick="selectReportType('delayed')">
         <span class="icon">⚠️</span>
-        قائمة المتأخرين<br><small style="font-weight:400;font-size:11px;">بتاريخ 2 من الشهر</small>
+        المتأخرين<br><small style="font-weight:400;font-size:10px;">التفصيل والأشهر</small>
+      </button>
+      <button class="report-type-btn" id="rtype-monthly-sales" onclick="selectReportType('monthly-sales')">
+        <span class="icon">📦</span>
+        المبيعات الشهرية<br><small style="font-weight:400;font-size:10px;">تصفر كل يوم 1</small>
       </button>
     </div>
-    <div class="form-grid" style="margin-bottom:12px;">
+    
+    <div class="form-grid" style="margin-bottom:10px;">
       <div class="form-group" style="margin:0">
-        <label>الشهر</label>
-        <select id="r-month">
-          <option value="1">يناير</option><option value="2">فبراير</option>
-          <option value="3">مارس</option><option value="4">أبريل</option>
-          <option value="5">مايو</option><option value="6">يونيو</option>
-          <option value="7">يوليو</option><option value="8">أغسطس</option>
-          <option value="9">سبتمبر</option><option value="10">أكتوبر</option>
-          <option value="11">نوفمبر</option><option value="12">ديسمبر</option>
-        </select>
+        <label>من تاريخ (يوم)</label>
+        <input type="date" id="r-start-date" onchange="renderReportPreview()">
       </div>
       <div class="form-group" style="margin:0">
-        <label>السنة</label>
-        <input type="number" id="r-year" inputmode="numeric" placeholder="2025">
+        <label>إلى تاريخ (يوم)</label>
+        <input type="date" id="r-end-date" onchange="renderReportPreview()">
       </div>
     </div>
+
     <div class="form-group" style="margin-bottom:12px;">
       <label>رقم واتساب المحصّل (مع رمز الدولة)</label>
       <input type="tel" id="r-collector-phone" inputmode="tel" placeholder="مثال: 966501234567"
@@ -876,9 +847,22 @@
     </button>
   </div>
   <div class="section-head">
-    <div class="section-title">قائمة المبيعات الآجلة</div>
+    <div class="section-title">قائمة المبيعات الآجلة (تصفر في اليوم الأول من كل شهر)</div>
   </div>
   <div id="deferred-list"></div>
+</div>
+
+<!-- ALL CLIENTS SUMMARY MODAL -->
+<div class="modal-overlay" id="all-clients-modal">
+  <div class="modal-sheet" style="max-width: 600px;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📋 قائمة جميع العملاء والكفلاء (القسط فارغ)</div>
+    <div id="all-clients-content" style="max-height: 55vh; overflow-y: auto; font-size: 13px; line-height: 1.6; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid var(--border);"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;">
+      <button class="btn-primary" style="background:var(--gold);margin:0;" onclick="copyAllClientsText()">📋 نسخ الكل</button>
+      <button class="btn-primary" style="background:var(--ink-soft);margin:0;" onclick="closeAllClientsModal()">إغلاق</button>
+    </div>
+  </div>
 </div>
 
 <!-- DETAIL MODAL -->
@@ -902,8 +886,18 @@
       <input type="text" id="e-name">
     </div>
     <div class="form-group">
-      <label>رقم الجوال</label>
+      <label>رقم جوال العميل</label>
       <input type="tel" id="e-phone" inputmode="tel">
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>اسم الكفيل</label>
+        <input type="text" id="e-guarantor" placeholder="اسم الكفيل">
+      </div>
+      <div class="form-group">
+        <label>رقم جوال الكفيل</label>
+        <input type="tel" id="e-guarantor-phone" inputmode="tel">
+      </div>
     </div>
     <div class="form-grid">
       <div class="form-group">
@@ -941,15 +935,11 @@
 </div>
 
 <div class="toast" id="toast"></div>
-
-<!-- Hidden render area used only to generate the Arabic PDF via html2canvas -->
 <div id="pdf-render-area"></div>
 
 <script>
-// ─────────────────────────────────────────
-// DATA LAYER
-// ─────────────────────────────────────────
 let clients = JSON.parse(localStorage.getItem('iqsat_v2')) || [];
+let deferred = JSON.parse(localStorage.getItem('iqsat_deferred')) || [];
 let currentFilter = 'all';
 let currentReportType = 'payers';
 
@@ -959,16 +949,21 @@ const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو
 function save() {
   try {
     localStorage.setItem('iqsat_v2', JSON.stringify(clients));
-    // backup copy
     localStorage.setItem('iqsat_v2_backup', JSON.stringify(clients));
   } catch(e) {
     showToast('⚠️ تعذّر الحفظ، مساحة التخزين ممتلئة', 'red');
   }
 }
 
-// ─────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────
+function saveDeferred() {
+  try {
+    localStorage.setItem('iqsat_deferred', JSON.stringify(deferred));
+    localStorage.setItem('iqsat_deferred_backup', JSON.stringify(deferred));
+  } catch(e) {
+    showToast('⚠️ تعذّر الحفظ، مساحة التخزين ممتلئة', 'red');
+  }
+}
+
 function today() { return new Date(); }
 
 function fmt(n) {
@@ -981,16 +976,12 @@ function dateLabel(d) {
   return dt.toLocaleDateString('ar-SA', { year:'numeric', month:'short', day:'numeric', calendar:'gregory' });
 }
 
-// Generate schedule for a client. Paid installments use the ACTUAL amount
-// collected (from paymentsLog), so edits to a collected amount are reflected everywhere.
 function generateSchedule(client) {
   const schedule = [];
   const start = new Date(client.startDate);
   const dueDay = client.dueDay || start.getDate();
   const log = client.paymentsLog || [];
 
-  // Total remaining is driven by client.remaining (kept in sync by payment/edit functions),
-  // but future installment amounts are still projected using the monthly value.
   let remaining = client.total;
   let month = new Date(start.getFullYear(), start.getMonth(), 1);
   let idx = 0;
@@ -1000,21 +991,19 @@ function generateSchedule(client) {
       Math.min(dueDay, new Date(month.getFullYear(), month.getMonth()+1, 0).getDate()));
 
     const paid = idx < log.length;
-    // Normalize legacy log entries (plain date strings) to {date, amount}
     const logEntry = paid ? (typeof log[idx] === 'string' ? { date: log[idx], amount: client.monthly } : log[idx]) : null;
     const amount = paid ? logEntry.amount : Math.min(client.monthly, remaining);
 
     remaining = parseFloat((remaining - amount).toFixed(2));
 
-    schedule.push({ idx, dueDate, amount, paid, payDate: paid ? logEntry.date : null });
+    schedule.push({ idx, dueDate, amount, paid, payDate: paid ? logEntry.date : null, monthName: MONTHS_AR[dueDate.getMonth()] + ' ' + dueDate.getFullYear() });
     month = new Date(month.getFullYear(), month.getMonth() + 1, 1);
     idx++;
-    if (idx > 240) break; // safety
+    if (idx > 240) break;
   }
   return schedule;
 }
 
-// Status: completed / delayed / on-track
 function getStatus(client) {
   if (client.remaining <= 0.001) return 'completed';
   const schedule = generateSchedule(client);
@@ -1023,16 +1012,12 @@ function getStatus(client) {
   return hasDelayed ? 'delayed' : 'on-track';
 }
 
-// Get delayed months
 function getDelayedMonths(client) {
   const schedule = generateSchedule(client);
   const now = today();
   return schedule.filter(s => !s.paid && s.dueDate < now);
 }
 
-// ─────────────────────────────────────────
-// TOAST
-// ─────────────────────────────────────────
 function showToast(msg, type='') {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1040,9 +1025,6 @@ function showToast(msg, type='') {
   setTimeout(() => t.className = 'toast', 2800);
 }
 
-// ─────────────────────────────────────────
-// TABS
-// ─────────────────────────────────────────
 function switchTab(tab) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1054,27 +1036,50 @@ function switchTab(tab) {
   if (tab === 'deferred') renderDeferred();
 }
 
-// ─────────────────────────────────────────
-// HOME
-// ─────────────────────────────────────────
+function getCycleCollectedTotal() {
+  const now = new Date();
+  let cycleStart, cycleEnd;
+  
+  if (now.getDate() >= 20) {
+    cycleStart = new Date(now.getFullYear(), now.getMonth(), 20);
+    cycleEnd = new Date(now.getFullYear(), now.getMonth() + 1, 20);
+  } else {
+    cycleStart = new Date(now.getFullYear(), now.getMonth() - 1, 20);
+    cycleEnd = new Date(now.getFullYear(), now.getMonth(), 20);
+  }
+
+  let totalCollectedInCycle = 0;
+  clients.forEach(c => {
+    if (c.paymentsLog) {
+      c.paymentsLog.forEach(p => {
+        const pDate = new Date(typeof p === 'string' ? p : p.date);
+        if (pDate >= cycleStart && pDate < cycleEnd) {
+          totalCollectedInCycle += (typeof p === 'string' ? c.monthly : p.amount);
+        }
+      });
+    }
+  });
+  return totalCollectedInCycle;
+}
+
+function getActiveMonthlySales() {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  return deferred.filter(d => !d.settled && new Date(d.due) >= monthStart);
+}
+
 function renderHome() {
-  // ── Installment-plan (clients) figures ──
   const clientsRemaining = clients.reduce((s,c) => s + c.remaining, 0);
-  const clientsPaid = clients.reduce((s,c) => s + c.paid, 0);
+  const cycleCollected = getCycleCollectedTotal();
   const activeClients = clients.filter(c => c.remaining > 0.001).length;
   const delayedClients = clients.filter(c => getStatus(c) === 'delayed');
 
-  // ── Deferred-sales figures ──
-  const activeDeferred = deferred.filter(d => !d.settled);
-  const settledDeferred = deferred.filter(d => d.settled);
-  const overdueDeferred = activeDeferred.filter(d => daysUntil(d.due) < 0);
-  const deferredRemaining = activeDeferred.reduce((s,d) => s + d.amount, 0);
-  const deferredCollected = settledDeferred.reduce((s,d) => s + d.amount, 0);
+  const monthlySales = getActiveMonthlySales();
+  const salesRemaining = monthlySales.reduce((s,d) => s + d.amount, 0);
+  const overdueDeferred = deferred.filter(d => !d.settled && daysUntil(d.due) < 0);
 
-  // ── Merged indicator (installment plans + deferred sales) ──
-  const totalRemaining = clientsRemaining + deferredRemaining;
-  const totalPaid = clientsPaid + deferredCollected;
-  const active = activeClients + activeDeferred.length;
+  const totalRemaining = clientsRemaining + salesRemaining;
+  const active = activeClients + monthlySales.length;
   const delayed = delayedClients.length + overdueDeferred.length;
 
   document.getElementById('stats-strip').innerHTML = `
@@ -1083,8 +1088,8 @@ function renderHome() {
       <div class="stat-value gold">${fmt(totalRemaining)} <span class="stat-unit">ر.س</span></div>
     </div>
     <div class="stat-card">
-      <div class="stat-label" style="font-weight:900;font-size:13px;color:var(--ink)">المبلغ المستحصل</div>
-      <div class="stat-value green">${fmt(totalPaid)} <span class="stat-unit">ر.س</span></div>
+      <div class="stat-label" style="font-weight:900;font-size:13px;color:var(--ink)">المحصل (من دورة 20)</div>
+      <div class="stat-value green">${fmt(cycleCollected)} <span class="stat-unit">ر.س</span></div>
     </div>
     <div class="stat-card">
       <div class="stat-label">عملاء/مبيعات نشطة</div>
@@ -1096,7 +1101,6 @@ function renderHome() {
     </div>
   `;
 
-  // ── Merged delayed list: delayed installment clients + overdue deferred sales ──
   const dl = document.getElementById('delayed-list');
   if (delayedClients.length === 0 && overdueDeferred.length === 0) {
     dl.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div><p>لا يوجد متأخرون حالياً</p></div>`;
@@ -1108,9 +1112,6 @@ function renderHome() {
     sortedOverdueDeferred.map(d => deferredCardHTML(d)).join('');
 }
 
-// ─────────────────────────────────────────
-// CLIENTS PAGE
-// ─────────────────────────────────────────
 function setFilter(el, val) {
   currentFilter = val;
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
@@ -1121,7 +1122,14 @@ function setFilter(el, val) {
 function renderClients() {
   const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
   let list = clients;
-  if (q) list = list.filter(c => c.name.toLowerCase().includes(q) || (c.phone||'').includes(q));
+  if (q) {
+    list = list.filter(c => 
+      c.name.toLowerCase().includes(q) || 
+      (c.phone||'').includes(q) || 
+      (c.guarantor||'').toLowerCase().includes(q) || 
+      (c.guarantorPhone||'').includes(q)
+    );
+  }
   if (currentFilter === 'delayed') list = list.filter(c => getStatus(c) === 'delayed');
   else if (currentFilter === 'on-track') list = list.filter(c => getStatus(c) === 'on-track');
   else if (currentFilter === 'completed') list = list.filter(c => getStatus(c) === 'completed');
@@ -1145,7 +1153,8 @@ function clientCardHTML(client) {
     <div class="client-head">
       <div>
         <div class="client-name">${client.name}</div>
-        ${client.phone ? `<div class="client-phone">📱 <a href="tel:${client.phone}">${client.phone}</a></div>` : ''}
+        ${client.phone ? `<div class="client-phone">📱 العميل: <a href="tel:${client.phone}">${client.phone}</a></div>` : ''}
+        ${client.guarantor ? `<div class="client-phone" style="margin-top:2px;">🤝 الكفيل: ${client.guarantor} ${client.guarantorPhone ? `(<a href="tel:${client.guarantorPhone}">${client.guarantorPhone}</a>)` : ''}</div>` : ''}
       </div>
       <span class="status-badge ${badgeClass}">${label}</span>
     </div>
@@ -1169,20 +1178,65 @@ function clientCardHTML(client) {
       ${status !== 'completed' ? `<button class="action-btn btn-pay" onclick="payInstallment(${client.id})">💵 تحصيل</button>` : ''}
       <button class="action-btn btn-details" onclick="openDetail(${client.id})">📋 التفاصيل</button>
       <button class="action-btn btn-edit" onclick="openEditModal(${client.id})">✏️ تعديل</button>
-      ${client.phone ? `<button class="action-btn btn-whatsapp" onclick="notifyClient(${client.id})" title="إرسال إشعار واتساب">
-        <span>📲</span>
-      </button>` : ''}
+      ${client.phone ? `<button class="action-btn btn-whatsapp" onclick="notifyClient(${client.id})" title="إرسال إشعار واتساب"><span>📲</span></button>` : ''}
       <button class="action-btn btn-del" onclick="deleteClient(${client.id})">🗑️</button>
     </div>
   </div>`;
 }
 
-// ─────────────────────────────────────────
-// ADD CLIENT
-// ─────────────────────────────────────────
+function openAllClientsSummary() {
+  if (clients.length === 0) {
+    showToast('⚠️ لا توجد عملاء مسجلون حالياً', 'red');
+    return;
+  }
+
+  let fullText = '';
+  let html = '';
+
+  clients.forEach((c, idx) => {
+    const itemText = `${idx + 1}. اسم العميل: ${c.name}
+• رقم جوال العميل: ${c.phone || '—'}
+• اسم الكفيل: ${c.guarantor || '—'}
+• رقم جوال الكفيل: ${c.guarantorPhone || '—'}
+• القسط الشهري: [         ]\n\n`;
+
+    fullText += itemText;
+    html += `<div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed var(--border);">
+      <b>${idx + 1}. اسم العميل:</b> ${c.name}<br>
+      <b>• رقم جوال العميل:</b> ${c.phone || '—'}<br>
+      <b>• اسم الكفيل:</b> ${c.guarantor || '—'}<br>
+      <b>• رقم جوال الكفيل:</b> ${c.guarantorPhone || '—'}<br>
+      <b>• القسط الشهري:</b> [ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]
+    </div>`;
+  });
+
+  window._allClientsCopyText = fullText;
+  document.getElementById('all-clients-content').innerHTML = html;
+  document.getElementById('all-clients-modal').classList.add('open');
+}
+
+function closeAllClientsModal() {
+  document.getElementById('all-clients-modal').classList.remove('open');
+}
+
+function copyAllClientsText() {
+  const text = window._allClientsCopyText || '';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('📋 تم نسخ بيانات جميع العملاء والكفلاء بنجاح', 'green');
+    }).catch(() => {
+      prompt('نسخ الكل:', text);
+    });
+  } else {
+    prompt('نسخ الكل:', text);
+  }
+}
+
 function addClient() {
   const name = document.getElementById('f-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
+  const guarantor = document.getElementById('f-guarantor').value.trim();
+  const guarantorPhone = document.getElementById('f-guarantor-phone').value.trim();
   const total = parseFloat(document.getElementById('f-total').value) || 0;
   const monthly = parseFloat(document.getElementById('f-monthly').value) || 0;
   const startDate = document.getElementById('f-start').value;
@@ -1198,7 +1252,7 @@ function addClient() {
 
   const client = {
     id: Date.now(),
-    name, phone, total, monthly,
+    name, phone, guarantor, guarantorPhone, total, monthly,
     remaining: total,
     paid: 0,
     startDate,
@@ -1209,21 +1263,23 @@ function addClient() {
   clients.push(client);
   save();
   showToast('✅ تم حفظ العقد بنجاح', 'green');
-  ['f-name','f-phone','f-total','f-monthly','f-start','f-day','f-notes'].forEach(id => document.getElementById(id).value = '');
+  ['f-name','f-phone','f-guarantor','f-guarantor-phone','f-total','f-monthly','f-start','f-day','f-notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
   switchTab('clients');
   document.querySelectorAll('.tab-btn')[1].classList.add('active');
   document.querySelectorAll('.tab-btn')[2].classList.remove('active');
 }
 
-// ─────────────────────────────────────────
-// EDIT CLIENT (info + total paid amount)
-// ─────────────────────────────────────────
 function openEditModal(id) {
   const client = clients.find(c => c.id === id);
   if (!client) return;
   document.getElementById('e-id').value = client.id;
   document.getElementById('e-name').value = client.name;
   document.getElementById('e-phone').value = client.phone || '';
+  document.getElementById('e-guarantor').value = client.guarantor || '';
+  document.getElementById('e-guarantor-phone').value = client.guarantorPhone || '';
   document.getElementById('e-total').value = client.total;
   document.getElementById('e-monthly').value = client.monthly;
   document.getElementById('e-start').value = client.startDate;
@@ -1244,6 +1300,8 @@ function saveClientEdit() {
   const id = parseInt(document.getElementById('e-id').value);
   const name = document.getElementById('e-name').value.trim();
   const phone = document.getElementById('e-phone').value.trim();
+  const guarantor = document.getElementById('e-guarantor').value.trim();
+  const guarantorPhone = document.getElementById('e-guarantor-phone').value.trim();
   const total = parseFloat(document.getElementById('e-total').value) || 0;
   const monthly = parseFloat(document.getElementById('e-monthly').value) || 0;
   const startDate = document.getElementById('e-start').value;
@@ -1265,7 +1323,7 @@ function saveClientEdit() {
     if (c.id !== id) return c;
     return {
       ...c,
-      name, phone, total, monthly, startDate,
+      name, phone, guarantor, guarantorPhone, total, monthly, startDate,
       dueDay: dueDay || new Date(startDate).getDate(),
       notes,
       paid: parseFloat(paid.toFixed(2)),
@@ -1279,15 +1337,12 @@ function saveClientEdit() {
   renderClients();
 }
 
-// ─────────────────────────────────────────
-// PAY
-// ─────────────────────────────────────────
 function payInstallment(id) {
   const client = clients.find(c => c.id === id);
   if (!client) return;
   const suggested = Math.min(client.monthly, client.remaining);
   const input = prompt('أدخل المبلغ المستحصل (ريال):', suggested.toFixed(2));
-  if (input === null) return; // cancelled
+  if (input === null) return;
   const amount = parseFloat(input);
   if (isNaN(amount) || amount <= 0) {
     showToast('⚠️ مبلغ غير صالح', 'red'); return;
@@ -1311,7 +1366,6 @@ function payInstallment(id) {
   renderClients();
 }
 
-// Edit a previously collected installment amount (from the details modal)
 function editPayment(clientId, paymentIdx) {
   const client = clients.find(c => c.id === clientId);
   if (!client || !client.paymentsLog || !client.paymentsLog[paymentIdx]) return;
@@ -1343,12 +1397,9 @@ function editPayment(clientId, paymentIdx) {
   showToast('✅ تم تعديل مبلغ القسط', 'green');
   renderHome();
   renderClients();
-  openDetail(clientId); // refresh modal in place
+  openDetail(clientId);
 }
 
-// ─────────────────────────────────────────
-// DELETE
-// ─────────────────────────────────────────
 function deleteClient(id) {
   if (!confirm('هل أنت متأكد من حذف هذا العميل نهائياً؟')) return;
   clients = clients.filter(c => c.id !== id);
@@ -1358,9 +1409,6 @@ function deleteClient(id) {
   renderClients();
 }
 
-// ─────────────────────────────────────────
-// WHATSAPP CLIENT NOTIFICATION
-// ─────────────────────────────────────────
 function notifyClient(id) {
   const client = clients.find(c => c.id === id);
   if (!client || !client.phone) return;
@@ -1371,59 +1419,24 @@ function notifyClient(id) {
   const nextDue = schedule.find(s => !s.paid);
 
   let phone = client.phone.trim().replace(/\s|-/g,'').replace(/^\+|^00/,'');
-  // إذا يبدأ بـ 0 استبدله بـ 966
   if (phone.startsWith('0')) phone = '966' + phone.slice(1);
 
   let msg = '';
-
   if (status === 'completed') {
-    // رسالة إتمام السداد
-    msg =
-`السلام عليكم ورحمة الله وبركاته
-العميل المحترم / ${client.name}
-
-🎉 نُهنّئكم بإتمام سداد كامل مستحقاتكم البالغة:
-💰 ${fmt(client.total)} ريال
-
-شكراً لثقتكم وتعاملكم الكريم، ونسعد بخدمتكم دائماً. 🌟`;
-
+    msg = `السلام عليكم ورحمة الله وبركاته\nالعميل المحترم / ${client.name}\n\n🎉 نُهنّئكم بإتمام سداد كامل مستحقاتكم البالغة:\n💰 ${fmt(client.total)} ريال\n\nشكراً لثقتكم وتعاملكم الكريم. 🌟`;
   } else if (status === 'delayed') {
-    // رسالة تذكير بالتأخير
     const delayedAmt = delayed.reduce((s,d) => s + d.amount, 0);
-    msg =
-`السلام عليكم ورحمة الله وبركاته
-العميل المحترم / ${client.name}
-
-نُذكّركم بأن لديكم أقساطاً متأخرة عن موعد السداد:
-
-⚠️ عدد الأشهر المتأخرة: ${delayed.length} شهر
-💵 إجمالي المبلغ المتأخر: ${fmt(delayedAmt)} ريال
-📊 المتبقي من العقد: ${fmt(client.remaining)} ريال
-
-نرجو التواصل معنا في أقرب وقت لتسوية الأقساط المتأخرة.
-جزاكم الله خيراً وبارك في أموالكم. 🙏`;
-
+    const monthsNames = delayed.map(d => d.monthName).join(', ');
+    msg = `السلام عليكم ورحمة الله وبركاته\nالعميل المحترم / ${client.name}\n\nنُذكّركم بأن لديكم أقساطاً متأخرة:\n⚠️ الأشهر: ${monthsNames}\n💵 الإجمالي المتأخر: ${fmt(delayedAmt)} ريال\n\nنرجو التواصل لتسوية الأقساط. 🙏`;
   } else {
-    // رسالة تذكير بموعد القسط القادم
     const nextAmt = nextDue ? nextDue.amount : client.monthly;
     const nextDate = nextDue ? dateLabel(nextDue.dueDate) : '—';
-    msg =
-`السلام عليكم ورحمة الله وبركاته
-العميل المحترم / ${client.name}
-
-نُذكّركم بموعد قسطكم القادم:
-
-📅 تاريخ الاستحقاق: ${nextDate}
-💵 قيمة القسط: ${fmt(nextAmt)} ريال
-📊 المتبقي من العقد: ${fmt(client.remaining)} ريال
-
-نشكركم على التزامكم ونسعد دائماً بخدمتكم. 😊`;
+    msg = `السلام عليكم ورحمة الله وبركاته\nالعميل المحترم / ${client.name}\n\nنُذكّركم بموعد قسطكم القادم:\n📅 التاريخ: ${nextDate}\n💵 القيمة: ${fmt(nextAmt)} ريال\n\nنشكركم على التزامكم. 😊`;
   }
 
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
 }
-
 
 function openDetail(id) {
   const client = clients.find(c => c.id === id);
@@ -1438,14 +1451,13 @@ function openDetail(id) {
     let statusText = '';
     if (s.paid) {
       cls = 'paid-row';
-      statusText = `✅ مدفوع ${s.payDate ? dateLabel(s.payDate) : ''}
-        <button class="mini-edit-btn" onclick="editPayment(${client.id}, ${s.idx})">✏️ تعديل</button>`;
+      statusText = `✅ مدفوع (${s.monthName}) <button class="mini-edit-btn" onclick="editPayment(${client.id}, ${s.idx})">✏️ تعديل</button>`;
     } else if (s.dueDate < now) {
       cls = 'delayed-row';
-      statusText = '⚠️ متأخر';
+      statusText = `⚠️ متأخر (${s.monthName})`;
     } else {
       cls = 'upcoming-row';
-      statusText = '🔜 قادم';
+      statusText = `🔜 قادم (${s.monthName})`;
     }
     return `<tr class="${cls}">
       <td>${s.idx + 1}</td>
@@ -1456,9 +1468,12 @@ function openDetail(id) {
   }).join('');
 
   document.getElementById('modal-body').innerHTML = `
+    <div style="margin-bottom:12px;font-size:13px;color:var(--ink-soft);">
+      ${client.guarantor ? `🤝 الكفيل: <b>${client.guarantor}</b> (${client.guarantorPhone || 'بدون جوال'})` : ''}
+    </div>
     <table class="month-table">
       <thead><tr>
-        <th>#</th><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>الحالة</th>
+        <th>#</th><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>الحالة والشهر</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -1475,146 +1490,213 @@ document.getElementById('detail-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('detail-modal')) closeModal();
 });
 
-// ─────────────────────────────────────────
-// REPORTS
-// ─────────────────────────────────────────
 function selectReportType(type) {
   currentReportType = type;
   document.getElementById('rtype-payers').classList.toggle('active', type === 'payers');
   document.getElementById('rtype-delayed').classList.toggle('active', type === 'delayed');
+  document.getElementById('rtype-monthly-sales').classList.toggle('active', type === 'monthly-sales');
   renderReportPreview();
 }
 
 function renderReportPreview() {
-  const month = parseInt(document.getElementById('r-month').value);
-  const year = parseInt(document.getElementById('r-year').value) || new Date().getFullYear();
-  const isPayers = currentReportType === 'payers';
+  const startDateStr = document.getElementById('r-start-date').value;
+  const endDateStr = document.getElementById('r-end-date').value;
+  
+  const startDate = startDateStr ? new Date(startDateStr) : null;
+  const endDate = endDateStr ? new Date(endDateStr) : null;
+  if (endDate) endDate.setHours(23,59,59,999);
 
-  const reportDate = isPayers
-    ? `20 ${MONTHS_AR[month-1]} ${year}`
-    : `2 ${MONTHS_AR[month-1]} ${year}`;
+  let title = '';
+  let data = [];
 
-  document.getElementById('preview-title').textContent =
-    isPayers ? `✅ قائمة المسددين — ${reportDate}` : `⚠️ قائمة المتأخرين — ${reportDate}`;
+  if (currentReportType === 'payers') {
+    title = '✅ قائمة المسددين (حتى يوم 20 أو الفترة المحددة)';
+    data = getPayersReportData(startDate, endDate);
+  } else if (currentReportType === 'delayed') {
+    title = '⚠️ قائمة المتأخرين (مع تفصيل الأسماء والأشهر بالتحديد)';
+    data = getDelayedReportData(startDate, endDate);
+  } else if (currentReportType === 'monthly-sales') {
+    title = '📦 قائمة المبيعات الشهرية النشطة (تصفر كل يوم 1)';
+    data = getMonthlySalesData(startDate, endDate);
+  }
 
-  const data = getReportData(month, year, isPayers);
-  document.getElementById('preview-count').textContent = `${data.length} عميل`;
+  document.getElementById('preview-title').textContent = title;
+  document.getElementById('preview-count').textContent = `${data.length} عنصر`;
 
   if (data.length === 0) {
-    document.getElementById('preview-body').innerHTML =
-      `<div class="empty-state"><div class="empty-icon">${isPayers?'📭':'🎉'}</div><p>${isPayers?'لا يوجد مسددون في هذا الشهر':'لا يوجد متأخرون في هذا الشهر'}</p></div>`;
+    document.getElementById('preview-body').innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>لا توجد بيانات مطابقة للفترة المحددة</p></div>`;
     return;
   }
 
-  const rows = data.map((d, i) => `
-    <tr>
-      <td>${i+1}</td>
-      <td style="text-align:right;font-weight:700">${d.name}</td>
-      <td>${d.phone ? `<a class="call-link" href="tel:${d.phone}">📞 ${d.phone}</a>` : '—'}</td>
-      <td>${fmt(d.amount)} ر.س</td>
-      <td>${isPayers ? (d.payDate ? dateLabel(d.payDate) : 'هذا الشهر') : `${d.delayedMonths} شهر`}</td>
-    </tr>`).join('');
+  let tableHTML = '';
+  if (currentReportType === 'payers') {
+    const rows = data.map((d, i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td style="text-align:right;font-weight:700">${d.name}</td>
+        <td>${d.phone ? `<a class="call-link" href="tel:${d.phone}">📞 ${d.phone}</a>` : '—'}</td>
+        <td>${fmt(d.amount)} ر.س</td>
+        <td>${dateLabel(d.payDate)}</td>
+      </tr>`).join('');
+    tableHTML = `<table class="preview-table"><thead><tr><th>#</th><th>الاسم</th><th>الجوال</th><th>المبلغ المسدد</th><th>تاريخ السداد</th></tr></thead><tbody>${rows}</tbody></table>`;
+  } else if (currentReportType === 'delayed') {
+    const rows = data.map((d, i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td style="text-align:right;font-weight:700">${d.name}</td>
+        <td>${d.phone ? `<a class="call-link" href="tel:${d.phone}">📞 ${d.phone}</a>` : '—'}</td>
+        <td style="color:var(--red)">${d.delayedCount} أشهر</td>
+        <td style="text-align:right;font-size:12px">${d.monthsList}</td>
+        <td>${fmt(d.totalDelayedAmount)} ر.س</td>
+      </tr>`).join('');
+    tableHTML = `<table class="preview-table"><thead><tr><th>#</th><th>الاسم</th><th>الجوال</th><th>عدد الأشهر</th><th>الأشهر المتأخرة بالتحديد</th><th>إجمالي المبلغ</th></tr></thead><tbody>${rows}</tbody></table>`;
+  } else if (currentReportType === 'monthly-sales') {
+    const rows = data.map((d, i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td style="text-align:right;font-weight:700">${d.name}</td>
+        <td>${d.phone ? `<a class="call-link" href="tel:${d.phone}">📞 ${d.phone}</a>` : '—'}</td>
+        <td>${d.desc || '—'}</td>
+        <td>${fmt(d.amount)} ر.س</td>
+        <td>${dateLabel(d.due)}</td>
+      </tr>`).join('');
+    tableHTML = `<table class="preview-table"><thead><tr><th>#</th><th>الاسم</th><th>الجوال</th><th>الوصف</th><th>المبلغ</th><th>تاريخ الاستحقاق</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
 
-  document.getElementById('preview-body').innerHTML = `
-    <table class="preview-table">
-      <thead><tr>
-        <th>#</th><th>الاسم</th><th>الجوال</th><th>المبلغ</th>
-        <th>${isPayers ? 'تاريخ السداد' : 'عدد الأشهر المتأخرة'}</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+  document.getElementById('preview-body').innerHTML = tableHTML;
 }
 
-function getReportData(month, year, isPayers) {
+function getPayersReportData(start, end) {
   const result = [];
   clients.forEach(client => {
-    const schedule = generateSchedule(client);
-    const now = today();
+    if (client.paymentsLog) {
+      client.paymentsLog.forEach(p => {
+        const pDate = new Date(typeof p === 'string' ? p : p.date);
+        const amt = typeof p === 'string' ? client.monthly : p.amount;
+        const dStr = typeof p === 'string' ? p : p.date;
 
-    if (isPayers) {
-      // Paid in the given month
-      schedule.forEach(s => {
-        if (s.paid && s.payDate) {
-          const d = new Date(s.payDate);
-          if (d.getMonth()+1 === month && d.getFullYear() === year) {
-            result.push({ name: client.name, phone: client.phone, amount: s.amount, payDate: s.payDate });
-          }
+        let match = true;
+        if (start && pDate < start) match = false;
+        if (end && pDate > end) match = false;
+
+        if (match) {
+          result.push({ name: client.name, phone: client.phone, amount: amt, payDate: dStr });
         }
       });
-    } else {
-      // Delayed: due in or before given month, unpaid
-      const cutoff = new Date(year, month - 1, 28);
-      const delayed = schedule.filter(s => !s.paid && s.dueDate <= cutoff && s.dueDate < now);
-      if (delayed.length > 0) {
-        result.push({ name: client.name, phone: client.phone,
-          amount: delayed.reduce((s,d) => s + d.amount, 0),
-          delayedMonths: delayed.length });
-      }
     }
   });
   return result;
 }
 
-// ─────────────────────────────────────────
-// PDF EXPORT (Arabic-correct, rendered from real HTML via html2canvas
-// so Cairo font + RTL shaping is handled natively by the browser)
-// ─────────────────────────────────────────
+function getDelayedReportData(start, end) {
+  const result = [];
+  clients.forEach(client => {
+    const schedule = generateSchedule(client);
+    const now = today();
+    const delayedItems = schedule.filter(s => {
+      if (s.paid || s.dueDate >= now) return false;
+      if (start && s.dueDate < start) return false;
+      if (end && s.dueDate > end) return false;
+      return true;
+    });
+
+    if (delayedItems.length > 0) {
+      result.push({
+        name: client.name,
+        phone: client.phone,
+        delayedCount: delayedItems.length,
+        monthsList: delayedItems.map(d => d.monthName).join('، '),
+        totalDelayedAmount: delayedItems.reduce((s, d) => s + d.amount, 0)
+      });
+    }
+  });
+  return result;
+}
+
+function getMonthlySalesData(start, end) {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  return deferred.filter(d => {
+    if (d.settled) return false;
+    const dDate = new Date(d.due);
+    if (dDate < monthStart) return false;
+    if (start && dDate < start) return false;
+    if (end && dDate > end) return false;
+    return true;
+  });
+}
+
 async function exportPDF() {
-  const month = parseInt(document.getElementById('r-month').value);
-  const year = parseInt(document.getElementById('r-year').value) || new Date().getFullYear();
-  const isPayers = currentReportType === 'payers';
-  const data = getReportData(month, year, isPayers);
+  const startDateStr = document.getElementById('r-start-date').value;
+  const endDateStr = document.getElementById('r-end-date').value;
+  const start = startDateStr ? new Date(startDateStr) : null;
+  const end = endDateStr ? new Date(endDateStr) : null;
+  if (end) end.setHours(23,59,59,999);
+
+  let data = [];
+  let title = '';
+
+  if (currentReportType === 'payers') {
+    data = getPayersReportData(start, end);
+    title = 'قائمة المسددين';
+  } else if (currentReportType === 'delayed') {
+    data = getDelayedReportData(start, end);
+    title = 'قائمة المتأخرين والأشهر';
+  } else {
+    data = getMonthlySalesData(start, end);
+    title = 'قائمة المبيعات الشهرية';
+  }
 
   if (data.length === 0) {
-    showToast('لا توجد بيانات لتصدير', 'red'); return;
+    showToast('لا توجد بيانات لتصديرها', 'red'); return;
   }
 
   showToast('⏳ جاري إنشاء ملف PDF...', '');
 
-  const reportDayNum = isPayers ? 20 : 2;
-  const reportTitle = isPayers ? 'قائمة المسددين الشهرية' : 'قائمة المتأخرين عن السداد';
-  const reportDate = `${reportDayNum} / ${month} / ${year}`;
-  const totalAmt = data.reduce((s,d) => s + d.amount, 0);
-
-  // Paginate rows manually (about 22 rows per A4 page under the header)
   const ROWS_PER_PAGE = 22;
   const pages = [];
   for (let i = 0; i < data.length; i += ROWS_PER_PAGE) pages.push(data.slice(i, i + ROWS_PER_PAGE));
 
   const renderArea = document.getElementById('pdf-render-area');
+  
+  let tableHeaders = '';
+  if (currentReportType === 'payers') {
+    tableHeaders = '<tr><th>#</th><th>الاسم</th><th>الجوال</th><th>المبلغ المسدد</th><th>تاريخ السداد</th></tr>';
+  } else if (currentReportType === 'delayed') {
+    tableHeaders = '<tr><th>#</th><th>الاسم</th><th>الجوال</th><th>عدد الأشهر</th><th>الأشهر المتأخرة بالتحديد</th><th>إجمالي المبلغ</th></tr>';
+  } else {
+    tableHeaders = '<tr><th>#</th><th>الاسم</th><th>الجوال</th><th>الوصف</th><th>المبلغ</th><th>تاريخ الاستحقاق</th></tr>';
+  }
+
   renderArea.innerHTML = pages.map((pageRows, pIdx) => `
     <div class="pdf-page" id="pdf-page-${pIdx}">
       <div class="pdf-header">
-        <h1>${reportTitle}</h1>
+        <h1>${title}</h1>
         <div class="pdf-sub">نظام المحمدية</div>
-        <div class="pdf-meta">تاريخ التقرير: ${reportDate} &nbsp;|&nbsp; عدد العملاء: ${data.length} &nbsp;|&nbsp; صفحة ${pIdx+1} من ${pages.length}</div>
+        <div class="pdf-meta">الفترة: ${startDateStr || 'البداية'} إلى ${endDateStr || 'اليوم'} &nbsp;|&nbsp; صفحة ${pIdx+1} من ${pages.length}</div>
       </div>
       <table class="pdf-table">
-        <thead>
-          <tr>
-            <th>#</th><th>الاسم</th><th>الجوال</th><th>المبلغ</th>
-            <th>${isPayers ? 'تاريخ السداد' : 'عدد الأشهر المتأخرة'}</th>
-          </tr>
-        </thead>
+        <thead>${tableHeaders}</thead>
         <tbody>
-          ${pageRows.map((d, i) => `
-            <tr>
-              <td>${pIdx * ROWS_PER_PAGE + i + 1}</td>
-              <td style="text-align:right;font-weight:700">${d.name}</td>
-              <td>${d.phone || '—'}</td>
-              <td>${fmt(d.amount)} ر.س</td>
-              <td>${isPayers ? (d.payDate ? dateLabel(d.payDate) : 'هذا الشهر') : `${d.delayedMonths} شهر`}</td>
-            </tr>`).join('')}
+          ${pageRows.map((d, i) => {
+            let rowIdx = pIdx * ROWS_PER_PAGE + i + 1;
+            if (currentReportType === 'payers') {
+              return `<tr><td>${rowIdx}</td><td style="text-align:right;font-weight:700">${d.name}</td><td>${d.phone||'—'}</td><td>${fmt(d.amount)} ر.س</td><td>${dateLabel(d.payDate)}</td></tr>`;
+            } else if (currentReportType === 'delayed') {
+              return `<tr><td>${rowIdx}</td><td style="text-align:right;font-weight:700">${d.name}</td><td>${d.phone||'—'}</td><td>${d.delayedCount} أشهر</td><td style="text-align:right">${d.monthsList}</td><td>${fmt(d.totalDelayedAmount)} ر.س</td></tr>`;
+            } else {
+              return `<tr><td>${rowIdx}</td><td style="text-align:right;font-weight:700">${d.name}</td><td>${d.phone||'—'}</td><td>${d.desc||'—'}</td><td>${fmt(d.amount)} ر.س</td><td>${dateLabel(d.due)}</td></tr>`;
+            }
+          }).join('')}
         </tbody>
       </table>
       <div class="pdf-footer">
-        <span>إجمالي المبالغ: ${fmt(totalAmt)} ر.س</span>
+        <span>عدد السجلات: ${data.length}</span>
         <span>طُبع بتاريخ ${new Date().toLocaleDateString('ar-SA')}</span>
       </div>
     </div>
   `).join('');
 
-  // Wait a tick for fonts/layout to settle
   await new Promise(r => setTimeout(r, 60));
 
   const { jsPDF } = window.jspdf;
@@ -1629,89 +1711,67 @@ async function exportPDF() {
   }
 
   renderArea.innerHTML = '';
-
-  const fileName = isPayers
-    ? `مسددون_${MONTHS_AR[month-1]}_${year}.pdf`
-    : `متأخرون_${MONTHS_AR[month-1]}_${year}.pdf`;
-
-  doc.save(fileName);
+  doc.save(`${title}_${new Date().toISOString().split('T')[0]}.pdf`);
   showToast('✅ تم تحميل ملف PDF', 'green');
 }
 
-// ─────────────────────────────────────────
-// WHATSAPP SEND
-// ─────────────────────────────────────────
 function sendWhatsApp() {
-  const month = parseInt(document.getElementById('r-month').value);
-  const year  = parseInt(document.getElementById('r-year').value) || new Date().getFullYear();
-  const isPayers = currentReportType === 'payers';
-  const data  = getReportData(month, year, isPayers);
-  let phone   = (document.getElementById('r-collector-phone').value || '').trim().replace(/\s|-/g,'');
+  const startDateStr = document.getElementById('r-start-date').value;
+  const endDateStr = document.getElementById('r-end-date').value;
+  const start = startDateStr ? new Date(startDateStr) : null;
+  const end = endDateStr ? new Date(endDateStr) : null;
+  if (end) end.setHours(23,59,59,999);
 
+  let phone = (document.getElementById('r-collector-phone').value || '').trim().replace(/\s|-/g,'');
   if (!phone) {
     showToast('⚠️ أدخل رقم واتساب المحصّل أولاً', 'red'); return;
   }
-  // Remove leading + or 00
   phone = phone.replace(/^\+|^00/, '');
 
-  if (data.length === 0) {
-    showToast('لا توجد بيانات لإرسالها', 'red'); return;
+  let data = [];
+  let title = '';
+  if (currentReportType === 'payers') {
+    data = getPayersReportData(start, end);
+    title = '✅ تقرير المسددين';
+  } else if (currentReportType === 'delayed') {
+    data = getDelayedReportData(start, end);
+    title = '⚠️ تقرير المتأخرين والأشهر';
+  } else {
+    data = getMonthlySalesData(start, end);
+    title = '📦 تقرير المبيعات الشهرية';
   }
 
-  const reportTitle = isPayers ? '✅ قائمة المسددين' : '⚠️ قائمة المتأخرين';
-  const reportDay   = isPayers ? 20 : 2;
-  const totalAmt    = data.reduce((s,d) => s + d.amount, 0);
+  if (data.length === 0) {
+    showToast('لا توجد بيانات للإرسال', 'red'); return;
+  }
 
-  // Build text message with full list
-  let msg = `${reportTitle}\n`;
-  msg += `📅 التاريخ: ${reportDay}/${month}/${year}\n`;
-  msg += `👥 العدد: ${data.length} عميل\n`;
-  msg += `💰 الإجمالي: ${fmt(totalAmt)} ر.س\n`;
-  msg += `${'─'.repeat(28)}\n`;
-
+  let msg = `${title}\n👥 العدد: ${data.length}\n${'─'.repeat(25)}\n`;
   data.forEach((d, i) => {
     msg += `\n${i+1}. ${d.name}`;
     if (d.phone) msg += `\n    📱 ${d.phone}`;
-    msg += `\n    💵 ${fmt(d.amount)} ر.س`;
-    if (isPayers && d.payDate) msg += `\n    📆 سدّد: ${dateLabel(d.payDate)}`;
-    if (!isPayers) msg += `\n    ⏳ تأخر: ${d.delayedMonths} شهر`;
-    msg += '\n';
+    if (currentReportType === 'payers') {
+      msg += `\n    💵 المبلغ: ${fmt(d.amount)} ر.س (بتاريخ: ${dateLabel(d.payDate)})`;
+    } else if (currentReportType === 'delayed') {
+      msg += `\n    ⏳ الأشهر (${d.delayedCount}): ${d.monthsList}\n    💵 الإجمالي: ${fmt(d.totalDelayedAmount)} ر.س`;
+    } else {
+      msg += `\n    💵 المبلغ: ${fmt(d.amount)} ر.س (مستحق: ${dateLabel(d.due)})`;
+    }
   });
 
-  msg += `${'─'.repeat(28)}\n`;
-  msg += `📌 ملاحظة: يُرجى تحميل ملف PDF من التطبيق وإرفاقه مع هذه القائمة.`;
-
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-
-  // Also trigger PDF download so collector can attach it
   exportPDF();
-
   setTimeout(() => {
     window.open(url, '_blank');
     showToast('📲 تم فتح واتساب', 'green');
   }, 800);
 }
 
-// ─────────────────────────────────────────
-// DEFERRED SALES
-// ─────────────────────────────────────────
-let deferred = JSON.parse(localStorage.getItem('iqsat_deferred')) || [];
-
-function saveDeferred() {
-  try {
-    localStorage.setItem('iqsat_deferred', JSON.stringify(deferred));
-    localStorage.setItem('iqsat_deferred_backup', JSON.stringify(deferred));
-  } catch(e) {
-    showToast('⚠️ تعذّر الحفظ، مساحة التخزين ممتلئة', 'red');
-  }
-}
-
 function addDeferred() {
-  const name   = document.getElementById('d-name').value.trim();
-  const phone  = document.getElementById('d-phone').value.trim();
+  const name = document.getElementById('d-name').value.trim();
+  const phone = document.getElementById('d-phone').value.trim();
   const amount = parseFloat(document.getElementById('d-amount').value) || 0;
-  const due    = document.getElementById('d-due').value;
-  const desc   = document.getElementById('d-desc').value.trim();
+  const due = document.getElementById('d-due').value;
+  const desc = document.getElementById('d-desc').value.trim();
 
   if (!name || !amount || !due) {
     showToast('⚠️ يرجى ملء الحقول المطلوبة', 'red'); return;
@@ -1751,8 +1811,6 @@ function daysUntil(dateStr) {
   return Math.round((due - now) / 86400000);
 }
 
-// Builds the card markup for a single active (unsettled) deferred sale.
-// Shared by the Home dashboard (merged indicator) and the Deferred Sales tab.
 function deferredCardHTML(d) {
   const diff = daysUntil(d.due);
   let cardClass = 'deferred-card';
@@ -1794,90 +1852,40 @@ function deferredCardHTML(d) {
 }
 
 function renderDeferred() {
-  const now = new Date(); now.setHours(0,0,0,0);
-  const active = deferred.filter(d => !d.settled);
-  const settled = deferred.filter(d => d.settled);
-
-  // Alert banner for near-due items
+  const monthlySales = getActiveMonthlySales();
   const alertBanner = document.getElementById('deferred-alert-banner');
-  const nearDue = active.filter(d => { const diff = daysUntil(d.due); return diff >= 0 && diff <= 10; });
-  const overdue = active.filter(d => daysUntil(d.due) < 0);
+  const nearDue = monthlySales.filter(d => { const diff = daysUntil(d.due); return diff >= 0 && diff <= 10; });
+  const overdue = monthlySales.filter(d => daysUntil(d.due) < 0);
 
   if (overdue.length > 0) {
-    alertBanner.innerHTML = `<div class="alert-banner">
-      <span class="alert-icon">🚨</span>
-      <span>${overdue.length} مبيعة آجلة تجاوزت تاريخ الاستحقاق — بادر بالتحصيل الآن!</span>
-    </div>`;
+    alertBanner.innerHTML = `<div class="alert-banner"><span class="alert-icon">🚨</span><span>${overdue.length} مبيعة آجلة هذا الشهر تجاوزت تاريخ الاستحقاق!</span></div>`;
   } else if (nearDue.length > 0) {
-    alertBanner.innerHTML = `<div class="alert-banner" style="background:linear-gradient(135deg,#7a5010,var(--gold))">
-      <span class="alert-icon">⏰</span>
-      <span>${nearDue.length} مبيعة آجلة تستحق خلال 10 أيام أو أقل</span>
-    </div>`;
+    alertBanner.innerHTML = `<div class="alert-banner" style="background:linear-gradient(135deg,#7a5010,var(--gold))"><span class="alert-icon">⏰</span><span>${nearDue.length} مبيعة آجلة تستحق خلال 10 أيام</span></div>`;
   } else {
     alertBanner.innerHTML = '';
   }
 
   const container = document.getElementById('deferred-list');
-  if (active.length === 0 && settled.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><p>لا توجد مبيعات آجلة مسجلة</p></div>`;
+  if (monthlySales.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><p>لا توجد مبيعات آجلة لشهر الحالي (تصفر في اليوم الأول)</p></div>`;
     return;
   }
 
-  const sortedActive = [...active].sort((a,b) => new Date(a.due) - new Date(b.due));
-  const sortedSettled = [...settled].sort((a,b) => new Date(b.settledDate||b.due) - new Date(a.settledDate||a.due)).slice(0,5);
-
-  let html = '';
-
-  if (sortedActive.length > 0) {
-    html += `<div class="section-title" style="margin-bottom:10px;">⏳ قيد التحصيل (${sortedActive.length})</div>`;
-    html += sortedActive.map(d => deferredCardHTML(d)).join('');
-  }
-
-  if (sortedSettled.length > 0) {
-    html += `<div class="section-title" style="margin:14px 0 10px;">✅ محصّلة مؤخراً</div>`;
-    html += sortedSettled.map(d => `
-      <div class="deferred-card" style="opacity:0.65">
-        <div class="deferred-head">
-          <div>
-            <div class="deferred-name">${d.name}</div>
-            ${d.desc ? `<div class="deferred-desc">📦 ${d.desc}</div>` : ''}
-          </div>
-          <span class="status-badge badge-completed">محصّل</span>
-        </div>
-        <div class="deferred-body">
-          <div class="info-grid">
-            <div class="info-item"><div class="lbl">المبلغ</div><div class="val success">${fmt(d.amount)} ر.س</div></div>
-            <div class="info-item"><div class="lbl">تاريخ التسوية</div><div class="val">${dateLabel(d.settledDate)}</div></div>
-          </div>
-        </div>
-        <div class="deferred-actions">
-          <button class="action-btn btn-del" onclick="deleteDeferred(${d.id})">🗑️ حذف</button>
-        </div>
-      </div>`).join('');
-  }
-
-  container.innerHTML = html;
+  const sortedActive = [...monthlySales].sort((a,b) => new Date(a.due) - new Date(b.due));
+  container.innerHTML = sortedActive.map(d => deferredCardHTML(d)).join('');
 }
 
 function updateDeferredTabBadge() {
-  const active = deferred.filter(d => !d.settled);
-  const urgent = active.filter(d => daysUntil(d.due) <= 10);
+  const monthlySales = getActiveMonthlySales();
+  const urgent = monthlySales.filter(d => daysUntil(d.due) <= 10);
   const tabBtn = document.getElementById('tab-deferred');
   if (!tabBtn) return;
   const badge = urgent.length > 0 ? ` <span style="background:var(--red);color:white;border-radius:10px;padding:1px 6px;font-size:10px;vertical-align:middle">${urgent.length}</span>` : '';
   tabBtn.innerHTML = `<span class="tab-icon">🗓️</span>آجل${badge}`;
 }
 
-// ─────────────────────────────────────────
-// BACKUP & RESTORE
-// ─────────────────────────────────────────
 function exportBackup() {
-  const data = {
-    version: 2,
-    exportDate: new Date().toISOString(),
-    clients: clients,
-    deferred: deferred
-  };
+  const data = { version: 2, exportDate: new Date().toISOString(), clients, deferred };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1912,21 +1920,10 @@ function importBackup(e) {
   e.target.value = '';
 }
 
-// ─────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────
 function init() {
   const now = new Date();
   document.getElementById('today-date').textContent =
     now.toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric', calendar:'gregory' });
-
-  // Set default month/year for reports
-  document.getElementById('r-month').value = now.getMonth() + 1;
-  document.getElementById('r-year').value = now.getFullYear();
-
-  // Load saved collector phone
-  const savedPhone = localStorage.getItem('collector_phone') || '';
-  if (savedPhone) document.getElementById('r-collector-phone').value = savedPhone;
 
   renderHome();
   updateDeferredTabBadge();
