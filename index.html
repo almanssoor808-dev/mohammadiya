@@ -618,28 +618,30 @@
     height: 4px;
     background: var(--gold);
   }
-  .pdf-header h1 { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
-  .pdf-header .pdf-sub { color: var(--gold); font-size: 14px; font-weight: 700; }
-  .pdf-header .pdf-meta { color: #b4c8dc; font-size: 12px; margin-top: 8px; }
-  .pdf-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .pdf-header h1 { font-size: 24px; font-weight: 900; margin-bottom: 6px; }
+  .pdf-header .pdf-sub { color: var(--gold); font-size: 15px; font-weight: 700; }
+  .pdf-header .pdf-meta { color: #b4c8dc; font-size: 13px; margin-top: 8px; }
+  .pdf-table { width: 100%; border-collapse: collapse; font-size: 15px; }
   .pdf-table thead th {
     background: var(--gold-light);
     color: #7a5010;
-    padding: 10px 8px;
-    font-weight: 700;
+    padding: 12px 10px;
+    font-weight: 900;
     border-bottom: 2px solid var(--gold);
   }
   .pdf-table tbody td {
-    padding: 9px 8px;
+    padding: 12px 10px;
     border-bottom: 1px solid var(--border);
     text-align: center;
+    font-weight: 600;
+    color: var(--ink);
   }
   .pdf-table tbody tr:nth-child(even) { background: #f8fafc; }
   .pdf-footer {
     margin-top: 18px;
     padding-top: 12px;
     border-top: 2px solid var(--gold);
-    font-size: 11px;
+    font-size: 12px;
     color: var(--ink-soft);
     display: flex;
     justify-content: space-between;
@@ -1354,7 +1356,7 @@ function closeAllClientsModal() {
 
 async function exportAllClientsPDF() {
   if (clients.length === 0) return;
-  showToast('⏳ جاري إنشاء ملف PDF للتقرير الشامل...', '');
+  showToast('⏳ جاري إنشاء ملف PDF للتقرير الشامل بجودة عالية...', '');
 
   const renderArea = document.getElementById('pdf-render-area');
 
@@ -1368,13 +1370,13 @@ async function exportAllClientsPDF() {
       <table class="pdf-table">
         <thead>
           <tr>
-            <th>#</th>
-            <th>اسم المشتري</th>
-            <th>رقم الجوال</th>
-            <th>اسم الكفيل</th>
-            <th>رقم جوال الكفيل</th>
-            <th>القسط الشهري</th>
-            <th>ملاحظات</th>
+            <th style="width: 6%;">#</th>
+            <th style="width: 24%; text-align:right;">اسم المشتري</th>
+            <th style="width: 15%;">رقم الجوال</th>
+            <th style="width: 20%; text-align:right;">اسم الكفيل</th>
+            <th style="width: 15%;">رقم جوال الكفيل</th>
+            <th style="width: 15%;">القسط الشهري</th>
+            <th style="width: 5%;">ملاحظات</th>
           </tr>
         </thead>
         <tbody>
@@ -1397,18 +1399,18 @@ async function exportAllClientsPDF() {
     </div>
   `;
 
-  await new Promise(r => setTimeout(r, 60));
+  await new Promise(r => setTimeout(r, 100));
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageEl = document.getElementById('pdf-full-page');
-  const canvas = await html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-  const imgData = canvas.toDataURL('image/jpeg', 0.95);
+  const canvas = await html2canvas(pageEl, { scale: 3, useCORS: true, backgroundColor: '#ffffff' });
+  const imgData = canvas.toDataURL('image/jpeg', 1.0);
   doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
 
   renderArea.innerHTML = '';
   doc.save(`التقرير_الشامل_للعملاء_${new Date().toISOString().split('T')[0]}.pdf`);
-  showToast('✅ تم تحميل ملف PDF بنجاح', 'green');
+  showToast('✅ تم تحميل ملف PDF بوضوح تام', 'green');
 }
 
 function addClient() {
