@@ -1080,7 +1080,8 @@ function fmt(n) {
 function dateLabel(d) {
   if (!d) return '—';
   const dt = new Date(d);
-  return dt.toLocaleDateString('ar-SA', { year:'numeric', month:'short', day:'numeric', calendar:'gregory' });
+  // إظهار اسم اليوم واسم الشهر بالكامل والتاريخ الميلادي بدقة
+  return dt.toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric', calendar:'gregory' });
 }
 
 function generateSchedule(client) {
@@ -1122,8 +1123,7 @@ function getStatus(client) {
   const now = today();
   const day = now.getDate();
   
-  // بناءً على طلبك: يعاد جميع حالات العملاء في تاريخ 25 إلى عملاء بدون تأخير (منتظم)، 
-  // ولا يعود للتأخير إلا إذا تجاوزنا تاريخ 25 (أي ابتداء من تاريخ 26 فصاعداً ودورة جديدة).
+  // إعادة تعيين جميع حالات العملاء إلى منتظم بين يوم 1 إلى 25 من كل شهر
   if (day >= 1 && day <= 25) {
     return 'on-track';
   }
@@ -1327,7 +1327,7 @@ function clientCardHTML(client) {
         <div class="info-item"><div class="lbl">الإجمالي</div><div class="val">${fmt(client.total)} ر.س</div></div>
         <div class="info-item"><div class="lbl">القسط</div><div class="val">${fmt(client.monthly)} ر.س</div></div>
         <div class="info-item"><div class="lbl">المتبقي</div><div class="val danger">${fmt(client.remaining)} ر.س</div></div>
-        <div class="info-item"><div class="lbl">آخر سداد</div><div class="val success">${lastPayDateStr}</div></div>
+        <div class="info-item"><div class="lbl">آخر سداد (باليوم والتاريخ)</div><div class="val success">${lastPayDateStr}</div></div>
         <div class="info-item" style="grid-column:1/-1"><div class="lbl">الأشهر المتأخرة المسجلة</div><div class="val ${delayed.length > 0 ? 'danger' : 'success'}">${delayed.length > 0 ? `⚠️ ${delayed.length} شهر (${delayed.map(d => d.monthName).join(', ')})` : 'لا توجد أشهر متأخرة'}</div></div>
       </div>
     </div>
