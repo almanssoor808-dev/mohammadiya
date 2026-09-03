@@ -1111,18 +1111,25 @@ function generateSchedule(client) {
   return schedule;
 }
 
-function getStatus(client) {
-  if (client.remaining <= 0.001) return 'completed';
-  const schedule = generateSchedule(client);
-  const now = today();
-  const hasDelayed = schedule.some(s => !s.paid && s.dueDate < now);
-  return hasDelayed ? 'delayed' : 'on-track';
-}
-
 function getDelayedMonths(client) {
   const schedule = generateSchedule(client);
   const now = today();
   return schedule.filter(s => !s.paid && s.dueDate < now);
+}
+
+function getStatus(client) {
+  if (client.remaining <= 0.001) return 'completed';
+  const now = today();
+  const day = now.getDate();
+  
+  // بناءً على طلبك: يعاد جميع حالات العملاء في تاريخ 25 إلى عملاء بدون تأخير (منتظم)، 
+  // ولا يعود للتأخير إلا إذا تجاوزنا تاريخ 25 (أي ابتداء من تاريخ 26 فصاعداً ودورة جديدة).
+  if (day >= 1 && day <= 25) {
+    return 'on-track';
+  }
+
+  const delayed = getDelayedMonths(client);
+  return delayed.length > 0 ? 'delayed' : 'on-track';
 }
 
 function showToast(msg, type='') {
@@ -1293,6 +1300,12 @@ function clientCardHTML(client) {
   const pct = Math.min(100, ((client.paid / client.total) * 100)).toFixed(0);
   const delayed = getDelayedMonths(client);
 
+  let lastPayDateStr = '—';
+  if (client.paymentsLog && client.paymentsLog.length > 0) {
+    const lastLog = client.paymentsLog[client.paymentsLog.length - 1];
+    lastPayDateStr = dateLabel(typeof lastLog === 'string' ? lastLog : lastLog.date);
+  }
+
   return `<div class="client-card ${status}">
     <div class="client-head">
       <div>
@@ -1314,8 +1327,8 @@ function clientCardHTML(client) {
         <div class="info-item"><div class="lbl">الإجمالي</div><div class="val">${fmt(client.total)} ر.س</div></div>
         <div class="info-item"><div class="lbl">القسط</div><div class="val">${fmt(client.monthly)} ر.س</div></div>
         <div class="info-item"><div class="lbl">المتبقي</div><div class="val danger">${fmt(client.remaining)} ر.س</div></div>
-        <div class="info-item"><div class="lbl">بداية العقد</div><div class="val">${dateLabel(client.startDate)}</div></div>
-        ${delayed.length > 0 ? `<div class="info-item" style="grid-column:1/-1"><div class="lbl">الأشهر المتأخرة</div><div class="val danger">⚠️ ${delayed.length} شهر متأخر</div></div>` : ''}
+        <div class="info-item"><div class="lbl">آخر سداد</div><div class="val success">${lastPayDateStr}</div></div>
+        <div class="info-item" style="grid-column:1/-1"><div class="lbl">الأشهر المتأخرة المسجلة</div><div class="val ${delayed.length > 0 ? 'danger' : 'success'}">${delayed.length > 0 ? `⚠️ ${delayed.length} شهر (${delayed.map(d => d.monthName).join(', ')})` : 'لا توجد أشهر متأخرة'}</div></div>
       </div>
     </div>
     <div class="client-actions">
@@ -1361,7 +1374,6 @@ async function exportAllClientsPDF() {
 
   const renderArea = document.getElementById('pdf-render-area');
   
-  // تقسيم العملاء إلى مجموعات (15 عميل في كل صفحة لضمان وضوح تام ومقروئية عالية)
   const ROWS_PER_PAGE = 15;
   const pages = [];
   for (let i = 0; i < clients.length; i += ROWS_PER_PAGE) {
@@ -1548,17 +1560,19 @@ function payInstallment(id) {
     showToast('⚠️ المبلغ أكبر من المتبقي على العميل', 'red'); return;
   }
 
+  const nowStr = new Date().toISOString().split('T')[0];
+
   clients = clients.map(c => {
     if (c.id === id) {
       c.remaining = parseFloat((c.remaining - amount).toFixed(2));
       c.paid = parseFloat((c.paid + amount).toFixed(2));
       if (!c.paymentsLog) c.paymentsLog = [];
-      c.paymentsLog.push({ date: new Date().toISOString().split('T')[0], amount: parseFloat(amount.toFixed(2)) });
+      c.paymentsLog.push({ date: nowStr, amount: parseFloat(amount.toFixed(2)) });
     }
     return c;
   });
   save();
-  showToast('💰 تم تسجيل القسط', 'green');
+  showToast('💰 تم تسجيل القسط بتاريخ اليوم', 'green');
   renderHome();
   renderClients();
 }
@@ -1788,22 +1802,20 @@ function getPayersReportData(start, end) {
 function getDelayedReportData(start, end) {
   const result = [];
   clients.forEach(client => {
-    const schedule = generateSchedule(client);
-    const now = today();
-    const delayedItems = schedule.filter(s => {
-      if (s.paid || s.dueDate >= now) return false;
+    const delayedItems = getDelayedMonths(client);
+    const filteredItems = delayedItems.filter(s => {
       if (start && s.dueDate < start) return false;
       if (end && s.dueDate > end) return false;
       return true;
     });
 
-    if (delayedItems.length > 0) {
+    if (filteredItems.length > 0) {
       result.push({
         name: client.name,
         phone: client.phone,
-        delayedCount: delayedItems.length,
-        monthsList: delayedItems.map(d => d.monthName).join('، '),
-        totalDelayedAmount: delayedItems.reduce((s, d) => s + d.amount, 0)
+        delayedCount: filteredItems.length,
+        monthsList: filteredItems.map(d => d.monthName).join('، '),
+        totalDelayedAmount: filteredItems.reduce((s, d) => s + d.amount, 0)
       });
     }
   });
