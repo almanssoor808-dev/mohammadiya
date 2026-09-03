@@ -1080,8 +1080,28 @@ function fmt(n) {
 function dateLabel(d) {
   if (!d) return '—';
   const dt = new Date(d);
-  // إظهار اسم اليوم واسم الشهر بالكامل والتاريخ الميلادي بدقة
   return dt.toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric', calendar:'gregory' });
+}
+
+// دالة لحساب حدود دورة الـ 26 الحالية
+// الدورة تبدأ من 26 في الشهر الحالي (أو الماضي إذا كنا قبل 26) وتستمر حتى 25 الشهر التالي
+function getCurrentCycleRange() {
+  const now = new Date();
+  let startYear = now.getFullYear();
+  let startMonth = now.getMonth();
+  
+  if (now.getDate() < 26) {
+    // إذا كنا قبل يوم 26، إذن الدورة بدأت في 26 الشهر الماضي
+    startMonth -= 1;
+  }
+  
+  const cycleStart = new Date(startYear, startMonth, 26, 0, 0, 0, 0);
+  const cycleEnd = new Date(cycleStart.getFullYear(), cycleStart.getMonth() + 1, 25, 23, 59, 59, 999);
+  
+  // اسم شهر الدورة الحالي للاستخدام في السجل (مثال: مارس 2026 أو الشهر الذي يبدأ فيه التأخير)
+  const cycleMonthName = MONTHS_AR[cycleStart.getMonth()] + ' ' + cycleStart.getFullYear();
+  
+  return { cycleStart, cycleEnd, cycleMonthName };
 }
 
 function generateSchedule(client) {
@@ -1120,14 +1140,30 @@ function getDelayedMonths(client) {
 
 function getStatus(client) {
   if (client.remaining <= 0.001) return 'completed';
-  const now = today();
-  const day = now.getDate();
   
-  // إعادة تعيين جميع حالات العملاء إلى منتظم بين يوم 1 إلى 25 من كل شهر
-  if (day >= 1 && day <= 25) {
+  const now = today();
+  const { cycleStart } = getCurrentCycleRange();
+  
+  // التحقق مما إذا قام العميل بالسداد خلال الدورة الحالية (ابتداءً من تاريخ 26 فصاعداً)
+  let paidInCurrentCycle = false;
+  if (client.paymentsLog && client.paymentsLog.length > 0) {
+    paidInCurrentCycle = client.paymentsLog.some(p => {
+      const pDate = new Date(typeof p === 'string' ? p : p.date);
+      return pDate >= cycleStart && pDate <= now;
+    });
+  }
+  
+  // إذا سدد في هذه الدورة، تصبح حالته "منتظم"
+  if (paidInCurrentCycle) {
     return 'on-track';
   }
-
+  
+  // إذا حل يوم 26 أو ما بعده ولم يسدد بعد في هذه الدورة، يعتبر متأخراً
+  if (now >= cycleStart) {
+    return 'delayed';
+  }
+  
+  // قبل يوم 26، نفحص ما إذا كان لديه أقساط فائتة قديمة
   const delayed = getDelayedMonths(client);
   return delayed.length > 0 ? 'delayed' : 'on-track';
 }
@@ -1181,23 +1217,13 @@ function toggleMonthlySalesForm() {
 }
 
 function getCycleCollectedTotal() {
-  const now = new Date();
-  let cycleStart, cycleEnd;
-  
-  if (now.getDate() >= 20) {
-    cycleStart = new Date(now.getFullYear(), now.getMonth(), 20);
-    cycleEnd = new Date(now.getFullYear(), now.getMonth() + 1, 20);
-  } else {
-    cycleStart = new Date(now.getFullYear(), now.getMonth() - 1, 20);
-    cycleEnd = new Date(now.getFullYear(), now.getMonth(), 20);
-  }
-
+  const { cycleStart, cycleEnd } = getCurrentCycleRange();
   let totalCollectedInCycle = 0;
   clients.forEach(c => {
     if (c.paymentsLog) {
       c.paymentsLog.forEach(p => {
         const pDate = new Date(typeof p === 'string' ? p : p.date);
-        if (pDate >= cycleStart && pDate < cycleEnd) {
+        if (pDate >= cycleStart && pDate <= cycleEnd) {
           totalCollectedInCycle += (typeof p === 'string' ? c.monthly : p.amount);
         }
       });
@@ -1233,7 +1259,7 @@ function renderHome() {
       <div class="stat-value gold">${fmt(totalRemaining)} <span class="stat-unit">ر.س</span></div>
     </div>
     <div class="stat-card">
-      <div class="stat-label" style="font-weight:900;font-size:13px;color:var(--ink)">المحصل (من دورة 20)</div>
+      <div class="stat-label" style="font-weight:900;font-size:13px;color:var(--ink)">المحصل (من دورة 26)</div>
       <div class="stat-value green">${fmt(cycleCollected)} <span class="stat-unit">ر.س</span></div>
     </div>
     <div class="stat-card">
@@ -1572,7 +1598,7 @@ function payInstallment(id) {
     return c;
   });
   save();
-  showToast('💰 تم تسجيل القسط بتاريخ اليوم', 'green');
+  showToast('💰 تم تسجيل القسط بتاريخ اليوم وأصبحت حالته منتظماً', 'green');
   renderHome();
   renderClients();
 }
@@ -1721,7 +1747,7 @@ function renderReportPreview() {
   let data = [];
 
   if (currentReportType === 'payers') {
-    title = '✅ قائمة المسددين (حتى يوم 20 أو الفترة المحددة)';
+    title = '✅ قائمة المسددين (حتى دورة 26 أو الفترة المحددة)';
     data = getPayersReportData(startDate, endDate);
   } else if (currentReportType === 'delayed') {
     title = '⚠️ قائمة المتأخرين (مع تفصيل الأسماء والأشهر بالتحديد)';
