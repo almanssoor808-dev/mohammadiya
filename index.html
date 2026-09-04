@@ -312,6 +312,7 @@
   }
   .action-btn:active { opacity: 0.75; }
   .btn-pay { background: var(--teal-light); color: var(--teal); }
+  .btn-discount { background: #fdf3e3; color: #b7791f; }
   .btn-details { background: var(--gold-light); color: #7a5010; }
   .btn-edit { background: #e6edf7; color: #2952a3; }
   .btn-del { background: var(--red-light); color: var(--red); flex: 0 0 42px !important; }
@@ -584,6 +585,16 @@
     animation: pulse-border 1.4s ease-in-out infinite;
   }
   .alert-banner .alert-icon { font-size: 22px; flex-shrink: 0; }
+
+  /* ── TABLES IN MODALS ── */
+  .month-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  .month-table th { background: var(--gold-pale); color: #7a5010; padding: 9px; font-weight: 700; border-bottom: 2px solid var(--gold); text-align: center; }
+  .month-table td { padding: 8px; border-bottom: 1px solid var(--border); text-align: center; font-size: 12px; }
+  .month-table tr.paid-row { background: var(--green-light); }
+  .month-table tr.delayed-row { background: var(--red-light); }
+  .month-table tr.upcoming-row { background: #f8fafc; }
+  .mini-edit-btn { background: none; border: none; cursor: pointer; font-size: 12px; margin-right: 4px; }
+  .mini-del-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: var(--red); margin-right: 4px; }
 
   /* ── PRINTABLE REPORT (LANDSCAPE WITH MULTI-PAGE SUPPORT) ── */
   #pdf-render-area {
@@ -1083,22 +1094,17 @@ function dateLabel(d) {
   return dt.toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric', calendar:'gregory' });
 }
 
-// دالة لحساب حدود دورة الـ 26 الحالية
-// الدورة تبدأ من 26 في الشهر الحالي (أو الماضي إذا كنا قبل 26) وتستمر حتى 25 الشهر التالي
 function getCurrentCycleRange() {
   const now = new Date();
   let startYear = now.getFullYear();
   let startMonth = now.getMonth();
   
   if (now.getDate() < 26) {
-    // إذا كنا قبل يوم 26، إذن الدورة بدأت في 26 الشهر الماضي
     startMonth -= 1;
   }
   
   const cycleStart = new Date(startYear, startMonth, 26, 0, 0, 0, 0);
   const cycleEnd = new Date(cycleStart.getFullYear(), cycleStart.getMonth() + 1, 25, 23, 59, 59, 999);
-  
-  // اسم شهر الدورة الحالي للاستخدام في السجل (مثال: مارس 2026 أو الشهر الذي يبدأ فيه التأخير)
   const cycleMonthName = MONTHS_AR[cycleStart.getMonth()] + ' ' + cycleStart.getFullYear();
   
   return { cycleStart, cycleEnd, cycleMonthName };
@@ -1144,7 +1150,6 @@ function getStatus(client) {
   const now = today();
   const { cycleStart } = getCurrentCycleRange();
   
-  // التحقق مما إذا قام العميل بالسداد خلال الدورة الحالية (ابتداءً من تاريخ 26 فصاعداً)
   let paidInCurrentCycle = false;
   if (client.paymentsLog && client.paymentsLog.length > 0) {
     paidInCurrentCycle = client.paymentsLog.some(p => {
@@ -1153,17 +1158,14 @@ function getStatus(client) {
     });
   }
   
-  // إذا سدد في هذه الدورة، تصبح حالته "منتظم"
   if (paidInCurrentCycle) {
     return 'on-track';
   }
   
-  // إذا حل يوم 26 أو ما بعده ولم يسدد بعد في هذه الدورة، يعتبر متأخراً
   if (now >= cycleStart) {
     return 'delayed';
   }
   
-  // قبل يوم 26، نفحص ما إذا كان لديه أقساط فائتة قديمة
   const delayed = getDelayedMonths(client);
   return delayed.length > 0 ? 'delayed' : 'on-track';
 }
@@ -1355,10 +1357,12 @@ function clientCardHTML(client) {
         <div class="info-item"><div class="lbl">المتبقي</div><div class="val danger">${fmt(client.remaining)} ر.س</div></div>
         <div class="info-item"><div class="lbl">آخر سداد (باليوم والتاريخ)</div><div class="val success">${lastPayDateStr}</div></div>
         <div class="info-item" style="grid-column:1/-1"><div class="lbl">الأشهر المتأخرة المسجلة</div><div class="val ${delayed.length > 0 ? 'danger' : 'success'}">${delayed.length > 0 ? `⚠️ ${delayed.length} شهر (${delayed.map(d => d.monthName).join(', ')})` : 'لا توجد أشهر متأخرة'}</div></div>
+        ${client.discounts && client.discounts.length > 0 ? `<div class="info-item" style="grid-column:1/-1"><div class="lbl">إجمالي الخصومات للتسوية</div><div class="val" style="color:#b7791f">${fmt(client.discounts.reduce((s,d)=>s+d.amount,0))} ر.س</div></div>` : ''}
       </div>
     </div>
     <div class="client-actions">
       ${status !== 'completed' ? `<button class="action-btn btn-pay" onclick="payInstallment(${client.id})">💵 تحصيل</button>` : ''}
+      <button class="action-btn btn-discount" onclick="addDiscount(${client.id})">🏷️ خصم تسوية</button>
       <button class="action-btn btn-details" onclick="openDetail(${client.id})">📋 التفاصيل</button>
       <button class="action-btn btn-edit" onclick="openEditModal(${client.id})">✏️ تعديل</button>
       ${client.phone ? `<button class="action-btn btn-whatsapp" onclick="notifyClient(${client.id})" title="إرسال إشعار واتساب"><span>📲</span></button>` : ''}
@@ -1493,7 +1497,8 @@ function addClient() {
     startDate,
     dueDay: dueDay || new Date(startDate).getDate(),
     notes,
-    paymentsLog: []
+    paymentsLog: [],
+    discounts: []
   };
   clients.push(client);
   save();
@@ -1556,13 +1561,14 @@ function saveClientEdit() {
 
   clients = clients.map(c => {
     if (c.id !== id) return c;
+    const totalDiscount = (c.discounts || []).reduce((s,d)=>s+d.amount, 0);
     return {
       ...c,
       name, phone, guarantor, guarantorPhone, total, monthly, startDate,
       dueDay: dueDay || new Date(startDate).getDate(),
       notes,
       paid: parseFloat(paid.toFixed(2)),
-      remaining: parseFloat((total - paid).toFixed(2))
+      remaining: parseFloat((total - paid - totalDiscount).toFixed(2))
     };
   });
   save();
@@ -1575,6 +1581,20 @@ function saveClientEdit() {
 function payInstallment(id) {
   const client = clients.find(c => c.id === id);
   if (!client) return;
+
+  // التحقق من وجود عملية تحصيل خلال آخر 20 يوماً
+  if (client.paymentsLog && client.paymentsLog.length > 0) {
+    const lastPay = client.paymentsLog[client.paymentsLog.length - 1];
+    const lastDate = new Date(typeof lastPay === 'string' ? lastPay : lastPay.date);
+    const now = new Date();
+    const diffDays = (now - lastDate) / (1000 * 60 * 60 * 24);
+
+    if (diffDays <= 20) {
+      const confirmed = confirm("⚠️ تنبيه هام: هل أنت متأكد من عملية التحصيل؟ العملية مكررة (تمت عملية تحصيل خلال أقل من 20 يوماً لهذا العميل).");
+      if (!confirmed) return;
+    }
+  }
+
   const suggested = Math.min(client.monthly, client.remaining);
   const input = prompt('أدخل المبلغ المستحصل (ريال):', suggested.toFixed(2));
   if (input === null) return;
@@ -1603,6 +1623,95 @@ function payInstallment(id) {
   renderClients();
 }
 
+function cancelPayment(clientId, paymentIdx) {
+  const client = clients.find(c => c.id === clientId);
+  if (!client || !client.paymentsLog || !client.paymentsLog[paymentIdx]) return;
+  
+  if (!confirm('هل أنت متأكد من إلغاء وحذف عملية التحصيل هذه؟ سيتم إرجاع المبلغ للمتبقي وإلغاؤه من سجل العمليات المالية.')) return;
+
+  clients = clients.map(c => {
+    if (c.id !== clientId) return c;
+    const log = [...c.paymentsLog];
+    const removed = log.splice(paymentIdx, 1)[0];
+    const removedAmt = typeof removed === 'string' ? c.monthly : removed.amount;
+
+    const totalPaid = log.reduce((s, p) => s + (typeof p === 'string' ? c.monthly : p.amount), 0);
+    const totalDiscount = (c.discounts || []).reduce((s,d)=>s+d.amount, 0);
+
+    return {
+      ...c,
+      paymentsLog: log,
+      paid: parseFloat(totalPaid.toFixed(2)),
+      remaining: parseFloat((c.total - totalPaid - totalDiscount).toFixed(2))
+    };
+  });
+  save();
+  showToast('🗑️ تم إلغاء عملية التحصيل بنجاح', 'red');
+  renderHome();
+  renderClients();
+  openDetail(clientId);
+}
+
+function addDiscount(clientId) {
+  const client = clients.find(c => c.id === clientId);
+  if (!client) return;
+  
+  const input = prompt('أدخل مبلغ الخصم (لتسوية العميل - لا يُحتسب ضمن العمليات المالية والتحصيل):', '0.00');
+  if (input === null) return;
+  const discountAmt = parseFloat(input);
+  if (isNaN(discountAmt) || discountAmt <= 0) {
+    showToast('⚠️ مبلغ الخصم غير صالح', 'red'); return;
+  }
+  if (discountAmt > client.remaining + 0.001) {
+    showToast('⚠️ مبلغ الخصم أكبر من المبلغ المتبقي على العميل', 'red'); return;
+  }
+
+  const reason = prompt('أدخل سبب الخصم أو تفاصيل التسوية (اختياري):', 'تسوية رصيد') || 'تسوية';
+  const nowStr = new Date().toISOString().split('T')[0];
+
+  clients = clients.map(c => {
+    if (c.id !== clientId) return c;
+    if (!c.discounts) c.discounts = [];
+    c.discounts.push({ date: nowStr, amount: parseFloat(discountAmt.toFixed(2)), reason });
+    
+    const totalDiscount = c.discounts.reduce((s,d)=>s+d.amount, 0);
+    return {
+      ...c,
+      remaining: parseFloat((c.total - c.paid - totalDiscount).toFixed(2))
+    };
+  });
+
+  save();
+  showToast('🏷️ تم تطبيق خصم التسوية بنجاح (مع إبقائه خارج التقارير المالية)', 'green');
+  renderHome();
+  renderClients();
+}
+
+function cancelDiscount(clientId, discountIdx) {
+  const client = clients.find(c => c.id === clientId);
+  if (!client || !client.discounts || !client.discounts[discountIdx]) return;
+
+  if (!confirm('هل أنت متأكد من إلغاء خصم التسوية هذا؟')) return;
+
+  clients = clients.map(c => {
+    if (c.id !== clientId) return c;
+    const discounts = [...c.discounts];
+    discounts.splice(discountIdx, 1);
+    const totalDiscount = discounts.reduce((s,d)=>s+d.amount, 0);
+
+    return {
+      ...c,
+      discounts,
+      remaining: parseFloat((c.total - c.paid - totalDiscount).toFixed(2))
+    };
+  });
+  save();
+  showToast('🗑️ تم إلغاء الخصم بنجاح', 'red');
+  renderHome();
+  renderClients();
+  openDetail(clientId);
+}
+
 function editPayment(clientId, paymentIdx) {
   const client = clients.find(c => c.id === clientId);
   if (!client || !client.paymentsLog || !client.paymentsLog[paymentIdx]) return;
@@ -1623,11 +1732,12 @@ function editPayment(clientId, paymentIdx) {
       return { date, amount: parseFloat(newAmount.toFixed(2)) };
     });
     const totalPaid = log.reduce((s, p) => s + (typeof p === 'string' ? c.monthly : p.amount), 0);
+    const totalDiscount = (c.discounts || []).reduce((s,d)=>s+d.amount, 0);
     return {
       ...c,
       paymentsLog: log,
       paid: parseFloat(totalPaid.toFixed(2)),
-      remaining: parseFloat((c.total - totalPaid).toFixed(2))
+      remaining: parseFloat((c.total - totalPaid - totalDiscount).toFixed(2))
     };
   });
   save();
@@ -1688,7 +1798,7 @@ function openDetail(id) {
     let statusText = '';
     if (s.paid) {
       cls = 'paid-row';
-      statusText = `✅ مدفوع (${s.monthName}) <button class="mini-edit-btn" onclick="editPayment(${client.id}, ${s.idx})">✏️ تعديل</button>`;
+      statusText = `✅ مدفوع (${s.monthName}) <button class="mini-edit-btn" onclick="editPayment(${client.id}, ${s.idx})">✏️</button> <button class="mini-del-btn" onclick="cancelPayment(${client.id}, ${s.idx})" title="إلغاء التحصيل">❌</button>`;
     } else if (s.dueDate < now) {
       cls = 'delayed-row';
       statusText = `⚠️ متأخر (${s.monthName})`;
@@ -1704,16 +1814,40 @@ function openDetail(id) {
     </tr>`;
   }).join('');
 
+  let discountSection = '';
+  if (client.discounts && client.discounts.length > 0) {
+    const discountRows = client.discounts.map((d, dIdx) => `
+      <tr>
+        <td>${dateLabel(d.date)}</td>
+        <td style="color:#b7791f; font-weight:700">${fmt(d.amount)} ر.س</td>
+        <td>${d.reason}</td>
+        <td><button class="mini-del-btn" onclick="cancelDiscount(${client.id}, ${dIdx})">❌ إلغاء</button></td>
+      </tr>
+    `).join('');
+
+    discountSection = `
+      <div style="margin-top:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:6px;color:#b7791f">🏷️ خصومات التسوية المسجلة (خارج العمليات المالية):</div>
+        <table class="month-table">
+          <thead><tr><th>التاريخ</th><th>المبلغ</th><th>السبب</th><th>إجراء</th></tr></thead>
+          <tbody>${discountRows}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
   document.getElementById('modal-body').innerHTML = `
     <div style="margin-bottom:12px;font-size:13px;color:var(--ink-soft);">
       ${client.guarantor ? `🤝 الكفيل: <b>${client.guarantor}</b> (${client.guarantorPhone || 'بدون جوال'})` : ''}
     </div>
+    <div style="font-weight:700;font-size:13px;margin-bottom:6px;">سجل جدول الأقساط والتحصيل:</div>
     <table class="month-table">
       <thead><tr>
-        <th>#</th><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>الحالة والشهر</th>
+        <th>#</th><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>الحالة والإجراءات</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
+    ${discountSection}
     ${client.notes ? `<div style="margin-top:14px;padding:12px;background:#f8fafc;border-radius:10px;font-size:13px;color:var(--ink-soft)">📝 ${client.notes}</div>` : ''}
   `;
 
