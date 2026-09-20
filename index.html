@@ -3,13 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>نظام المحمدية الشامل (سحابي)</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<title>نظام المحمدية (سحابي آمن)</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
   :root {
-    --ink: #0f1923; --ink-soft: #3d5166; --gold: #c8922a; --gold-light: #f5e8d0; --gold-pale: #fdf8f0;
+    --ink: #0f1923; --ink-soft: #3d5166; --gold: #c8922a; --gold-light: #f5e8d0;
     --teal: #0d6b6b; --teal-light: #e0f2f1; --red: #c0392b; --red-light: #fdecea;
     --green: #1a7a4a; --green-light: #e8f5ee; --surface: #ffffff; --bg: #f4f6f9;
     --border: #dde3ec; --shadow: 0 2px 12px rgba(15,25,35,0.08); --radius: 14px;
@@ -19,7 +17,6 @@
   .topbar { background: var(--ink); color: white; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; position: sticky; top: 0; z-index: 100; }
   .topbar-title { font-size: 17px; font-weight: 700; }
   .topbar-title span { color: var(--gold); }
-  .topbar-date { font-size: 12px; color: #8fa0b4; }
   .tabs { display: flex; background: var(--surface); border-bottom: 2px solid var(--border); position: sticky; top: 57px; z-index: 99; }
   .tab-btn { flex: 1; padding: 12px 6px; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 600; background: none; border: none; cursor: pointer; color: var(--ink-soft); border-bottom: 3px solid transparent; text-align: center; }
   .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
@@ -69,7 +66,7 @@
     <div class="topbar-title">نظام <span>المحمدية</span></div>
     <div class="topbar-date" id="today-date"></div>
   </div>
-  <div style="font-size:12px;color:#2ecc71;font-weight:700;" id="sync-status">متصل ✅</div>
+  <div style="font-size:12px;color:#2ecc71;font-weight:700;" id="sync-status">متصل بالسحابة ✅</div>
 </div>
 
 <div class="tabs">
@@ -142,12 +139,12 @@ async function loadDataFromCloud() {
         notes: r[11] || ''
       }));
     }
-    document.getElementById('sync-status').textContent = 'متصل ✅';
+    document.getElementById('sync-status').textContent = 'متصل بالسحابة ✅';
     renderHome();
     renderClients();
   } catch(e) {
-    document.getElementById('sync-status').textContent = '⚠️ خطأ';
-    showToast('⚠️ تعذر جلب البيانات', 'red');
+    document.getElementById('sync-status').textContent = '⚠️ خطأ بالاتصال';
+    showToast('⚠️ تعذر جلب البيانات من السحابة', 'red');
   }
 }
 
@@ -161,19 +158,13 @@ async function saveToCloud() {
   });
 
   try {
-    // استخدام طريقة جيت (GET via Image/JSONP or dynamic iframe) لتجاوز حظر CORS نهائياً في الحفظ
-    const payload = encodeURIComponent(JSON.stringify({ sheetName: "Sheet1", rows: rows }));
     await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: payload
+      body: JSON.stringify({ sheetName: "Sheet1", rows: rows })
     });
-    document.getElementById('sync-status').textContent = 'متصل ✅';
+    document.getElementById('sync-status').textContent = 'متصل بالسحابة ✅';
   } catch(e) {
-    // طريقة بديلة مضمونة للحفظ عبر صندوق وهمي إذا واجه المتصفح حظراً
-    const form = document.createElement('iframe');
-    form.style.display = 'none';
-    document.body.appendChild(form);
-    document.getElementById('sync-status').textContent = 'متصل ✅';
+    document.getElementById('sync-status').textContent = '⚠️ خطأ بالحفظ';
   }
 }
 
@@ -200,11 +191,11 @@ function renderHome() {
   const totalRem = clients.reduce((s,c) => s + c.remaining, 0);
   document.getElementById('stats-strip').innerHTML = `
     <div class="stat-card"><div class="stat-label">المتبقي الإجمالي</div><div class="stat-value gold">${fmt(totalRem)} <span style="font-size:11px">ر.س</span></div></div>
-    <div class="stat-card"><div class="stat-label">العملاء</div><div class="stat-value">${clients.length}</div></div>
+    <div class="stat-card"><div class="stat-label">إجمالي العقود</div><div class="stat-value">${clients.length}</div></div>
   `;
   const dl = document.getElementById('delayed-list');
   if(clients.length === 0) {
-    dl.innerHTML = `<div style="text-align:center;padding:30px;color:var(--ink-soft)">لا توجد عقود مسجلة</div>`;
+    dl.innerHTML = `<div style="text-align:center;padding:30px;color:var(--ink-soft)">لا توجد عقود مسجلة حالياً</div>`;
     return;
   }
   dl.innerHTML = clients.map(c => clientCardHTML(c)).join('');
@@ -216,7 +207,7 @@ function renderClients() {
   if(q) list = list.filter(c => c.name.toLowerCase().includes(q) || (c.phone||'').includes(q));
   const container = document.getElementById('clients-list');
   if(list.length === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--ink-soft)">لا توجد نتائج</div>`;
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--ink-soft)">لا توجد نتائج مطابقة</div>`;
     return;
   }
   container.innerHTML = list.map(c => clientCardHTML(c)).join('');
@@ -264,7 +255,7 @@ async function addClient() {
 
   clients.push({ id: Date.now(), name, phone, total, monthly, paid: 0, remaining: total, startDate, dueDay, notes });
   await saveToCloud();
-  showToast('✅ تم الحفظ سحابياً بنجاح', 'green');
+  showToast('✅ تم الحفظ في قوقل شيت بنجاح', 'green');
   switchTab('clients');
 }
 
@@ -276,7 +267,7 @@ async function payInstallment(id) {
   c.remaining = Math.max(0, c.remaining - amt);
   c.paid += amt;
   await saveToCloud();
-  showToast('💰 تم تسجيل القسط', 'green');
+  showToast('💰 تم تسجيل القسط وتحديث السحابة', 'green');
   renderHome();
   renderClients();
 }
@@ -287,7 +278,7 @@ async function deleteClient(id) {
   await saveToCloud();
   renderHome();
   renderClients();
-  showToast('🗑️ تم الحذف والتحديث', 'green');
+  showToast('🗑️ تم الحذف والتحديث سحابياً', 'green');
 }
 
 function renderReports() {
@@ -296,9 +287,9 @@ function renderReports() {
   const remSum = clients.reduce((s,c) => s + c.remaining, 0);
   document.getElementById('reports-content').innerHTML = `
     <div style="display:grid;gap:10px;font-size:14px;">
-      <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>العقود:</span><strong>${clients.length}</strong></div>
-      <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>الإجمالي:</span><strong>${fmt(totalSum)} ر.س</strong></div>
-      <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>المسدد:</span><strong style="color:var(--green);">${fmt(paidSum)} ر.س</strong></div>
+      <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>إجمالي العقود:</span><strong>${clients.length}</strong></div>
+      <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>إجمالي المبالغ:</span><strong>${fmt(totalSum)} ر.س</strong></div>
+      <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>المسدد فعلياً:</span><strong style="color:var(--green);">${fmt(paidSum)} ر.س</strong></div>
       <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>المتبقي:</span><strong style="color:var(--red);">${fmt(remSum)} ر.س</strong></div>
     </div>`;
 }
