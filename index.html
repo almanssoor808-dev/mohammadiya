@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>نظام المحمدية السحابي</title>
+<title>نظام المحمدية الشامل (سحابي)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -65,10 +65,10 @@
   .tabs::-webkit-scrollbar { display: none; }
   .tab-btn {
     flex: 1;
-    min-width: 90px;
-    padding: 13px 10px;
+    min-width: 80px;
+    padding: 13px 8px;
     font-family: 'Cairo', sans-serif;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     background: none;
     border: none;
@@ -77,9 +77,10 @@
     border-bottom: 3px solid transparent;
     transition: all 0.2s;
     white-space: nowrap;
+    text-align: center;
   }
   .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
-  .tab-btn .tab-icon { font-size: 16px; display: block; margin-bottom: 2px; }
+  .tab-btn .tab-icon { font-size: 15px; display: block; margin-bottom: 2px; }
 
   .page { display: none; padding: 16px; padding-bottom: 80px; }
   .page.active { display: block; }
@@ -212,6 +213,7 @@
   .client-actions { display: flex; gap: 6px; padding: 10px 16px 14px; border-top: 1px solid var(--border); flex-wrap: wrap; }
   .action-btn { flex: 1; min-width: 60px; padding: 9px 6px; border-radius: 8px; border: none; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
   .btn-pay { background: var(--teal-light); color: var(--teal); }
+  .btn-discount { background: #fdf3e3; color: #b7791f; }
   .btn-details { background: var(--gold-light); color: #7a5010; }
   .btn-del { background: var(--red-light); color: var(--red); flex: 0 0 42px !important; }
 
@@ -231,28 +233,33 @@
 
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; transition: transform 0.3s; }
   .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .month-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  .month-table th { background: var(--gold-pale); color: #7a5010; padding: 9px; font-weight: 700; border-bottom: 2px solid var(--gold); text-align: center; }
+  .month-table td { padding: 8px; border-bottom: 1px solid var(--border); text-align: center; font-size: 12px; }
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <div>
-    <div class="topbar-title">نظام <span>المحمدية</span> (سحابي ☁️)</div>
+    <div class="topbar-title">نظام <span>المحمدية</span> (السحابي الشامل)</div>
     <div class="topbar-date" id="today-date"></div>
   </div>
-  <div style="font-size:12px;color:#2ecc71;font-weight:700;">متصل بالسحابة ✅</div>
+  <div style="font-size:12px;color:#2ecc71;font-weight:700;" id="sync-status">متصل بالسحابة ✅</div>
 </div>
 
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('home')"><span class="tab-icon">🏠</span>الرئيسية</button>
   <button class="tab-btn" onclick="switchTab('clients')"><span class="tab-icon">👥</span>العملاء</button>
   <button class="tab-btn" onclick="switchTab('add')"><span class="tab-icon">➕</span>إضافة عقد</button>
+  <button class="tab-btn" onclick="switchTab('reports')"><span class="tab-icon">📊</span>التقارير</button>
 </div>
 
 <!-- HOME -->
 <div id="page-home" class="page active">
   <div class="stats-strip" id="stats-strip"></div>
-  <div class="section-head"><div class="section-title">ملخص الحسابات</div></div>
+  <div class="section-head"><div class="section-title">المتأخرون عن السداد والنشطون</div></div>
   <div id="delayed-list"></div>
 </div>
 
@@ -260,7 +267,13 @@
 <div id="page-clients" class="page">
   <div class="search-box">
     <span class="search-icon">🔍</span>
-    <input type="text" id="search-input" placeholder="ابحث عن عميل..." oninput="renderClients()">
+    <input type="text" id="search-input" placeholder="ابحث عن عميل أو كفيل..." oninput="renderClients()">
+  </div>
+  <div class="filter-chips">
+    <span class="chip active" onclick="setFilter(this,'all')">الكل</span>
+    <span class="chip" onclick="setFilter(this,'delayed')">متأخر</span>
+    <span class="chip" onclick="setFilter(this,'on-track')">منتظم</span>
+    <span class="chip" onclick="setFilter(this,'completed')">مكتمل</span>
   </div>
   <div id="clients-list"></div>
 </div>
@@ -269,7 +282,7 @@
 <div id="page-add" class="page">
   <div class="form-card">
     <div class="section-title" style="margin-bottom:16px;">بيانات العقد الجديد</div>
-    <div class="form-group"><label>اسم العميل الكامل *</label><input type="text" id="f-name" placeholder="محمد أحمد"></div>
+    <div class="form-group"><label>اسم العميل الكامل *</label><input type="text" id="f-name" placeholder="محمد أحمد العمري"></div>
     <div class="form-group"><label>رقم جوال العميل</label><input type="tel" id="f-phone" placeholder="05xxxxxxxx"></div>
     <div class="form-grid">
       <div class="form-group"><label>اسم الكفيل</label><input type="text" id="f-guarantor" placeholder="اسم الكفيل"></div>
@@ -283,8 +296,26 @@
       <div class="form-group"><label>تاريخ أول قسط *</label><input type="date" id="f-start"></div>
       <div class="form-group"><label>يوم الاستحقاق</label><input type="number" id="f-day" placeholder="20" min="1" max="28"></div>
     </div>
-    <div class="form-group"><label>ملاحظات</label><input type="text" id="f-notes" placeholder="ملاحظات..."></div>
+    <div class="form-group"><label>ملاحظات</label><input type="text" id="f-notes" placeholder="ملاحظات إضافية..."></div>
     <button class="btn-primary" onclick="addClient()"><span>💾</span> حفظ العقد سحابياً</button>
+  </div>
+</div>
+
+<!-- REPORTS -->
+<div id="page-reports" class="page">
+  <div class="form-card">
+    <div class="section-title" style="margin-bottom:14px;">التقرير المالي الشامل</div>
+    <div id="reports-content">جاري التحميل...</div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-client-name"></div>
+    <div id="modal-body"></div>
+    <button class="btn-primary" style="margin-top:16px;background:var(--ink-soft)" onclick="closeModal()">إغلاق</button>
   </div>
 </div>
 
@@ -294,9 +325,10 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTh-4W9evNCSX0C-9CyxfezSLZzt342-brgMd04p4fzjB06LukYBCuXH80ckLpni/exec";
 
 let clients = [];
+let currentFilter = 'all';
 
 async function loadDataFromCloud() {
-  showToast('⏳ جاري جلب البيانات من قوقل شيت...', '');
+  document.getElementById('sync-status').textContent = '⏳ جاري المزامنة...';
   try {
     const res = await fetch(SCRIPT_URL);
     const rows = await res.json();
@@ -312,20 +344,22 @@ async function loadDataFromCloud() {
         paid: parseFloat(r[7]) || 0,
         remaining: parseFloat(r[8]) || 0,
         startDate: r[9],
-        dueDay: r[10],
-        notes: r[11],
+        dueDay: r[10] || 1,
+        notes: r[11] || '',
         paymentsLog: []
       }));
     }
+    document.getElementById('sync-status').textContent = 'متصل بالسحابة ✅';
     renderHome();
     renderClients();
-    showToast('✅ تم تحديث البيانات من السحابة بنجاح', 'green');
   } catch(e) {
+    document.getElementById('sync-status').textContent = '⚠️ خطأ بالاتصال';
     showToast('⚠️ خطأ في الاتصال بالسحابة', 'red');
   }
 }
 
 async function saveToCloud() {
+  document.getElementById('sync-status').textContent = '💾 جاري الحفظ...';
   const rows = [
     ["ID", "الاسم", "الجوال", "الكفيل", "جوال_الكفيل", "الإجمالي", "القسط", "المسدد", "المتبقي", "تاريخ_البداية", "يوم_الاستحقاق", "الملاحظات"]
   ];
@@ -340,8 +374,9 @@ async function saveToCloud() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sheetName: "Sheet1", rows: rows })
     });
+    document.getElementById('sync-status').textContent = 'متصل بالسحابة ✅';
   } catch(e) {
-    console.error(e);
+    document.getElementById('sync-status').textContent = '⚠️ خطأ بالحفظ';
   }
 }
 
@@ -361,11 +396,24 @@ function switchTab(tab) {
   event.currentTarget.classList.add('active');
   if (tab === 'home') renderHome();
   if (tab === 'clients') renderClients();
+  if (tab === 'reports') renderReports();
+}
+
+function setFilter(el, filter) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = filter;
+  renderClients();
+}
+
+function getClientStatus(client) {
+  if (client.remaining <= 0.01) return 'completed';
+  return 'on-track';
 }
 
 function renderHome() {
   const totalRem = clients.reduce((s,c) => s + c.remaining, 0);
-  const activeCount = clients.filter(c => c.remaining > 0.001).length;
+  const activeCount = clients.filter(c => c.remaining > 0.01).length;
   
   document.getElementById('stats-strip').innerHTML = `
     <div class="stat-card"><div class="stat-label">المبلغ الإجمالي المتبقي</div><div class="stat-value gold">${fmt(totalRem)} <span class="stat-unit">ر.س</span></div></div>
@@ -383,25 +431,34 @@ function renderHome() {
 function renderClients() {
   const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
   let list = clients;
-  if(q) list = list.filter(c => c.name.toLowerCase().includes(q) || (c.phone||'').includes(q));
+  if(currentFilter !== 'all') {
+    list = list.filter(c => getClientStatus(c) === currentFilter);
+  }
+  if(q) {
+    list = list.filter(c => c.name.toLowerCase().includes(q) || (c.phone||'').includes(q) || (c.guarantor||'').toLowerCase().includes(q));
+  }
   
   const container = document.getElementById('clients-list');
   if(list.length === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--ink-soft)">لا توجد نتائج</div>`;
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--ink-soft)">لا توجد نتائج مطابقة</div>`;
     return;
   }
   container.innerHTML = list.map(c => clientCardHTML(c)).join('');
 }
 
 function clientCardHTML(client) {
+  const status = getClientStatus(client);
   const pct = Math.min(100, ((client.paid / client.total) * 100)).toFixed(0);
-  return `<div class="client-card on-track">
+  let badgeHtml = status === 'completed' ? `<span class="status-badge badge-completed">مكتمل</span>` : `<span class="status-badge badge-on-track">نشط</span>`;
+
+  return `<div class="client-card ${status}">
     <div class="client-head">
       <div>
         <div class="client-name">${client.name}</div>
-        ${client.phone ? `<div class="client-phone">📱 <a href="tel:${client.phone}">${client.phone}</a></div>` : ''}
+        ${client.phone ? `<div class="client-phone">📱 جوال: <a href="tel:${client.phone}">${client.phone}</a></div>` : ''}
+        ${client.guarantor ? `<div class="client-phone">🛡️ الكفيل: ${client.guarantor}${client.guarantorPhone ? '('+client.guarantorPhone+')' : ''}</div>` : ''}
       </div>
-      <span class="status-badge badge-on-track">نشط</span>
+      ${badgeHtml}
     </div>
     <div class="client-body">
       <div class="progress-wrap">
@@ -411,11 +468,14 @@ function clientCardHTML(client) {
       <div class="info-grid">
         <div class="info-item"><div class="lbl">الإجمالي</div><div class="val">${fmt(client.total)} ر.س</div></div>
         <div class="info-item"><div class="lbl">المتبقي</div><div class="val danger">${fmt(client.remaining)} ر.س</div></div>
+        <div class="info-item"><div class="lbl">القسط الشهري</div><div class="val">${fmt(client.monthly)} ر.س</div></div>
+        <div class="info-item"><div class="lbl">تاريخ البداية</div><div class="val">${client.startDate || '-'}</div></div>
       </div>
     </div>
     <div class="client-actions">
       <button class="action-btn btn-pay" onclick="payInstallment(${client.id})">💵 تحصيل</button>
-      <button class="action-btn btn-del" onclick="deleteClient(${client.id})">🗑️ حذف</button>
+      <button class="action-btn btn-details" onclick="openDetail(${client.id})">📋 التفاصيل</button>
+      <button class="action-btn btn-del" onclick="deleteClient(${client.id})">🗑️</button>
     </div>
   </div>`;
 }
@@ -428,7 +488,7 @@ async function addClient() {
   const total = parseFloat(document.getElementById('f-total').value) || 0;
   const monthly = parseFloat(document.getElementById('f-monthly').value) || 0;
   const startDate = document.getElementById('f-start').value;
-  const dueDay = parseInt(document.getElementById('f-day').value) || '';
+  const dueDay = parseInt(document.getElementById('f-day').value) || 1;
   const notes = document.getElementById('f-notes').value.trim();
 
   if (!name || !total || !monthly || !startDate) {
@@ -441,6 +501,15 @@ async function addClient() {
   
   await saveToCloud();
   showToast('✅ تم حفظ العقد سحابياً بنجاح', 'green');
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-phone').value = '';
+  document.getElementById('f-guarantor').value = '';
+  document.getElementById('f-guarantor-phone').value = '';
+  document.getElementById('f-total').value = '';
+  document.getElementById('f-monthly').value = '';
+  document.getElementById('f-start').value = '';
+  document.getElementById('f-day').value = '';
+  document.getElementById('f-notes').value = '';
   switchTab('clients');
 }
 
@@ -466,6 +535,44 @@ async function deleteClient(id) {
   renderHome();
   renderClients();
   showToast('🗑️ تم الحذف والتحديث سحابياً', 'green');
+}
+
+function openDetail(id) {
+  const client = clients.find(c => c.id == id);
+  if (!client) return;
+  document.getElementById('modal-client-name').textContent = client.name;
+  
+  document.getElementById('modal-body').innerHTML = `
+    <div style="font-size:13px; line-height:1.8; color:var(--ink-soft)">
+      <div><b>رقم الجوال:</b> ${client.phone || 'غير مسجل'}</div>
+      <div><b>الكفيل:</b> ${client.guarantor || 'لا يوجد'} (${client.guarantorPhone || '-'})</div>
+      <div><b>الإجمالي:</b> ${fmt(client.total)} ر.س</div>
+      <div><b>المسدد:</b> ${fmt(client.paid)} ر.س</div>
+      <div><b>المتبقي:</b> <span style="color:var(--red); font-weight:700;">${fmt(client.remaining)} ر.س</span></div>
+      <div><b>القسط الشهري:</b> ${fmt(client.monthly)} ر.س</div>
+      <div><b>تاريخ البداية:</b> ${client.startDate}</div>
+      <div><b>ملاحظات:</b> ${client.notes || 'لا توجد'}</div>
+    </div>
+  `;
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('detail-modal').classList.remove('open'); }
+
+function renderReports() {
+  const totalSum = clients.reduce((s,c) => s + c.total, 0);
+  const paidSum = clients.reduce((s,c) => s + c.paid, 0);
+  const remSum = clients.reduce((s,c) => s + c.remaining, 0);
+  const count = clients.length;
+  
+  document.getElementById('reports-content').innerHTML = `
+    <div style="display:grid; grid-template-columns:1fr; gap:10px; font-size:14px;">
+      <div style="padding:12px; background:var(--bg); border-radius:10px; display:flex; justify-content:space-between;"><span>إجمالي العقود المسجلة:</span><strong>${count} عقود</strong></div>
+      <div style="padding:12px; background:var(--bg); border-radius:10px; display:flex; justify-content:space-between;"><span>إجمالي مبالغ العقود:</span><strong>${fmt(totalSum)} ر.س</strong></div>
+      <div style="padding:12px; background:var(--bg); border-radius:10px; display:flex; justify-content:space-between;"><span>إجمالي المُسدد فعلياً:</span><strong style="color:var(--green);">${fmt(paidSum)} ر.س</strong></div>
+      <div style="padding:12px; background:var(--bg); border-radius:10px; display:flex; justify-content:space-between;"><span>إجمالي المبالغ المتبقية:</span><strong style="color:var(--red);">${fmt(remSum)} ر.س</strong></div>
+    </div>
+  `;
 }
 
 document.getElementById('today-date').textContent = new Date().toLocaleDateString('ar-SA');
