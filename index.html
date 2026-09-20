@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>نظام المحمدية</title>
+<title>نظام المحمدية السحابي</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -36,7 +36,6 @@
     min-height: 100vh;
   }
 
-  /* ── TOP NAV ── */
   .topbar {
     background: var(--ink);
     color: white;
@@ -49,15 +48,10 @@
     z-index: 100;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
-  .topbar-title {
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-  }
+  .topbar-title { font-size: 17px; font-weight: 700; }
   .topbar-title span { color: var(--gold); }
   .topbar-date { font-size: 12px; color: #8fa0b4; }
 
-  /* ── TABS ── */
   .tabs {
     display: flex;
     background: var(--surface);
@@ -84,17 +78,12 @@
     transition: all 0.2s;
     white-space: nowrap;
   }
-  .tab-btn.active {
-    color: var(--gold);
-    border-bottom-color: var(--gold);
-  }
+  .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
   .tab-btn .tab-icon { font-size: 16px; display: block; margin-bottom: 2px; }
 
-  /* ── CONTENT ── */
   .page { display: none; padding: 16px; padding-bottom: 80px; }
   .page.active { display: block; }
 
-  /* ── STATS STRIP ── */
   .stats-strip {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -113,9 +102,8 @@
   .stat-value.gold { color: var(--gold); }
   .stat-value.red { color: var(--red); }
   .stat-value.green { color: var(--green); }
-  .stat-unit { font-size: 11px; font-weight: 400; color: var(--ink-soft); margin-right: 2px; }
+  .stat-unit { font-size: 11px; font-weight: 400; color: var(--ink-soft); }
 
-  /* ── SECTION HEADING ── */
   .section-head {
     display: flex;
     align-items: center;
@@ -139,7 +127,6 @@
     border-radius: 2px;
   }
 
-  /* ── FORM CARD ── */
   .form-card {
     background: var(--surface);
     border-radius: var(--radius);
@@ -150,7 +137,6 @@
   }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-group { margin-bottom: 12px; }
-  .form-group.full { grid-column: 1 / -1; }
   label {
     display: block;
     font-size: 12px;
@@ -168,14 +154,9 @@
     color: var(--ink);
     background: #f8fafc;
     outline: none;
-    transition: border-color 0.2s, background 0.2s;
-    -webkit-appearance: none;
-    appearance: none;
   }
-  input[type=number] { -moz-appearance: textfield; }
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
-  input:focus, select:focus { border-color: var(--gold); background: white; }
+  input:focus { border-color: var(--gold); background: white; }
+  
   .btn-primary {
     background: var(--ink);
     color: white;
@@ -191,30 +172,9 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition: background 0.2s;
-    margin-top: 4px;
-  }
-  .btn-primary:active { background: var(--teal); }
-  .btn-secondary {
-    background: var(--gold-light);
-    color: #7a5010;
-    border: none;
-    width: 100%;
-    padding: 14px;
-    border-radius: 10px;
-    font-family: 'Cairo', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background 0.2s;
     margin-top: 4px;
   }
 
-  /* ── CLIENT CARDS ── */
   .client-card {
     background: var(--surface);
     border-radius: var(--radius);
@@ -222,491 +182,77 @@
     box-shadow: var(--shadow);
     margin-bottom: 12px;
     overflow: hidden;
-    transition: box-shadow 0.2s;
   }
   .client-card.delayed { border-right: 4px solid var(--red); }
   .client-card.completed { border-right: 4px solid var(--green); }
   .client-card.on-track { border-right: 4px solid var(--gold); }
 
-  .client-head {
-    padding: 14px 16px 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
+  .client-head { padding: 14px 16px 12px; display: flex; justify-content: space-between; align-items: flex-start; }
   .client-name { font-size: 16px; font-weight: 700; color: var(--ink); }
   .client-phone { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
   .client-phone a { color: inherit; text-decoration: none; }
 
-  .status-badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-  }
+  .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
   .badge-completed { background: var(--green-light); color: var(--green); }
   .badge-delayed { background: var(--red-light); color: var(--red); }
   .badge-on-track { background: var(--gold-light); color: #8a5c0e; }
 
   .client-body { padding: 0 16px 14px; }
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    font-size: 12.5px;
-  }
-  .info-item { }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12.5px; }
   .info-item .lbl { color: var(--ink-soft); font-size: 11px; }
   .info-item .val { font-weight: 700; color: var(--ink); font-size: 13px; }
   .info-item .val.danger { color: var(--red); }
   .info-item .val.success { color: var(--green); }
 
-  /* Progress bar */
-  .progress-wrap {
-    margin: 12px 0 10px;
-  }
-  .progress-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--ink-soft);
-    margin-bottom: 5px;
-  }
-  .progress-bar {
-    height: 8px;
-    background: var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--teal), var(--gold));
-    border-radius: 4px;
-    transition: width 0.4s ease;
-  }
+  .progress-wrap { margin: 12px 0 10px; }
+  .progress-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-soft); margin-bottom: 5px; }
+  .progress-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--gold)); border-radius: 4px; }
 
-  /* Action buttons */
-  .client-actions {
-    display: flex;
-    gap: 6px;
-    padding: 10px 16px 14px;
-    border-top: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-  .action-btn {
-    flex: 1;
-    min-width: 60px;
-    padding: 9px 6px;
-    border-radius: 8px;
-    border: none;
-    font-family: 'Cairo', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    transition: opacity 0.2s;
-  }
-  .action-btn:active { opacity: 0.75; }
+  .client-actions { display: flex; gap: 6px; padding: 10px 16px 14px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .action-btn { flex: 1; min-width: 60px; padding: 9px 6px; border-radius: 8px; border: none; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
   .btn-pay { background: var(--teal-light); color: var(--teal); }
-  .btn-discount { background: #fdf3e3; color: #b7791f; }
   .btn-details { background: var(--gold-light); color: #7a5010; }
-  .btn-edit { background: #e6edf7; color: #2952a3; }
   .btn-del { background: var(--red-light); color: var(--red); flex: 0 0 42px !important; }
 
-  /* ── REPORT PAGE ── */
-  .report-controls {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 16px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    margin-bottom: 14px;
-  }
-  .report-type-btns {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  .report-type-btn {
-    padding: 12px 6px;
-    border-radius: 10px;
-    border: 2px solid var(--border);
-    background: white;
-    font-family: 'Cairo', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s;
-  }
-  .report-type-btn.active { border-color: var(--gold); background: var(--gold-pale); color: #7a5010; }
-  .report-type-btn .icon { font-size: 18px; display: block; margin-bottom: 2px; }
+  .search-box { position: relative; margin-bottom: 14px; }
+  .search-box input { background: white; padding-right: 40px; }
+  .search-icon { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); font-size: 16px; }
 
-  .btn-pdf {
-    background: var(--red);
-    color: white;
-    border: none;
-    width: 100%;
-    padding: 14px;
-    border-radius: 10px;
-    font-family: 'Cairo', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background 0.2s;
-  }
-  .btn-pdf:active { background: #a52b1e; }
-
-  .report-preview {
-    background: var(--surface);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-  .report-preview-head {
-    background: var(--ink);
-    color: white;
-    padding: 14px 16px;
-    font-size: 14px;
-    font-weight: 700;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .preview-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-  .preview-table th {
-    background: var(--gold-pale);
-    color: #7a5010;
-    padding: 10px;
-    font-weight: 700;
-    border-bottom: 2px solid var(--gold);
-  }
-  .preview-table td {
-    padding: 10px;
-    border-bottom: 1px solid var(--border);
-    text-align: center;
-  }
-  .preview-table tr:last-child td { border-bottom: none; }
-  .preview-table td a.call-link {
-    color: var(--teal);
-    text-decoration: none;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-  .empty-state {
-    text-align: center;
-    padding: 32px 16px;
-    color: var(--ink-soft);
-  }
-  .empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; }
-  .empty-state p { font-size: 14px; }
-
-  /* ── SEARCH ── */
-  .search-box {
-    position: relative;
-    margin-bottom: 14px;
-  }
-  .search-box input {
-    background: white;
-    padding-right: 40px;
-  }
-  .search-icon {
-    position: absolute;
-    right: 13px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 16px;
-    pointer-events: none;
-  }
-
-  /* ── FILTER CHIPS ── */
-  .filter-chips {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 14px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding-bottom: 2px;
-  }
-  .filter-chips::-webkit-scrollbar { display: none; }
-  .chip {
-    flex-shrink: 0;
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1.5px solid var(--border);
-    background: white;
-    font-family: 'Cairo', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    color: var(--ink-soft);
-    transition: all 0.15s;
-  }
+  .filter-chips { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
+  .chip { flex-shrink: 0; padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--ink-soft); }
   .chip.active { background: var(--ink); color: white; border-color: var(--ink); }
 
-  /* Modal */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(15,25,35,0.6);
-    z-index: 200;
-    align-items: flex-end;
-    justify-content: center;
-  }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,25,35,0.6); z-index: 200; align-items: flex-end; justify-content: center; }
   .modal-overlay.open { display: flex; }
-  .modal-sheet {
-    background: white;
-    border-radius: 20px 20px 0 0;
-    width: 100%;
-    max-height: 85vh;
-    overflow-y: auto;
-    padding: 20px;
-    animation: slideUp 0.3s ease;
-  }
-  @keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-  }
-  .modal-handle {
-    width: 36px;
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    margin: 0 auto 16px;
-  }
-  .modal-title {
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: 16px;
-    text-align: center;
-  }
+  .modal-sheet { background: white; border-radius: 20px 20px 0 0; width: 100%; max-height: 85vh; overflow-y: auto; padding: 20px; }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+  .modal-title { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 16px; text-align: center; }
 
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--ink);
-    color: white;
-    padding: 12px 24px;
-    border-radius: 30px;
-    font-size: 13px;
-    font-weight: 600;
-    z-index: 999;
-    transition: transform 0.3s;
-    white-space: nowrap;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; transition: transform 0.3s; }
   .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.gold { background: var(--gold); }
-  .toast.green { background: var(--green); }
-  .toast.red { background: var(--red); }
-
-  /* ── DEFERRED SALES ── */
-  .deferred-card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    margin-bottom: 12px;
-    overflow: hidden;
-    position: relative;
-  }
-  .deferred-card.near-due {
-    border: 2px solid var(--gold);
-    animation: pulse-border 1.4s ease-in-out infinite;
-  }
-  .deferred-card.overdue {
-    border: 2px solid var(--red);
-    animation: pulse-border-red 1.4s ease-in-out infinite;
-  }
-  @keyframes pulse-border {
-    0%,100% { box-shadow: 0 0 0 0 rgba(200,146,42,0.35); }
-    50%      { box-shadow: 0 0 0 6px rgba(200,146,42,0); }
-  }
-  @keyframes pulse-border-red {
-    0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.35); }
-    50%      { box-shadow: 0 0 0 6px rgba(192,57,43,0); }
-  }
-  .deferred-head {
-    padding: 14px 16px 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-  .deferred-name { font-size: 15px; font-weight: 700; color: var(--ink); }
-  .deferred-desc { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
-  .deferred-body { padding: 0 16px 12px; }
-  .due-countdown {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 8px;
-    padding: 5px 10px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 700;
-  }
-  .due-countdown.soon { background: var(--gold-light); color: #7a5010; }
-  .due-countdown.overdue { background: var(--red-light); color: var(--red); }
-  .due-countdown.normal { background: #f0f4f8; color: var(--ink-soft); }
-  .deferred-actions {
-    display: flex;
-    gap: 8px;
-    padding: 10px 16px 14px;
-    border-top: 1px solid var(--border);
-  }
-  .btn-settle { background: var(--green-light); color: var(--green); }
-  .btn-whatsapp { background: #e8fdf0; color: #128c7e; flex: 0 0 42px !important; font-size: 16px; }
-  .alert-banner {
-    background: linear-gradient(135deg, #7a5010, var(--gold));
-    color: white;
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    animation: pulse-border 1.4s ease-in-out infinite;
-  }
-  .alert-banner .alert-icon { font-size: 22px; flex-shrink: 0; }
-
-  /* ── TABLES IN MODALS ── */
-  .month-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
-  .month-table th { background: var(--gold-pale); color: #7a5010; padding: 9px; font-weight: 700; border-bottom: 2px solid var(--gold); text-align: center; }
-  .month-table td { padding: 8px; border-bottom: 1px solid var(--border); text-align: center; font-size: 12px; }
-  .month-table tr.paid-row { background: var(--green-light); }
-  .month-table tr.delayed-row { background: var(--red-light); }
-  .month-table tr.upcoming-row { background: #f8fafc; }
-  .mini-edit-btn { background: none; border: none; cursor: pointer; font-size: 12px; margin-right: 4px; }
-  .mini-del-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: var(--red); margin-right: 4px; }
-
-  /* ── PRINTABLE REPORT (LANDSCAPE WITH MULTI-PAGE SUPPORT) ── */
-  #pdf-render-area {
-    position: fixed;
-    top: -99999px;
-    left: -99999px;
-    width: 1122px;
-    background: #ffffff;
-    direction: rtl;
-    font-family: 'Cairo', sans-serif;
-  }
-  .pdf-page {
-    width: 1122px;
-    min-height: 794px;
-    background: #ffffff;
-    padding: 30px 40px;
-    box-sizing: border-box;
-    page-break-after: always;
-  }
-  .pdf-header {
-    background: var(--ink);
-    color: #fff;
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-  .pdf-header::after {
-    content: '';
-    position: absolute;
-    bottom: 0; right: 0; left: 0;
-    height: 4px;
-    background: var(--gold);
-  }
-  .pdf-header h1 { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
-  .pdf-header .pdf-sub { color: var(--gold); font-size: 14px; font-weight: 700; }
-  .pdf-header .pdf-meta { color: #b4c8dc; font-size: 12px; margin-top: 6px; }
-  .pdf-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .pdf-table thead th {
-    background: var(--gold-light);
-    color: #7a5010;
-    padding: 11px 10px;
-    font-weight: 900;
-    border-bottom: 2px solid var(--gold);
-  }
-  .pdf-table tbody td {
-    padding: 10px;
-    border-bottom: 1px solid var(--border);
-    text-align: center;
-    font-weight: 600;
-    color: var(--ink);
-  }
-  .pdf-table tbody tr:nth-child(even) { background: #f8fafc; }
-  .pdf-footer {
-    margin-top: 14px;
-    padding-top: 10px;
-    border-top: 2px solid var(--gold);
-    font-size: 12px;
-    color: var(--ink-soft);
-    display: flex;
-    justify-content: space-between;
-  }
-
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <div>
-    <div class="topbar-title">نظام <span>المحمدية</span></div>
+    <div class="topbar-title">نظام <span>المحمدية</span> (سحابي ☁️)</div>
     <div class="topbar-date" id="today-date"></div>
   </div>
-  <div style="display:flex;gap:8px;align-items:center">
-    <button onclick="openAllClientsSummary()" title="عرض تقرير الشامل جدول جميع العملاء"
-      style="background:rgba(200,146,42,0.2);border:1px solid var(--gold);color:white;padding:5px 10px;border-radius:8px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer">
-      📋 التقرير الشامل
-    </button>
-    <button onclick="exportBackup()" title="تصدير نسخة احتياطية"
-      style="background:none;border:1px solid rgba(255,255,255,0.25);color:white;padding:5px 10px;border-radius:8px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer">
-      💾 نسخ احتياطي
-    </button>
-    <div style="font-size:22px;">💼</div>
-  </div>
+  <div style="font-size:12px;color:#2ecc71;font-weight:700;">متصل بالسحابة ✅</div>
 </div>
 
-<input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(event)">
-
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('home')">
-    <span class="tab-icon">🏠</span>الرئيسية
-  </button>
-  <button class="tab-btn" onclick="switchTab('clients')">
-    <span class="tab-icon">👥</span>العملاء
-  </button>
-  <button class="tab-btn" onclick="switchTab('add')">
-    <span class="tab-icon">➕</span>إضافة عائلي
-  </button>
-  <button class="tab-btn" onclick="switchTab('reports')">
-    <span class="tab-icon">📊</span>التقارير
-  </button>
-  <button class="tab-btn" id="tab-deferred" onclick="switchTab('deferred')">
-    <span class="tab-icon">🗓️</span>المبيعات الشهريه
-  </button>
+  <button class="tab-btn active" onclick="switchTab('home')"><span class="tab-icon">🏠</span>الرئيسية</button>
+  <button class="tab-btn" onclick="switchTab('clients')"><span class="tab-icon">👥</span>العملاء</button>
+  <button class="tab-btn" onclick="switchTab('add')"><span class="tab-icon">➕</span>إضافة عقد</button>
 </div>
 
 <!-- HOME -->
 <div id="page-home" class="page active">
   <div class="stats-strip" id="stats-strip"></div>
-  <div class="section-head">
-    <div class="section-title">المتأخرون عن السداد</div>
-  </div>
+  <div class="section-head"><div class="section-title">ملخص الحسابات</div></div>
   <div id="delayed-list"></div>
 </div>
 
@@ -714,13 +260,7 @@
 <div id="page-clients" class="page">
   <div class="search-box">
     <span class="search-icon">🔍</span>
-    <input type="text" id="search-input" placeholder="ابحث عن عميل أو كفيل..." oninput="renderClients()">
-  </div>
-  <div class="filter-chips">
-    <span class="chip active" data-filter="all" onclick="setFilter(this,'all')">الكل</span>
-    <span class="chip" data-filter="delayed" onclick="setFilter(this,'delayed')">متأخر</span>
-    <span class="chip" data-filter="on-track" onclick="setFilter(this,'on-track')">منتظم</span>
-    <span class="chip" data-filter="completed" onclick="setFilter(this,'completed')">مكتمل</span>
+    <input type="text" id="search-input" placeholder="ابحث عن عميل..." oninput="renderClients()">
   </div>
   <div id="clients-list"></div>
 </div>
@@ -729,446 +269,83 @@
 <div id="page-add" class="page">
   <div class="form-card">
     <div class="section-title" style="margin-bottom:16px;">بيانات العقد الجديد</div>
-    <div class="form-group">
-      <label>اسم العميل الكامل *</label>
-      <input type="text" id="f-name" placeholder="محمد أحمد العمري">
-    </div>
-    <div class="form-group">
-      <label>رقم جوال العميل</label>
-      <input type="tel" id="f-phone" inputmode="tel" placeholder="05xxxxxxxx">
+    <div class="form-group"><label>اسم العميل الكامل *</label><input type="text" id="f-name" placeholder="محمد أحمد"></div>
+    <div class="form-group"><label>رقم جوال العميل</label><input type="tel" id="f-phone" placeholder="05xxxxxxxx"></div>
+    <div class="form-grid">
+      <div class="form-group"><label>اسم الكفيل</label><input type="text" id="f-guarantor" placeholder="اسم الكفيل"></div>
+      <div class="form-group"><label>رقم جوال الكفيل</label><input type="tel" id="f-guarantor-phone" placeholder="05xxxxxxxx"></div>
     </div>
     <div class="form-grid">
-      <div class="form-group">
-        <label>اسم الكفيل</label>
-        <input type="text" id="f-guarantor" placeholder="اسم الكفيل الكامل">
-      </div>
-      <div class="form-group">
-        <label>رقم جوال الكفيل</label>
-        <input type="tel" id="f-guarantor-phone" inputmode="tel" placeholder="05xxxxxxxx">
-      </div>
+      <div class="form-group"><label>المبلغ الإجمالي (ريال) *</label><input type="number" id="f-total" placeholder="0.00"></div>
+      <div class="form-group"><label>القسط الشهري (ريال) *</label><input type="number" id="f-monthly" placeholder="0.00"></div>
     </div>
     <div class="form-grid">
-      <div class="form-group">
-        <label>المبلغ الإجمالي (ريال) *</label>
-        <input type="number" id="f-total" inputmode="decimal" step="any" placeholder="0.00">
-      </div>
-      <div class="form-group">
-        <label>القسط الشهري (ريال) *</label>
-        <input type="number" id="f-monthly" inputmode="decimal" step="any" placeholder="0.00">
-      </div>
+      <div class="form-group"><label>تاريخ أول قسط *</label><input type="date" id="f-start"></div>
+      <div class="form-group"><label>يوم الاستحقاق</label><input type="number" id="f-day" placeholder="20" min="1" max="28"></div>
     </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>تاريخ أول قسط *</label>
-        <input type="date" id="f-start">
-      </div>
-      <div class="form-group">
-        <label>يوم الاستحقاق (1-28)</label>
-        <input type="number" id="f-day" inputmode="numeric" placeholder="20" min="1" max="28">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>ملاحظات</label>
-      <input type="text" id="f-notes" placeholder="أي تفاصيل إضافية...">
-    </div>
-    <button class="btn-primary" onclick="addClient()">
-      <span>💾</span> حفظ العقد
-    </button>
-  </div>
-</div>
-
-<!-- REPORTS -->
-<div id="page-reports" class="page">
-  <div class="report-controls">
-    <div class="report-type-btns">
-      <button class="report-type-btn active" id="rtype-payers" onclick="selectReportType('payers')">
-        <span class="icon">✅</span>
-        المسددين<br><small style="font-weight:400;font-size:10px;">حتى 20 من الشهر</small>
-      </button>
-      <button class="report-type-btn" id="rtype-delayed" onclick="selectReportType('delayed')">
-        <span class="icon">⚠️</span>
-        المتأخرين<br><small style="font-weight:400;font-size:10px;">التفصيل والأشهر</small>
-      </button>
-      <button class="report-type-btn" id="rtype-monthly-sales" onclick="selectReportType('monthly-sales')">
-        <span class="icon">📦</span>
-        المبيعات الشهرية<br><small style="font-weight:400;font-size:10px;">تصفر كل يوم 1</small>
-      </button>
-    </div>
-    
-    <div class="form-grid" style="margin-bottom:10px;">
-      <div class="form-group" style="margin:0">
-        <label>من تاريخ (يوم)</label>
-        <input type="date" id="r-start-date" onchange="renderReportPreview()">
-      </div>
-      <div class="form-group" style="margin:0">
-        <label>إلى تاريخ (يوم)</label>
-        <input type="date" id="r-end-date" onchange="renderReportPreview()">
-      </div>
-    </div>
-
-    <div class="form-group" style="margin-bottom:12px;">
-      <label>رقم واتساب المحصّل (مع رمز الدولة)</label>
-      <input type="tel" id="r-collector-phone" inputmode="tel" placeholder="مثال: 966501234567"
-        oninput="localStorage.setItem('collector_phone', this.value)">
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <button class="btn-pdf" style="background:var(--ink)" onclick="exportPDF()">
-        <span>📥</span> تحميل PDF
-      </button>
-      <button class="btn-pdf" style="background:#25d366" onclick="sendWhatsApp()">
-        <span>📲</span> إرسال واتساب
-      </button>
-    </div>
-  </div>
-  <div class="report-preview">
-    <div class="report-preview-head">
-      <span id="preview-title">معاينة التقرير</span>
-      <span id="preview-count" style="font-size:12px;color:#8fa0b4;"></span>
-    </div>
-    <div id="preview-body" style="overflow-x:auto;"></div>
-  </div>
-</div>
-
-<!-- DEFERRED SALES & MONTHLY SALES -->
-<div id="page-deferred" class="page">
-  <div id="deferred-alert-banner"></div>
-  
-  <!-- قسم المبيعات الآجلة الأصلية -->
-  <div style="margin-bottom: 24px;">
-    <div style="margin-bottom: 14px;">
-      <button class="btn-primary" style="background: var(--ink);" onclick="toggleDeferredForm()">
-        <span id="deferred-toggle-icon">➕</span> <span id="deferred-toggle-text">إضافة مبيعة آجلة</span>
-      </button>
-    </div>
-
-    <div class="form-card" id="deferred-form-card" style="display: none;">
-      <div class="section-title" style="margin-bottom:16px;">تسجيل مبيعة آجلة جديدة</div>
-      <div class="form-group">
-        <label>اسم المشتري *</label>
-        <input type="text" id="d-name" placeholder="اسم العميل الكامل">
-      </div>
-      <div class="form-group">
-        <label>رقم جوال المشتري</label>
-        <input type="tel" id="d-phone" inputmode="tel" placeholder="05xxxxxxxx">
-      </div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>اسم الكفيل</label>
-          <input type="text" id="d-guarantor" placeholder="اسم الكفيل">
-        </div>
-        <div class="form-group">
-          <label>رقم جوال الكفيل</label>
-          <input type="tel" id="d-guarantor-phone" inputmode="tel" placeholder="05xxxxxxxx">
-        </div>
-      </div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>المبلغ الآجل (ريال) *</label>
-          <input type="number" id="d-amount" inputmode="decimal" step="any" placeholder="0.00">
-        </div>
-        <div class="form-group">
-          <label>تاريخ الاستحقاق *</label>
-          <input type="date" id="d-due">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>البضاعة / الوصف</label>
-        <input type="text" id="d-desc" placeholder="وصف المبيعة أو البضاعة...">
-      </div>
-      <button class="btn-primary" onclick="addDeferred()">
-        <span>💾</span> حفظ المبيعة الآجلة
-      </button>
-    </div>
-
-    <div class="section-head">
-      <div class="section-title">قائمة المبيعات الآجلة</div>
-    </div>
-    <div id="deferred-list"></div>
-  </div>
-
-  <hr style="border: none; border-top: 2px dashed var(--border); margin: 24px 0;">
-
-  <!-- قسم المبيعات الشهريه المستقلة الجديدة (تصفر كل يوم 1) -->
-  <div>
-    <div style="margin-bottom: 14px;">
-      <button class="btn-primary" style="background: var(--teal);" onclick="toggleMonthlySalesForm()">
-        <span id="monthly-toggle-icon">📦</span> <span id="monthly-toggle-text">إضافة مبيعة شهرية جديدة</span>
-      </button>
-    </div>
-
-    <div class="form-card" id="monthly-form-card" style="display: none;">
-      <div class="section-title" style="margin-bottom:16px;">تسجيل مبيعة شهريه جديدة (تصفر تلقائياً يوم 1)</div>
-      <div class="form-group">
-        <label>اسم المشتري *</label>
-        <input type="text" id="ms-name" placeholder="اسم العميل الكامل">
-      </div>
-      <div class="form-group">
-        <label>رقم جوال المشتري</label>
-        <input type="tel" id="ms-phone" inputmode="tel" placeholder="05xxxxxxxx">
-      </div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>اسم الكفيل</label>
-          <input type="text" id="ms-guarantor" placeholder="اسم الكفيل">
-        </div>
-        <div class="form-group">
-          <label>رقم جوال الكفيل</label>
-          <input type="tel" id="ms-guarantor-phone" inputmode="tel" placeholder="05xxxxxxxx">
-        </div>
-      </div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>المبلغ (ريال) *</label>
-          <input type="number" id="ms-amount" inputmode="decimal" step="any" placeholder="0.00">
-        </div>
-        <div class="form-group">
-          <label>تاريخ الاستحقاق *</label>
-          <input type="date" id="ms-due">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>البضاعة / الوصف</label>
-        <input type="text" id="ms-desc" placeholder="وصف المبيعة الشهرية...">
-      </div>
-      <button class="btn-primary" style="background: var(--teal);" onclick="addMonthlySaleItem()">
-        <span>💾</span> حفظ المبيعة الشهريه
-      </button>
-    </div>
-
-    <div class="section-head">
-      <div class="section-title">قائمة المبيعات الشهريه (تصفر في اليوم الأول من كل شهر)</div>
-    </div>
-    <div id="monthly-sales-list"></div>
-  </div>
-</div>
-
-<!-- ALL CLIENTS SUMMARY MODAL -->
-<div class="modal-overlay" id="all-clients-modal">
-  <div class="modal-sheet" style="max-width: 780px;">
-    <div class="modal-handle"></div>
-    <div class="modal-title">📋 التقرير الشامل لجميع العملاء (جدول واحد)</div>
-    
-    <div style="max-height: 55vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;">
-      <table class="preview-table" id="all-clients-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>اسم المشتري</th>
-            <th>رقم الجوال</th>
-            <th>اسم الكفيل</th>
-            <th>رقم جوال الكفيل</th>
-            <th>القسط الشهري</th>
-            <th>ملاحظات</th>
-          </tr>
-        </thead>
-        <tbody id="all-clients-table-body">
-          <!-- تعبئة ديناميكية -->
-        </tbody>
-      </table>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <button class="btn-primary" style="background:var(--red);margin:0;" onclick="exportAllClientsPDF()">📥 تحميل PDF الشامل (متعدد الصفحات)</button>
-      <button class="btn-primary" style="background:var(--ink-soft);margin:0;" onclick="closeAllClientsModal()">إغلاق</button>
-    </div>
-  </div>
-</div>
-
-<!-- DETAIL MODAL -->
-<div class="modal-overlay" id="detail-modal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-client-name"></div>
-    <div id="modal-body"></div>
-    <button class="btn-primary" style="margin-top:16px;background:var(--ink-soft)" onclick="closeModal()">إغلاق</button>
-  </div>
-</div>
-
-<!-- EDIT CLIENT MODAL -->
-<div class="modal-overlay" id="edit-modal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">تعديل بيانات العميل</div>
-    <input type="hidden" id="e-id">
-    <div class="form-group">
-      <label>اسم العميل الكامل *</label>
-      <input type="text" id="e-name">
-    </div>
-    <div class="form-group">
-      <label>رقم جوال العميل</label>
-      <input type="tel" id="e-phone" inputmode="tel">
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>اسم الكفيل</label>
-        <input type="text" id="e-guarantor" placeholder="اسم الكفيل">
-      </div>
-      <div class="form-group">
-        <label>رقم جوال الكفيل</label>
-        <input type="tel" id="e-guarantor-phone" inputmode="tel">
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>المبلغ الإجمالي (ريال) *</label>
-        <input type="number" id="e-total" inputmode="decimal" step="any">
-      </div>
-      <div class="form-group">
-        <label>القسط الشهري (ريال) *</label>
-        <input type="number" id="e-monthly" inputmode="decimal" step="any">
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>تاريخ أول قسط *</label>
-        <input type="date" id="e-start">
-      </div>
-      <div class="form-group">
-        <label>يوم الاستحقاق (1-28)</label>
-        <input type="number" id="e-day" inputmode="numeric" min="1" max="28">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>إجمالي المبلغ المسدد حتى الآن (ريال)</label>
-      <input type="number" id="e-paid" inputmode="decimal" step="any">
-    </div>
-    <div class="form-group">
-      <label>ملاحظات</label>
-      <input type="text" id="e-notes">
-    </div>
-    <button class="btn-primary" onclick="saveClientEdit()">
-      <span>💾</span> حفظ التعديلات
-    </button>
-    <button class="btn-secondary" onclick="closeEditModal()">إلغاء</button>
+    <div class="form-group"><label>ملاحظات</label><input type="text" id="f-notes" placeholder="ملاحظات..."></div>
+    <button class="btn-primary" onclick="addClient()"><span>💾</span> حفظ العقد سحابياً</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-<div id="pdf-render-area"></div>
 
 <script>
-let clients = JSON.parse(localStorage.getItem('iqsat_v2')) || [];
-let deferred = JSON.parse(localStorage.getItem('iqsat_deferred')) || [];
-let monthlySalesList = JSON.parse(localStorage.getItem('iqsat_monthly_sales_list')) || [];
-let currentFilter = 'all';
-let currentReportType = 'payers';
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTh-4W9evNCSX0C-9CyxfezSLZzt342-brgMd04p4fzjB06LukYBCuXH80ckLpni/exec";
 
-const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو',
-                   'يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+let clients = [];
 
-function save() {
+async function loadDataFromCloud() {
+  showToast('⏳ جاري جلب البيانات من قوقل شيت...', '');
   try {
-    localStorage.setItem('iqsat_v2', JSON.stringify(clients));
-    localStorage.setItem('iqsat_v2_backup', JSON.stringify(clients));
+    const res = await fetch(SCRIPT_URL);
+    const rows = await res.json();
+    if (rows && rows.length > 1) {
+      clients = rows.slice(1).map(r => ({
+        id: r[0],
+        name: r[1],
+        phone: r[2],
+        guarantor: r[3],
+        guarantorPhone: r[4],
+        total: parseFloat(r[5]) || 0,
+        monthly: parseFloat(r[6]) || 0,
+        paid: parseFloat(r[7]) || 0,
+        remaining: parseFloat(r[8]) || 0,
+        startDate: r[9],
+        dueDay: r[10],
+        notes: r[11],
+        paymentsLog: []
+      }));
+    }
+    renderHome();
+    renderClients();
+    showToast('✅ تم تحديث البيانات من السحابة بنجاح', 'green');
   } catch(e) {
-    showToast('⚠️ تعذّر الحفظ، مساحة التخزين ممتلئة', 'red');
+    showToast('⚠️ خطأ في الاتصال بالسحابة', 'red');
   }
 }
 
-function saveDeferred() {
+async function saveToCloud() {
+  const rows = [
+    ["ID", "الاسم", "الجوال", "الكفيل", "جوال_الكفيل", "الإجمالي", "القسط", "المسدد", "المتبقي", "تاريخ_البداية", "يوم_الاستحقاق", "الملاحظات"]
+  ];
+  clients.forEach(c => {
+    rows.push([c.id, c.name, c.phone || '', c.guarantor || '', c.guarantorPhone || '', c.total, c.monthly, c.paid, c.remaining, c.startDate, c.dueDay || '', c.notes || '']);
+  });
+
   try {
-    localStorage.setItem('iqsat_deferred', JSON.stringify(deferred));
-    localStorage.setItem('iqsat_deferred_backup', JSON.stringify(deferred));
-  } catch(e) {
-    showToast('⚠️ تعذّر الحفظ، مساحة التخزين ممتلئة', 'red');
-  }
-}
-
-function saveMonthlySalesList() {
-  try {
-    localStorage.setItem('iqsat_monthly_sales_list', JSON.stringify(monthlySalesList));
-  } catch(e) {
-    showToast('⚠️ تعذّر الحفظ، مساحة التخزين ممتلئة', 'red');
-  }
-}
-
-function today() { return new Date(); }
-
-function fmt(n) {
-  return parseFloat(n || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function dateLabel(d) {
-  if (!d) return '—';
-  const dt = new Date(d);
-  return dt.toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric', calendar:'gregory' });
-}
-
-function getCurrentCycleRange() {
-  const now = new Date();
-  let startYear = now.getFullYear();
-  let startMonth = now.getMonth();
-  
-  if (now.getDate() < 26) {
-    startMonth -= 1;
-  }
-  
-  const cycleStart = new Date(startYear, startMonth, 26, 0, 0, 0, 0);
-  const cycleEnd = new Date(cycleStart.getFullYear(), cycleStart.getMonth() + 1, 25, 23, 59, 59, 999);
-  const cycleMonthName = MONTHS_AR[cycleStart.getMonth()] + ' ' + cycleStart.getFullYear();
-  
-  return { cycleStart, cycleEnd, cycleMonthName };
-}
-
-function generateSchedule(client) {
-  const schedule = [];
-  const start = new Date(client.startDate);
-  const dueDay = client.dueDay || start.getDate();
-  const log = client.paymentsLog || [];
-
-  let remaining = client.total;
-  let month = new Date(start.getFullYear(), start.getMonth(), 1);
-  let idx = 0;
-
-  while (remaining > 0.001 || idx < log.length) {
-    const dueDate = new Date(month.getFullYear(), month.getMonth(),
-      Math.min(dueDay, new Date(month.getFullYear(), month.getMonth()+1, 0).getDate()));
-
-    const paid = idx < log.length;
-    const logEntry = paid ? (typeof log[idx] === 'string' ? { date: log[idx], amount: client.monthly } : log[idx]) : null;
-    const amount = paid ? logEntry.amount : Math.min(client.monthly, remaining);
-
-    remaining = parseFloat((remaining - amount).toFixed(2));
-
-    schedule.push({ idx, dueDate, amount, paid, payDate: paid ? logEntry.date : null, monthName: MONTHS_AR[dueDate.getMonth()] + ' ' + dueDate.getFullYear() });
-    month = new Date(month.getFullYear(), month.getMonth() + 1, 1);
-    idx++;
-    if (idx > 240) break;
-  }
-  return schedule;
-}
-
-function getDelayedMonths(client) {
-  const schedule = generateSchedule(client);
-  const now = today();
-  return schedule.filter(s => !s.paid && s.dueDate < now);
-}
-
-function getStatus(client) {
-  if (client.remaining <= 0.001) return 'completed';
-  
-  const now = today();
-  const { cycleStart } = getCurrentCycleRange();
-  
-  let paidInCurrentCycle = false;
-  if (client.paymentsLog && client.paymentsLog.length > 0) {
-    paidInCurrentCycle = client.paymentsLog.some(p => {
-      const pDate = new Date(typeof p === 'string' ? p : p.date);
-      return pDate >= cycleStart && pDate <= now;
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sheetName: "Sheet1", rows: rows })
     });
+  } catch(e) {
+    console.error(e);
   }
-  
-  if (paidInCurrentCycle) {
-    return 'on-track';
-  }
-  
-  if (now >= cycleStart) {
-    return 'delayed';
-  }
-  
-  const delayed = getDelayedMonths(client);
-  return delayed.length > 0 ? 'delayed' : 'on-track';
 }
+
+function fmt(n) { return parseFloat(n || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
 function showToast(msg, type='') {
   const t = document.getElementById('toast');
@@ -1184,294 +361,66 @@ function switchTab(tab) {
   event.currentTarget.classList.add('active');
   if (tab === 'home') renderHome();
   if (tab === 'clients') renderClients();
-  if (tab === 'reports') renderReportPreview();
-  if (tab === 'deferred') renderDeferred();
-}
-
-function toggleDeferredForm() {
-  const card = document.getElementById('deferred-form-card');
-  const icon = document.getElementById('deferred-toggle-icon');
-  const text = document.getElementById('deferred-toggle-text');
-  if (card.style.display === 'none' || !card.style.display) {
-    card.style.display = 'block';
-    icon.textContent = '✖';
-    text.textContent = 'إغلاق نموذج الإضافة';
-  } else {
-    card.style.display = 'none';
-    icon.textContent = '➕';
-    text.textContent = 'إضافة مبيعة آجلة';
-  }
-}
-
-function toggleMonthlySalesForm() {
-  const card = document.getElementById('monthly-form-card');
-  const icon = document.getElementById('monthly-toggle-icon');
-  const text = document.getElementById('monthly-toggle-text');
-  if (card.style.display === 'none' || !card.style.display) {
-    card.style.display = 'block';
-    icon.textContent = '✖';
-    text.textContent = 'إغلاق نموذج المبيعات الشهريه';
-  } else {
-    card.style.display = 'none';
-    icon.textContent = '📦';
-    text.textContent = 'إضافة مبيعة شهرية جديدة';
-  }
-}
-
-function getCycleCollectedTotal() {
-  const { cycleStart, cycleEnd } = getCurrentCycleRange();
-  let totalCollectedInCycle = 0;
-  clients.forEach(c => {
-    if (c.paymentsLog) {
-      c.paymentsLog.forEach(p => {
-        const pDate = new Date(typeof p === 'string' ? p : p.date);
-        if (pDate >= cycleStart && pDate <= cycleEnd) {
-          totalCollectedInCycle += (typeof p === 'string' ? c.monthly : p.amount);
-        }
-      });
-    }
-  });
-  return totalCollectedInCycle;
-}
-
-function getActiveMonthlySales() {
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  return monthlySalesList.filter(d => !d.settled && new Date(d.due) >= monthStart);
 }
 
 function renderHome() {
-  const clientsRemaining = clients.reduce((s,c) => s + c.remaining, 0);
-  const cycleCollected = getCycleCollectedTotal();
-  const activeClients = clients.filter(c => c.remaining > 0.001).length;
-  const delayedClients = clients.filter(c => getStatus(c) === 'delayed');
-
-  const monthlySales = getActiveMonthlySales();
-  const salesRemaining = monthlySales.reduce((s,d) => s + d.amount, 0);
-  const overdueDeferred = deferred.filter(d => !d.settled && daysUntil(d.due) < 0);
-  const overdueMonthly = monthlySales.filter(d => daysUntil(d.due) < 0);
-
-  const totalRemaining = clientsRemaining + salesRemaining;
-  const active = activeClients + monthlySales.length;
-  const delayed = delayedClients.length + overdueDeferred.length + overdueMonthly.length;
-
+  const totalRem = clients.reduce((s,c) => s + c.remaining, 0);
+  const activeCount = clients.filter(c => c.remaining > 0.001).length;
+  
   document.getElementById('stats-strip').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-label" style="font-weight:900;font-size:13px;color:var(--ink)">المبلغ المتبقي</div>
-      <div class="stat-value gold">${fmt(totalRemaining)} <span class="stat-unit">ر.س</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label" style="font-weight:900;font-size:13px;color:var(--ink)">المحصل (من دورة 26)</div>
-      <div class="stat-value green">${fmt(cycleCollected)} <span class="stat-unit">ر.س</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">عملاء/مبيعات نشطة</div>
-      <div class="stat-value">${active}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">متأخرون</div>
-      <div class="stat-value red">${delayed}</div>
-    </div>
+    <div class="stat-card"><div class="stat-label">المبلغ الإجمالي المتبقي</div><div class="stat-value gold">${fmt(totalRem)} <span class="stat-unit">ر.س</span></div></div>
+    <div class="stat-card"><div class="stat-label">العملاء النشطون</div><div class="stat-value">${activeCount}</div></div>
   `;
 
   const dl = document.getElementById('delayed-list');
-  const overdueAll = [
-    ...delayedClients,
-    ...deferred.filter(d => !d.settled && daysUntil(d.due) < 0),
-    ...overdueMonthly
-  ];
-  if (overdueAll.length === 0) {
-    dl.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div><p>لا يوجد متأخرون حالياً</p></div>`;
+  if(clients.length === 0) {
+    dl.innerHTML = `<div style="text-align:center;padding:30px;color:var(--ink-soft)">لا توجد بيانات مسجلة حالياً</div>`;
     return;
   }
-  
-  dl.innerHTML =
-    delayedClients.map(c => clientCardHTML(c)).join('') +
-    deferred.filter(d => !d.settled && daysUntil(d.due) < 0).map(d => deferredCardHTML(d)).join('') +
-    overdueMonthly.map(d => monthlySaleCardHTML(d)).join('');
-}
-
-function setFilter(el, val) {
-  currentFilter = val;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  renderClients();
+  dl.innerHTML = clients.map(c => clientCardHTML(c)).join('');
 }
 
 function renderClients() {
   const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
   let list = clients;
-  if (q) {
-    list = list.filter(c => 
-      c.name.toLowerCase().includes(q) || 
-      (c.phone||'').includes(q) || 
-      (c.guarantor||'').toLowerCase().includes(q) || 
-      (c.guarantorPhone||'').includes(q)
-    );
-  }
-  if (currentFilter === 'delayed') list = list.filter(c => getStatus(c) === 'delayed');
-  else if (currentFilter === 'on-track') list = list.filter(c => getStatus(c) === 'on-track');
-  else if (currentFilter === 'completed') list = list.filter(c => getStatus(c) === 'completed');
-
+  if(q) list = list.filter(c => c.name.toLowerCase().includes(q) || (c.phone||'').includes(q));
+  
   const container = document.getElementById('clients-list');
-  if (list.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>لا توجد نتائج</p></div>`;
+  if(list.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--ink-soft)">لا توجد نتائج</div>`;
     return;
   }
   container.innerHTML = list.map(c => clientCardHTML(c)).join('');
 }
 
 function clientCardHTML(client) {
-  const status = getStatus(client);
-  const statusLabels = { completed: ['مكتمل','badge-completed'], delayed: ['متأخر','badge-delayed'], 'on-track': ['منتظم','badge-on-track'] };
-  const [label, badgeClass] = statusLabels[status];
   const pct = Math.min(100, ((client.paid / client.total) * 100)).toFixed(0);
-  const delayed = getDelayedMonths(client);
-
-  let lastPayDateStr = '—';
-  if (client.paymentsLog && client.paymentsLog.length > 0) {
-    const lastLog = client.paymentsLog[client.paymentsLog.length - 1];
-    lastPayDateStr = dateLabel(typeof lastLog === 'string' ? lastLog : lastLog.date);
-  }
-
-  return `<div class="client-card ${status}">
+  return `<div class="client-card on-track">
     <div class="client-head">
       <div>
         <div class="client-name">${client.name}</div>
-        ${client.phone ? `<div class="client-phone">📱 العميل: <a href="tel:${client.phone}">${client.phone}</a></div>` : ''}
-        ${client.guarantor ? `<div class="client-phone" style="margin-top:2px;">🤝 الكفيل: ${client.guarantor} ${client.guarantorPhone ? `(<a href="tel:${client.guarantorPhone}">${client.guarantorPhone}</a>)` : ''}</div>` : ''}
+        ${client.phone ? `<div class="client-phone">📱 <a href="tel:${client.phone}">${client.phone}</a></div>` : ''}
       </div>
-      <span class="status-badge ${badgeClass}">${label}</span>
+      <span class="status-badge badge-on-track">نشط</span>
     </div>
     <div class="client-body">
       <div class="progress-wrap">
-        <div class="progress-labels">
-          <span>المسدد ${fmt(client.paid)} ر.س</span>
-          <span>${pct}%</span>
-        </div>
+        <div class="progress-labels"><span>المسدد ${fmt(client.paid)} ر.س</span><span>${pct}%</span></div>
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
       </div>
       <div class="info-grid">
         <div class="info-item"><div class="lbl">الإجمالي</div><div class="val">${fmt(client.total)} ر.س</div></div>
-        <div class="info-item"><div class="lbl">القسط</div><div class="val">${fmt(client.monthly)} ر.س</div></div>
         <div class="info-item"><div class="lbl">المتبقي</div><div class="val danger">${fmt(client.remaining)} ر.س</div></div>
-        <div class="info-item"><div class="lbl">آخر سداد (باليوم والتاريخ)</div><div class="val success">${lastPayDateStr}</div></div>
-        <div class="info-item" style="grid-column:1/-1"><div class="lbl">الأشهر المتأخرة المسجلة</div><div class="val ${delayed.length > 0 ? 'danger' : 'success'}">${delayed.length > 0 ? `⚠️ ${delayed.length} شهر (${delayed.map(d => d.monthName).join(', ')})` : 'لا توجد أشهر متأخرة'}</div></div>
-        ${client.discounts && client.discounts.length > 0 ? `<div class="info-item" style="grid-column:1/-1"><div class="lbl">إجمالي الخصومات للتسوية</div><div class="val" style="color:#b7791f">${fmt(client.discounts.reduce((s,d)=>s+d.amount,0))} ر.س</div></div>` : ''}
       </div>
     </div>
     <div class="client-actions">
-      ${status !== 'completed' ? `<button class="action-btn btn-pay" onclick="payInstallment(${client.id})">💵 تحصيل</button>` : ''}
-      <button class="action-btn btn-discount" onclick="addDiscount(${client.id})">🏷️ خصم تسوية</button>
-      <button class="action-btn btn-details" onclick="openDetail(${client.id})">📋 التفاصيل</button>
-      <button class="action-btn btn-edit" onclick="openEditModal(${client.id})">✏️ تعديل</button>
-      ${client.phone ? `<button class="action-btn btn-whatsapp" onclick="notifyClient(${client.id})" title="إرسال إشعار واتساب"><span>📲</span></button>` : ''}
-      <button class="action-btn btn-del" onclick="deleteClient(${client.id})">🗑️</button>
+      <button class="action-btn btn-pay" onclick="payInstallment(${client.id})">💵 تحصيل</button>
+      <button class="action-btn btn-del" onclick="deleteClient(${client.id})">🗑️ حذف</button>
     </div>
   </div>`;
 }
 
-function openAllClientsSummary() {
-  if (clients.length === 0) {
-    showToast('⚠️ لا توجد عملاء مسجلون حالياً', 'red');
-    return;
-  }
-
-  const tbody = document.getElementById('all-clients-table-body');
-
-  tbody.innerHTML = clients.map((c, idx) => {
-    return `<tr>
-      <td>${idx + 1}</td>
-      <td style="text-align:right;font-weight:700">${c.name}</td>
-      <td>${c.phone || '—'}</td>
-      <td style="text-align:right">${c.guarantor || '—'}</td>
-      <td>${c.guarantorPhone || '—'}</td>
-      <td><b>${fmt(c.monthly)} ر.س</b></td>
-      <td>[ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</td>
-    </tr>`;
-  }).join('');
-
-  document.getElementById('all-clients-modal').classList.add('open');
-}
-
-function closeAllClientsModal() {
-  document.getElementById('all-clients-modal').classList.remove('open');
-}
-
-async function exportAllClientsPDF() {
-  if (clients.length === 0) return;
-  showToast('⏳ جاري إنشاء ملف PDF (متعدد الصفحات وبجودة عالية)...', '');
-
-  const renderArea = document.getElementById('pdf-render-area');
-  
-  const ROWS_PER_PAGE = 15;
-  const pages = [];
-  for (let i = 0; i < clients.length; i += ROWS_PER_PAGE) {
-    pages.push(clients.slice(i, i + ROWS_PER_PAGE));
-  }
-
-  renderArea.innerHTML = pages.map((pageClients, pIdx) => `
-    <div class="pdf-page" id="pdf-full-page-${pIdx}">
-      <div class="pdf-header">
-        <h1>التقرير الشامل لجميع العملاء والكفلاء</h1>
-        <div class="pdf-sub">نظام المحمدية</div>
-        <div class="pdf-meta">تاريخ التقرير: ${new Date().toLocaleDateString('ar-SA')} &nbsp;|&nbsp; إجمالي العملاء: ${clients.length} &nbsp;|&nbsp; صفحة ${pIdx + 1} من ${pages.length}</div>
-      </div>
-      <table class="pdf-table">
-        <thead>
-          <tr>
-            <th style="width: 5%;">#</th>
-            <th style="width: 25%; text-align:right;">اسم المشتري</th>
-            <th style="width: 15%;">رقم الجوال</th>
-            <th style="width: 20%; text-align:right;">اسم الكفيل</th>
-            <th style="width: 15%;">رقم جوال الكفيل</th>
-            <th style="width: 15%;">القسط الشهري</th>
-            <th style="width: 5%;">ملاحظات</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${pageClients.map((c, i) => {
-            let rowIdx = pIdx * ROWS_PER_PAGE + i + 1;
-            return `
-            <tr>
-              <td>${rowIdx}</td>
-              <td style="text-align:right;font-weight:700">${c.name}</td>
-              <td>${c.phone || '—'}</td>
-              <td style="text-align:right">${c.guarantor || '—'}</td>
-              <td>${c.guarantorPhone || '—'}</td>
-              <td><b>${fmt(c.monthly)} ر.س</b></td>
-              <td></td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="pdf-footer">
-        <span>نظام المحمدية لإدارة الأقساط</span>
-        <span>صفحة ${pIdx + 1} من ${pages.length}</span>
-      </div>
-    </div>
-  `).join('');
-
-  await new Promise(r => setTimeout(r, 120));
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-
-  for (let pIdx = 0; pIdx < pages.length; pIdx++) {
-    const pageEl = document.getElementById(`pdf-full-page-${pIdx}`);
-    const canvas = await html2canvas(pageEl, { scale: 3, useCORS: true, backgroundColor: '#ffffff' });
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-    
-    if (pIdx > 0) doc.addPage();
-    doc.addImage(imgData, 'JPEG', 0, 0, 297, 210);
-  }
-
-  renderArea.innerHTML = '';
-  doc.save(`التقرير_الشامل_للعملاء_${new Date().toISOString().split('T')[0]}.pdf`);
-  showToast('✅ تم تحميل ملف PDF المتعدد الصفحات بنجاح', 'green');
-}
-
-function addClient() {
+async function addClient() {
   const name = document.getElementById('f-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
   const guarantor = document.getElementById('f-guarantor').value.trim();
@@ -1479,936 +428,48 @@ function addClient() {
   const total = parseFloat(document.getElementById('f-total').value) || 0;
   const monthly = parseFloat(document.getElementById('f-monthly').value) || 0;
   const startDate = document.getElementById('f-start').value;
-  const dueDay = parseInt(document.getElementById('f-day').value) || null;
+  const dueDay = parseInt(document.getElementById('f-day').value) || '';
   const notes = document.getElementById('f-notes').value.trim();
 
   if (!name || !total || !monthly || !startDate) {
-    showToast('⚠️ يرجى ملء جميع الحقول المطلوبة', 'red'); return;
-  }
-  if (monthly > total) {
-    showToast('⚠️ القسط الشهري أكبر من المبلغ الإجمالي', 'red'); return;
-  }
-
-  const client = {
-    id: Date.now(),
-    name, phone, guarantor, guarantorPhone, total, monthly,
-    remaining: total,
-    paid: 0,
-    startDate,
-    dueDay: dueDay || new Date(startDate).getDate(),
-    notes,
-    paymentsLog: [],
-    discounts: []
-  };
-  clients.push(client);
-  save();
-  showToast('✅ تم حفظ العقد بنجاح', 'green');
-  ['f-name','f-phone','f-guarantor','f-guarantor-phone','f-total','f-monthly','f-start','f-day','f-notes'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.value = '';
-  });
-  switchTab('clients');
-  document.querySelectorAll('.tab-btn')[1].classList.add('active');
-  document.querySelectorAll('.tab-btn')[2].classList.remove('active');
-}
-
-function openEditModal(id) {
-  const client = clients.find(c => c.id === id);
-  if (!client) return;
-  document.getElementById('e-id').value = client.id;
-  document.getElementById('e-name').value = client.name;
-  document.getElementById('e-phone').value = client.phone || '';
-  document.getElementById('e-guarantor').value = client.guarantor || '';
-  document.getElementById('e-guarantor-phone').value = client.guarantorPhone || '';
-  document.getElementById('e-total').value = client.total;
-  document.getElementById('e-monthly').value = client.monthly;
-  document.getElementById('e-start').value = client.startDate;
-  document.getElementById('e-day').value = client.dueDay || '';
-  document.getElementById('e-paid').value = client.paid;
-  document.getElementById('e-notes').value = client.notes || '';
-  document.getElementById('edit-modal').classList.add('open');
-}
-
-function closeEditModal() {
-  document.getElementById('edit-modal').classList.remove('open');
-}
-document.getElementById('edit-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('edit-modal')) closeEditModal();
-});
-
-function saveClientEdit() {
-  const id = parseInt(document.getElementById('e-id').value);
-  const name = document.getElementById('e-name').value.trim();
-  const phone = document.getElementById('e-phone').value.trim();
-  const guarantor = document.getElementById('e-guarantor').value.trim();
-  const guarantorPhone = document.getElementById('e-guarantor-phone').value.trim();
-  const total = parseFloat(document.getElementById('e-total').value) || 0;
-  const monthly = parseFloat(document.getElementById('e-monthly').value) || 0;
-  const startDate = document.getElementById('e-start').value;
-  const dueDay = parseInt(document.getElementById('e-day').value) || null;
-  const paid = parseFloat(document.getElementById('e-paid').value) || 0;
-  const notes = document.getElementById('e-notes').value.trim();
-
-  if (!name || !total || !monthly || !startDate) {
-    showToast('⚠️ يرجى ملء جميع الحقول المطلوبة', 'red'); return;
-  }
-  if (monthly > total) {
-    showToast('⚠️ القسط الشهري أكبر من المبلغ الإجمالي', 'red'); return;
-  }
-  if (paid > total) {
-    showToast('⚠️ المبلغ المسدد أكبر من الإجمالي', 'red'); return;
-  }
-
-  clients = clients.map(c => {
-    if (c.id !== id) return c;
-    const totalDiscount = (c.discounts || []).reduce((s,d)=>s+d.amount, 0);
-    return {
-      ...c,
-      name, phone, guarantor, guarantorPhone, total, monthly, startDate,
-      dueDay: dueDay || new Date(startDate).getDate(),
-      notes,
-      paid: parseFloat(paid.toFixed(2)),
-      remaining: parseFloat((total - paid - totalDiscount).toFixed(2))
-    };
-  });
-  save();
-  closeEditModal();
-  showToast('✅ تم تحديث بيانات العميل', 'green');
-  renderHome();
-  renderClients();
-}
-
-function payInstallment(id) {
-  const client = clients.find(c => c.id === id);
-  if (!client) return;
-
-  // التحقق من وجود عملية تحصيل خلال آخر 20 يوماً
-  if (client.paymentsLog && client.paymentsLog.length > 0) {
-    const lastPay = client.paymentsLog[client.paymentsLog.length - 1];
-    const lastDate = new Date(typeof lastPay === 'string' ? lastPay : lastPay.date);
-    const now = new Date();
-    const diffDays = (now - lastDate) / (1000 * 60 * 60 * 24);
-
-    if (diffDays <= 20) {
-      const confirmed = confirm("⚠️ تنبيه هام: هل أنت متأكد من عملية التحصيل؟ العملية مكررة (تمت عملية تحصيل خلال أقل من 20 يوماً لهذا العميل).");
-      if (!confirmed) return;
-    }
-  }
-
-  const suggested = Math.min(client.monthly, client.remaining);
-  const input = prompt('أدخل المبلغ المستحصل (ريال):', suggested.toFixed(2));
-  if (input === null) return;
-  const amount = parseFloat(input);
-  if (isNaN(amount) || amount <= 0) {
-    showToast('⚠️ مبلغ غير صالح', 'red'); return;
-  }
-  if (amount > client.remaining + 0.001) {
-    showToast('⚠️ المبلغ أكبر من المتبقي على العميل', 'red'); return;
-  }
-
-  const nowStr = new Date().toISOString().split('T')[0];
-
-  clients = clients.map(c => {
-    if (c.id === id) {
-      c.remaining = parseFloat((c.remaining - amount).toFixed(2));
-      c.paid = parseFloat((c.paid + amount).toFixed(2));
-      if (!c.paymentsLog) c.paymentsLog = [];
-      c.paymentsLog.push({ date: nowStr, amount: parseFloat(amount.toFixed(2)) });
-    }
-    return c;
-  });
-  save();
-  showToast('💰 تم تسجيل القسط بتاريخ اليوم وأصبحت حالته منتظماً', 'green');
-  renderHome();
-  renderClients();
-}
-
-function cancelPayment(clientId, paymentIdx) {
-  const client = clients.find(c => c.id === clientId);
-  if (!client || !client.paymentsLog || !client.paymentsLog[paymentIdx]) return;
-  
-  if (!confirm('هل أنت متأكد من إلغاء وحذف عملية التحصيل هذه؟ سيتم إرجاع المبلغ للمتبقي وإلغاؤه من سجل العمليات المالية.')) return;
-
-  clients = clients.map(c => {
-    if (c.id !== clientId) return c;
-    const log = [...c.paymentsLog];
-    const removed = log.splice(paymentIdx, 1)[0];
-    const removedAmt = typeof removed === 'string' ? c.monthly : removed.amount;
-
-    const totalPaid = log.reduce((s, p) => s + (typeof p === 'string' ? c.monthly : p.amount), 0);
-    const totalDiscount = (c.discounts || []).reduce((s,d)=>s+d.amount, 0);
-
-    return {
-      ...c,
-      paymentsLog: log,
-      paid: parseFloat(totalPaid.toFixed(2)),
-      remaining: parseFloat((c.total - totalPaid - totalDiscount).toFixed(2))
-    };
-  });
-  save();
-  showToast('🗑️ تم إلغاء عملية التحصيل بنجاح', 'red');
-  renderHome();
-  renderClients();
-  openDetail(clientId);
-}
-
-function addDiscount(clientId) {
-  const client = clients.find(c => c.id === clientId);
-  if (!client) return;
-  
-  const input = prompt('أدخل مبلغ الخصم (لتسوية العميل - لا يُحتسب ضمن العمليات المالية والتحصيل):', '0.00');
-  if (input === null) return;
-  const discountAmt = parseFloat(input);
-  if (isNaN(discountAmt) || discountAmt <= 0) {
-    showToast('⚠️ مبلغ الخصم غير صالح', 'red'); return;
-  }
-  if (discountAmt > client.remaining + 0.001) {
-    showToast('⚠️ مبلغ الخصم أكبر من المبلغ المتبقي على العميل', 'red'); return;
-  }
-
-  const reason = prompt('أدخل سبب الخصم أو تفاصيل التسوية (اختياري):', 'تسوية رصيد') || 'تسوية';
-  const nowStr = new Date().toISOString().split('T')[0];
-
-  clients = clients.map(c => {
-    if (c.id !== clientId) return c;
-    if (!c.discounts) c.discounts = [];
-    c.discounts.push({ date: nowStr, amount: parseFloat(discountAmt.toFixed(2)), reason });
-    
-    const totalDiscount = c.discounts.reduce((s,d)=>s+d.amount, 0);
-    return {
-      ...c,
-      remaining: parseFloat((c.total - c.paid - totalDiscount).toFixed(2))
-    };
-  });
-
-  save();
-  showToast('🏷️ تم تطبيق خصم التسوية بنجاح (مع إبقائه خارج التقارير المالية)', 'green');
-  renderHome();
-  renderClients();
-}
-
-function cancelDiscount(clientId, discountIdx) {
-  const client = clients.find(c => c.id === clientId);
-  if (!client || !client.discounts || !client.discounts[discountIdx]) return;
-
-  if (!confirm('هل أنت متأكد من إلغاء خصم التسوية هذا؟')) return;
-
-  clients = clients.map(c => {
-    if (c.id !== clientId) return c;
-    const discounts = [...c.discounts];
-    discounts.splice(discountIdx, 1);
-    const totalDiscount = discounts.reduce((s,d)=>s+d.amount, 0);
-
-    return {
-      ...c,
-      discounts,
-      remaining: parseFloat((c.total - c.paid - totalDiscount).toFixed(2))
-    };
-  });
-  save();
-  showToast('🗑️ تم إلغاء الخصم بنجاح', 'red');
-  renderHome();
-  renderClients();
-  openDetail(clientId);
-}
-
-function editPayment(clientId, paymentIdx) {
-  const client = clients.find(c => c.id === clientId);
-  if (!client || !client.paymentsLog || !client.paymentsLog[paymentIdx]) return;
-  const entry = client.paymentsLog[paymentIdx];
-  const oldAmount = typeof entry === 'string' ? client.monthly : entry.amount;
-  const input = prompt('تعديل المبلغ المستحصل لهذا القسط (ريال):', oldAmount.toFixed(2));
-  if (input === null) return;
-  const newAmount = parseFloat(input);
-  if (isNaN(newAmount) || newAmount < 0) {
-    showToast('⚠️ مبلغ غير صالح', 'red'); return;
-  }
-
-  clients = clients.map(c => {
-    if (c.id !== clientId) return c;
-    const log = (c.paymentsLog || []).map((p, i) => {
-      if (i !== paymentIdx) return p;
-      const date = typeof p === 'string' ? p : p.date;
-      return { date, amount: parseFloat(newAmount.toFixed(2)) };
-    });
-    const totalPaid = log.reduce((s, p) => s + (typeof p === 'string' ? c.monthly : p.amount), 0);
-    const totalDiscount = (c.discounts || []).reduce((s,d)=>s+d.amount, 0);
-    return {
-      ...c,
-      paymentsLog: log,
-      paid: parseFloat(totalPaid.toFixed(2)),
-      remaining: parseFloat((c.total - totalPaid - totalDiscount).toFixed(2))
-    };
-  });
-  save();
-  showToast('✅ تم تعديل مبلغ القسط', 'green');
-  renderHome();
-  renderClients();
-  openDetail(clientId);
-}
-
-function deleteClient(id) {
-  if (!confirm('هل أنت متأكد من حذف هذا العميل نهائياً؟')) return;
-  clients = clients.filter(c => c.id !== id);
-  save();
-  showToast('🗑️ تم حذف العميل', 'red');
-  renderHome();
-  renderClients();
-}
-
-function notifyClient(id) {
-  const client = clients.find(c => c.id === id);
-  if (!client || !client.phone) return;
-
-  const status = getStatus(client);
-  const delayed = getDelayedMonths(client);
-  const schedule = generateSchedule(client);
-  const nextDue = schedule.find(s => !s.paid);
-
-  let phone = client.phone.trim().replace(/\s|-/g,'').replace(/^\+|^00/,'');
-  if (phone.startsWith('0')) phone = '966' + phone.slice(1);
-
-  let msg = '';
-  if (status === 'completed') {
-    msg = `السلام عليكم ورحمة الله وبركاته\nالعميل المحترم / ${client.name}\n\n🎉 نُهنّئكم بإتمام سداد كامل مستحقاتكم البالغة:\n💰 ${fmt(client.total)} ريال\n\nشكراً لثقتكم وتعاملكم الكريم. 🌟`;
-  } else if (status === 'delayed') {
-    const delayedAmt = delayed.reduce((s,d) => s + d.amount, 0);
-    const monthsNames = delayed.map(d => d.monthName).join(', ');
-    msg = `السلام عليكم ورحمة الله وبركاته\nالعميل المحترم / ${client.name}\n\nنُذكّركم بأن لديكم أقساطاً متأخرة:\n⚠️ الأشهر: ${monthsNames}\n💵 الإجمالي المتأخر: ${fmt(delayedAmt)} ريال\n\nنرجو التواصل لتسوية الأقساط. 🙏`;
-  } else {
-    const nextAmt = nextDue ? nextDue.amount : client.monthly;
-    const nextDate = nextDue ? dateLabel(nextDue.dueDate) : '—';
-    msg = `السلام عليكم ورحمة الله وبركاته\nالعميل المحترم / ${client.name}\n\nنُذكّركم بموعد قسطكم القادم:\n📅 التاريخ: ${nextDate}\n💵 القيمة: ${fmt(nextAmt)} ريال\n\nنشكركم على التزامكم. 😊`;
-  }
-
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
-}
-
-function openDetail(id) {
-  const client = clients.find(c => c.id === id);
-  if (!client) return;
-  document.getElementById('modal-client-name').textContent = client.name;
-
-  const schedule = generateSchedule(client);
-  const now = today();
-
-  const rows = schedule.map(s => {
-    let cls = '';
-    let statusText = '';
-    if (s.paid) {
-      cls = 'paid-row';
-      statusText = `✅ مدفوع (${s.monthName}) <button class="mini-edit-btn" onclick="editPayment(${client.id}, ${s.idx})">✏️</button> <button class="mini-del-btn" onclick="cancelPayment(${client.id}, ${s.idx})" title="إلغاء التحصيل">❌</button>`;
-    } else if (s.dueDate < now) {
-      cls = 'delayed-row';
-      statusText = `⚠️ متأخر (${s.monthName})`;
-    } else {
-      cls = 'upcoming-row';
-      statusText = `🔜 قادم (${s.monthName})`;
-    }
-    return `<tr class="${cls}">
-      <td>${s.idx + 1}</td>
-      <td>${dateLabel(s.dueDate)}</td>
-      <td>${fmt(s.amount)} ر.س</td>
-      <td>${statusText}</td>
-    </tr>`;
-  }).join('');
-
-  let discountSection = '';
-  if (client.discounts && client.discounts.length > 0) {
-    const discountRows = client.discounts.map((d, dIdx) => `
-      <tr>
-        <td>${dateLabel(d.date)}</td>
-        <td style="color:#b7791f; font-weight:700">${fmt(d.amount)} ر.س</td>
-        <td>${d.reason}</td>
-        <td><button class="mini-del-btn" onclick="cancelDiscount(${client.id}, ${dIdx})">❌ إلغاء</button></td>
-      </tr>
-    `).join('');
-
-    discountSection = `
-      <div style="margin-top:16px;">
-        <div style="font-weight:700;font-size:13px;margin-bottom:6px;color:#b7791f">🏷️ خصومات التسوية المسجلة (خارج العمليات المالية):</div>
-        <table class="month-table">
-          <thead><tr><th>التاريخ</th><th>المبلغ</th><th>السبب</th><th>إجراء</th></tr></thead>
-          <tbody>${discountRows}</tbody>
-        </table>
-      </div>
-    `;
-  }
-
-  document.getElementById('modal-body').innerHTML = `
-    <div style="margin-bottom:12px;font-size:13px;color:var(--ink-soft);">
-      ${client.guarantor ? `🤝 الكفيل: <b>${client.guarantor}</b> (${client.guarantorPhone || 'بدون جوال'})` : ''}
-    </div>
-    <div style="font-weight:700;font-size:13px;margin-bottom:6px;">سجل جدول الأقساط والتحصيل:</div>
-    <table class="month-table">
-      <thead><tr>
-        <th>#</th><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>الحالة والإجراءات</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    ${discountSection}
-    ${client.notes ? `<div style="margin-top:14px;padding:12px;background:#f8fafc;border-radius:10px;font-size:13px;color:var(--ink-soft)">📝 ${client.notes}</div>` : ''}
-  `;
-
-  document.getElementById('detail-modal').classList.add('open');
-}
-
-function closeModal() {
-  document.getElementById('detail-modal').classList.remove('open');
-}
-document.getElementById('detail-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('detail-modal')) closeModal();
-});
-
-function selectReportType(type) {
-  currentReportType = type;
-  document.getElementById('rtype-payers').classList.toggle('active', type === 'payers');
-  document.getElementById('rtype-delayed').classList.toggle('active', type === 'delayed');
-  document.getElementById('rtype-monthly-sales').classList.toggle('active', type === 'monthly-sales');
-  renderReportPreview();
-}
-
-function renderReportPreview() {
-  const startDateStr = document.getElementById('r-start-date').value;
-  const endDateStr = document.getElementById('r-end-date').value;
-  
-  const startDate = startDateStr ? new Date(startDateStr) : null;
-  const endDate = endDateStr ? new Date(endDateStr) : null;
-  if (endDate) endDate.setHours(23,59,59,999);
-
-  let title = '';
-  let data = [];
-
-  if (currentReportType === 'payers') {
-    title = '✅ قائمة المسددين (حتى دورة 26 أو الفترة المحددة)';
-    data = getPayersReportData(startDate, endDate);
-  } else if (currentReportType === 'delayed') {
-    title = '⚠️ قائمة المتأخرين (مع تفصيل الأسماء والأشهر بالتحديد)';
-    data = getDelayedReportData(startDate, endDate);
-  } else if (currentReportType === 'monthly-sales') {
-    title = '📦 قائمة المبيعات الشهريه النشطة (تصفر كل يوم 1)';
-    data = getMonthlySalesData(startDate, endDate);
-  }
-
-  document.getElementById('preview-title').textContent = title;
-  document.getElementById('preview-count').textContent = `${data.length} عنصر`;
-
-  if (data.length === 0) {
-    document.getElementById('preview-body').innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>لا توجد بيانات مطابقة للفترة المحددة</p></div>`;
-    return;
-  }
-
-  let tableHTML = '';
-  if (currentReportType === 'payers') {
-    const rows = data.map((d, i) => `
-      <tr>
-        <td>${i+1}</td>
-        <td style="text-align:right;font-weight:700">${d.name}</td>
-        <td>${d.phone ? `<a class="call-link" href="tel:${d.phone}">📞 ${d.phone}</a>` : '—'}</td>
-        <td>${fmt(d.amount)} ر.س</td>
-        <td>${dateLabel(d.payDate)}</td>
-      </tr>`).join('');
-    tableHTML = `<table class="preview-table"><thead><tr><th>#</th><th>الاسم</th><th>الجوال</th><th>المبلغ المسدد</th><th>تاريخ السداد</th></tr></thead><tbody>${rows}</tbody></table>`;
-  } else if (currentReportType === 'delayed') {
-    const rows = data.map((d, i) => `
-      <tr>
-        <td>${i+1}</td>
-        <td style="text-align:right;font-weight:700">${d.name}</td>
-        <td>${d.phone ? `<a class="call-link" href="tel:${d.phone}">📞 ${d.phone}</a>` : '—'}</td>
-        <td style="color:var(--red)">${d.delayedCount} أشهر</td>
-        <td style="text-align:right;font-size:12px">${d.monthsList}</td>
-        <td>${fmt(d.totalDelayedAmount)} ر.س</td>
-      </tr>`).join('');
-    tableHTML = `<table class="preview-table"><thead><tr><th>#</th><th>الاسم</th><th>الجوال</th><th>عدد الأشهر</th><th>الأشهر المتأخرة بالتحديد</th><th>إجمالي المبلغ</th></tr></thead><tbody>${rows}</tbody></table>`;
-  } else if (currentReportType === 'monthly-sales') {
-    const rows = data.map((d, i) => `
-      <tr>
-        <td>${i+1}</td>
-        <td style="text-align:right;font-weight:700">${d.name}</td>
-        <td>${d.phone ? `<a class="call-link" href="tel:${d.phone}">📞 ${d.phone}</a>` : '—'}</td>
-        <td>${d.desc || '—'}</td>
-        <td>${fmt(d.amount)} ر.س</td>
-        <td>${dateLabel(d.due)}</td>
-      </tr>`).join('');
-    tableHTML = `<table class="preview-table"><thead><tr><th>#</th><th>الاسم</th><th>الجوال</th><th>الوصف</th><th>المبلغ</th><th>تاريخ الاستحقاق</th></tr></thead><tbody>${rows}</tbody></table>`;
-  }
-
-  document.getElementById('preview-body').innerHTML = tableHTML;
-}
-
-function getPayersReportData(start, end) {
-  const result = [];
-  clients.forEach(client => {
-    if (client.paymentsLog) {
-      client.paymentsLog.forEach(p => {
-        const pDate = new Date(typeof p === 'string' ? p : p.date);
-        const amt = typeof p === 'string' ? client.monthly : p.amount;
-        const dStr = typeof p === 'string' ? p : p.date;
-
-        let match = true;
-        if (start && pDate < start) match = false;
-        if (end && pDate > end) match = false;
-
-        if (match) {
-          result.push({ name: client.name, phone: client.phone, amount: amt, payDate: dStr });
-        }
-      });
-    }
-  });
-  return result;
-}
-
-function getDelayedReportData(start, end) {
-  const result = [];
-  clients.forEach(client => {
-    const delayedItems = getDelayedMonths(client);
-    const filteredItems = delayedItems.filter(s => {
-      if (start && s.dueDate < start) return false;
-      if (end && s.dueDate > end) return false;
-      return true;
-    });
-
-    if (filteredItems.length > 0) {
-      result.push({
-        name: client.name,
-        phone: client.phone,
-        delayedCount: filteredItems.length,
-        monthsList: filteredItems.map(d => d.monthName).join('، '),
-        totalDelayedAmount: filteredItems.reduce((s, d) => s + d.amount, 0)
-      });
-    }
-  });
-  return result;
-}
-
-function getMonthlySalesData(start, end) {
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  return monthlySalesList.filter(d => {
-    if (d.settled) return false;
-    const dDate = new Date(d.due);
-    if (dDate < monthStart) return false;
-    if (start && dDate < start) return false;
-    if (end && dDate > end) return false;
-    return true;
-  });
-}
-
-async function exportPDF() {
-  const startDateStr = document.getElementById('r-start-date').value;
-  const endDateStr = document.getElementById('r-end-date').value;
-  const start = startDateStr ? new Date(startDateStr) : null;
-  const end = endDateStr ? new Date(endDateStr) : null;
-  if (end) end.setHours(23,59,59,999);
-
-  let data = [];
-  let title = '';
-
-  if (currentReportType === 'payers') {
-    data = getPayersReportData(start, end);
-    title = 'قائمة المسددين';
-  } else if (currentReportType === 'delayed') {
-    data = getDelayedReportData(start, end);
-    title = 'قائمة المتأخرين والأشهر';
-  } else {
-    data = getMonthlySalesData(start, end);
-    title = 'قائمة المبيعات الشهريه';
-  }
-
-  if (data.length === 0) {
-    showToast('لا توجد بيانات لتصديرها', 'red'); return;
-  }
-
-  showToast('⏳ جاري إنشاء ملف PDF...', '');
-
-  const ROWS_PER_PAGE = 22;
-  const pages = [];
-  for (let i = 0; i < data.length; i += ROWS_PER_PAGE) pages.push(data.slice(i, i + ROWS_PER_PAGE));
-
-  const renderArea = document.getElementById('pdf-render-area');
-  
-  let tableHeaders = '';
-  if (currentReportType === 'payers') {
-    tableHeaders = '<tr><th>#</th><th>الاسم</th><th>الجوال</th><th>المبلغ المسدد</th><th>تاريخ السداد</th></tr>';
-  } else if (currentReportType === 'delayed') {
-    tableHeaders = '<tr><th>#</th><th>الاسم</th><th>الجوال</th><th>عدد الأشهر</th><th>الأشهر المتأخرة بالتحديد</th><th>إجمالي المبلغ</th></tr>';
-  } else {
-    tableHeaders = '<tr><th>#</th><th>الاسم</th><th>الجوال</th><th>الوصف</th><th>المبلغ</th><th>تاريخ الاستحقاق</th></tr>';
-  }
-
-  renderArea.innerHTML = pages.map((pageRows, pIdx) => `
-    <div class="pdf-page" id="pdf-page-${pIdx}">
-      <div class="pdf-header">
-        <h1>${title}</h1>
-        <div class="pdf-sub">نظام المحمدية</div>
-        <div class="pdf-meta">الفترة: ${startDateStr || 'البداية'} إلى ${endDateStr || 'اليوم'} &nbsp;|&nbsp; صفحة ${pIdx+1} من ${pages.length}</div>
-      </div>
-      <table class="pdf-table">
-        <thead>${tableHeaders}</thead>
-        <tbody>
-          ${pageRows.map((d, i) => {
-            let rowIdx = pIdx * ROWS_PER_PAGE + i + 1;
-            if (currentReportType === 'payers') {
-              return `<tr><td>${rowIdx}</td><td style="text-align:right;font-weight:700">${d.name}</td><td>${d.phone||'—'}</td><td>${fmt(d.amount)} ر.س</td><td>${dateLabel(d.payDate)}</td></tr>`;
-            } else if (currentReportType === 'delayed') {
-              return `<tr><td>${rowIdx}</td><td style="text-align:right;font-weight:700">${d.name}</td><td>${d.phone||'—'}</td><td>${d.delayedCount} أشهر</td><td style="text-align:right">${d.monthsList}</td><td>${fmt(d.totalDelayedAmount)} ر.س</td></tr>`;
-            } else {
-              return `<tr><td>${rowIdx}</td><td style="text-align:right;font-weight:700">${d.name}</td><td>${d.phone||'—'}</td><td>${d.desc||'—'}</td><td>${fmt(d.amount)} ر.س</td><td>${dateLabel(d.due)}</td></tr>`;
-            }
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="pdf-footer">
-        <span>عدد السجلات: ${data.length}</span>
-        <span>طُبع بتاريخ ${new Date().toLocaleDateString('ar-SA')}</span>
-      </div>
-    </div>
-  `).join('');
-
-  await new Promise(r => setTimeout(r, 60));
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-  for (let pIdx = 0; pIdx < pages.length; pIdx++) {
-    const pageEl = document.getElementById(`pdf-page-${pIdx}`);
-    const canvas = await html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    if (pIdx > 0) doc.addPage();
-    doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-  }
-
-  renderArea.innerHTML = '';
-  doc.save(`${title}_${new Date().toISOString().split('T')[0]}.pdf`);
-  showToast('✅ تم تحميل ملف PDF', 'green');
-}
-
-function sendWhatsApp() {
-  const startDateStr = document.getElementById('r-start-date').value;
-  const endDateStr = document.getElementById('r-end-date').value;
-  const start = startDateStr ? new Date(startDateStr) : null;
-  const end = endDateStr ? new Date(endDateStr) : null;
-  if (end) end.setHours(23,59,59,999);
-
-  let phone = (document.getElementById('r-collector-phone').value || '').trim().replace(/\s|-/g,'');
-  if (!phone) {
-    showToast('⚠️ أدخل رقم واتساب المحصّل أولاً', 'red'); return;
-  }
-  phone = phone.replace(/^\+|^00/, '');
-
-  let data = [];
-  let title = '';
-  if (currentReportType === 'payers') {
-    data = getPayersReportData(start, end);
-    title = '✅ تقرير المسددين';
-  } else if (currentReportType === 'delayed') {
-    data = getDelayedReportData(start, end);
-    title = '⚠️ تقرير المتأخرين والأشهر';
-  } else {
-    data = getMonthlySalesData(start, end);
-    title = '📦 تقرير المبيعات الشهريه';
-  }
-
-  if (data.length === 0) {
-    showToast('لا توجد بيانات للإرسال', 'red'); return;
-  }
-
-  let msg = `${title}\n👥 العدد: ${data.length}\n${'─'.repeat(25)}\n`;
-  data.forEach((d, i) => {
-    msg += `\n${i+1}. ${d.name}`;
-    if (d.phone) msg += `\n    📱 ${d.phone}`;
-    if (currentReportType === 'payers') {
-      msg += `\n    💵 المبلغ: ${fmt(d.amount)} ر.س (بتاريخ: ${dateLabel(d.payDate)})`;
-    } else if (currentReportType === 'delayed') {
-      msg += `\n    ⏳ الأشهر (${d.delayedCount}): ${d.monthsList}\n    💵 الإجمالي: ${fmt(d.totalDelayedAmount)} ر.س`;
-    } else {
-      msg += `\n    💵 المبلغ: ${fmt(d.amount)} ر.س (مستحق: ${dateLabel(d.due)})`;
-    }
-  });
-
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-  exportPDF();
-  setTimeout(() => {
-    window.open(url, '_blank');
-    showToast('📲 تم فتح واتساب', 'green');
-  }, 800);
-}
-
-function addDeferred() {
-  const name = document.getElementById('d-name').value.trim();
-  const phone = document.getElementById('d-phone').value.trim();
-  const guarantor = document.getElementById('d-guarantor').value.trim();
-  const guarantorPhone = document.getElementById('d-guarantor-phone').value.trim();
-  const amount = parseFloat(document.getElementById('d-amount').value) || 0;
-  const due = document.getElementById('d-due').value;
-  const desc = document.getElementById('d-desc').value.trim();
-
-  if (!name || !amount || !due) {
     showToast('⚠️ يرجى ملء الحقول المطلوبة', 'red'); return;
   }
 
-  deferred.push({ id: Date.now(), name, phone, guarantor, guarantorPhone, amount, due, desc, settled: false });
-  saveDeferred();
-  showToast('✅ تم حفظ المبيعة الآجلة', 'green');
-  ['d-name','d-phone','d-guarantor','d-guarantor-phone','d-amount','d-due','d-desc'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.value = '';
+  clients.push({
+    id: Date.now(), name, phone, guarantor, guarantorPhone, total, monthly, remaining: total, paid: 0, startDate, dueDay, notes
   });
-  toggleDeferredForm();
-  renderDeferred();
-  updateDeferredTabBadge();
-}
-
-function settleDeferred(id) {
-  if (!confirm('هل تم تحصيل هذه المبيعة الآجلة؟')) return;
-  deferred = deferred.map(d => d.id === id ? { ...d, settled: true, settledDate: new Date().toISOString().split('T')[0] } : d);
-  saveDeferred();
-  showToast('💰 تم تسوية المبيعة', 'green');
-  renderDeferred();
-  updateDeferredTabBadge();
-}
-
-function deleteDeferred(id) {
-  if (!confirm('هل أنت متأكد من الحذف؟')) return;
-  deferred = deferred.filter(d => d.id !== id);
-  saveDeferred();
-  showToast('🗑️ تم الحذف', 'red');
-  renderDeferred();
-  updateDeferredTabBadge();
-}
-
-function addMonthlySaleItem() {
-  const name = document.getElementById('ms-name').value.trim();
-  const phone = document.getElementById('ms-phone').value.trim();
-  const guarantor = document.getElementById('ms-guarantor').value.trim();
-  const guarantorPhone = document.getElementById('ms-guarantor-phone').value.trim();
-  const amount = parseFloat(document.getElementById('ms-amount').value) || 0;
-  const due = document.getElementById('ms-due').value;
-  const desc = document.getElementById('ms-desc').value.trim();
-
-  if (!name || !amount || !due) {
-    showToast('⚠️ يرجى ملء الحقول المطلوبة للمبيعات الشهريه', 'red'); return;
-  }
-
-  monthlySalesList.push({ id: Date.now(), name, phone, guarantor, guarantorPhone, amount, due, desc, settled: false });
-  saveMonthlySalesList();
-  showToast('✅ تم حفظ المبيعة الشهريه بنجاح', 'green');
-  ['ms-name','ms-phone','ms-guarantor','ms-guarantor-phone','ms-amount','ms-due','ms-desc'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.value = '';
-  });
-  toggleMonthlySalesForm();
-  renderDeferred();
-  updateDeferredTabBadge();
-}
-
-function settleMonthlySale(id) {
-  if (!confirm('هل تم تحصيل هذه المبيعة الشهريه؟')) return;
-  monthlySalesList = monthlySalesList.map(d => d.id === id ? { ...d, settled: true, settledDate: new Date().toISOString().split('T')[0] } : d);
-  saveMonthlySalesList();
-  showToast('💰 تم تسوية المبيعة الشهريه', 'green');
-  renderDeferred();
-  updateDeferredTabBadge();
-}
-
-function deleteMonthlySale(id) {
-  if (!confirm('هل أنت متأكد من الحذف؟')) return;
-  monthlySalesList = monthlySalesList.filter(d => d.id !== id);
-  saveMonthlySalesList();
-  showToast('🗑️ تم الحذف', 'red');
-  renderDeferred();
-  updateDeferredTabBadge();
-}
-
-function daysUntil(dateStr) {
-  const due = new Date(dateStr);
-  due.setHours(0,0,0,0);
-  const now = new Date();
-  now.setHours(0,0,0,0);
-  return Math.round((due - now) / 86400000);
-}
-
-function deferredCardHTML(d) {
-  const diff = daysUntil(d.due);
-  let cardClass = 'deferred-card';
-  let countdownClass = 'normal';
-  let countdownText = '';
-  if (diff < 0) {
-    cardClass += ' overdue';
-    countdownClass = 'overdue';
-    countdownText = `🚨 متأخر ${Math.abs(diff)} يوم`;
-  } else if (diff <= 10) {
-    cardClass += ' near-due';
-    countdownClass = 'soon';
-    countdownText = diff === 0 ? '⚡ اليوم هو يوم الاستحقاق!' : `⏰ يستحق بعد ${diff} يوم`;
-  } else {
-    countdownText = `📅 يستحق بعد ${diff} يوم`;
-  }
-  return `<div class="${cardClass}">
-    <div class="deferred-head">
-      <div>
-        <div class="deferred-name">🗓️ ${d.name}</div>
-        ${d.phone ? `<div class="deferred-desc">📱 المشتري: <a href="tel:${d.phone}" style="color:inherit;text-decoration:none">${d.phone}</a></div>` : ''}
-        ${d.guarantor ? `<div class="deferred-desc">🤝 الكفيل: ${d.guarantor} ${d.guarantorPhone ? `(<a href="tel:${d.guarantorPhone}">${d.guarantorPhone}</a>)` : ''}</div>` : ''}
-        ${d.desc ? `<div class="deferred-desc">📦 ${d.desc}</div>` : ''}
-      </div>
-      <div style="text-align:left">
-        <div style="font-size:17px;font-weight:900;color:var(--ink)">${fmt(d.amount)} <span style="font-size:11px;font-weight:400;color:var(--ink-soft)">ر.س</span></div>
-      </div>
-    </div>
-    <div class="deferred-body">
-      <div class="info-grid">
-        <div class="info-item"><div class="lbl">تاريخ الاستحقاق</div><div class="val">${dateLabel(d.due)}</div></div>
-      </div>
-      <div class="due-countdown ${countdownClass}">${countdownText}</div>
-    </div>
-    <div class="deferred-actions">
-      <button class="action-btn btn-settle" onclick="settleDeferred(${d.id})">✅ تسوية</button>
-      <button class="action-btn btn-del" onclick="deleteDeferred(${d.id})">🗑️ حذف</button>
-    </div>
-  </div>`;
-}
-
-function monthlySaleCardHTML(d) {
-  const diff = daysUntil(d.due);
-  let cardClass = 'deferred-card';
-  let countdownClass = 'normal';
-  let countdownText = '';
-  if (diff < 0) {
-    cardClass += ' overdue';
-    countdownClass = 'overdue';
-    countdownText = `🚨 متأخر ${Math.abs(diff)} يوم`;
-  } else if (diff <= 10) {
-    cardClass += ' near-due';
-    countdownClass = 'soon';
-    countdownText = diff === 0 ? '⚡ اليوم هو يوم الاستحقاق!' : `⏰ يستحق بعد ${diff} يوم`;
-  } else {
-    countdownText = `📅 يستحق بعد ${diff} يوم`;
-  }
-  return `<div class="${cardClass}">
-    <div class="deferred-head">
-      <div>
-        <div class="deferred-name">📦 ${d.name} <span style="font-size:11px;background:var(--teal-light);color:var(--teal);padding:2px 6px;border-radius:10px;vertical-align:middle;">شهرية</span></div>
-        ${d.phone ? `<div class="deferred-desc">📱 المشتري: <a href="tel:${d.phone}" style="color:inherit;text-decoration:none">${d.phone}</a></div>` : ''}
-        ${d.guarantor ? `<div class="deferred-desc">🤝 الكفيل: ${d.guarantor} ${d.guarantorPhone ? `(<a href="tel:${d.guarantorPhone}">${d.guarantorPhone}</a>)` : ''}</div>` : ''}
-        ${d.desc ? `<div class="deferred-desc">📝 ${d.desc}</div>` : ''}
-      </div>
-      <div style="text-align:left">
-        <div style="font-size:17px;font-weight:900;color:var(--ink)">${fmt(d.amount)} <span style="font-size:11px;font-weight:400;color:var(--ink-soft)">ر.س</span></div>
-      </div>
-    </div>
-    <div class="deferred-body">
-      <div class="info-grid">
-        <div class="info-item"><div class="lbl">تاريخ الاستحقاق</div><div class="val">${dateLabel(d.due)}</div></div>
-      </div>
-      <div class="due-countdown ${countdownClass}">${countdownText}</div>
-    </div>
-    <div class="deferred-actions">
-      <button class="action-btn btn-settle" onclick="settleMonthlySale(${d.id})">✅ تسوية</button>
-      <button class="action-btn btn-del" onclick="deleteMonthlySale(${d.id})">🗑️ حذف</button>
-    </div>
-  </div>`;
-}
-
-function renderDeferred() {
-  const alertBanner = document.getElementById('deferred-alert-banner');
-  const monthlySales = getActiveMonthlySales();
   
-  const nearDueDef = deferred.filter(d => !d.settled && daysUntil(d.due) >= 0 && daysUntil(d.due) <= 10);
-  const overdueDef = deferred.filter(d => !d.settled && daysUntil(d.due) < 0);
-  const nearDueMon = monthlySales.filter(d => { const diff = daysUntil(d.due); return diff >= 0 && diff <= 10; });
-  const overdueMon = monthlySales.filter(d => daysUntil(d.due) < 0);
-
-  const totalOverdue = overdueDef.length + overdueMon.length;
-  const totalNearDue = nearDueDef.length + nearDueMon.length;
-
-  if (totalOverdue > 0) {
-    alertBanner.innerHTML = `<div class="alert-banner"><span class="alert-icon">🚨</span><span>${totalOverdue} مبيعة تجاوزت تاريخ الاستحقاق!</span></div>`;
-  } else if (totalNearDue > 0) {
-    alertBanner.innerHTML = `<div class="alert-banner" style="background:linear-gradient(135deg,#7a5010,var(--gold))"><span class="alert-icon">⏰</span><span>${totalNearDue} مبيعة تستحق خلال 10 أيام</span></div>`;
-  } else {
-    alertBanner.innerHTML = '';
-  }
-
-  const containerDef = document.getElementById('deferred-list');
-  const activeDef = deferred.filter(d => !d.settled);
-  if (activeDef.length === 0) {
-    containerDef.innerHTML = `<div class="empty-state" style="padding:16px"><p>لا توجد مبيعات آجلة مسجلة</p></div>`;
-  } else {
-    const sortedDef = [...activeDef].sort((a,b) => new Date(a.due) - new Date(b.due));
-    containerDef.innerHTML = sortedDef.map(d => deferredCardHTML(d)).join('');
-  }
-
-  const containerMon = document.getElementById('monthly-sales-list');
-  if (monthlySales.length === 0) {
-    containerMon.innerHTML = `<div class="empty-state" style="padding:16px"><p>لا توجد مبيعات شهريه نشطة لشهر الحالي (تصفر في اليوم الأول)</p></div>`;
-  } else {
-    const sortedMon = [...monthlySales].sort((a,b) => new Date(a.due) - new Date(b.due));
-    containerMon.innerHTML = sortedMon.map(d => monthlySaleCardHTML(d)).join('');
-  }
+  await saveToCloud();
+  showToast('✅ تم حفظ العقد سحابياً بنجاح', 'green');
+  switchTab('clients');
 }
 
-function updateDeferredTabBadge() {
-  const monthlySales = getActiveMonthlySales();
-  const urgentDef = deferred.filter(d => !d.settled && daysUntil(d.due) <= 10);
-  const urgentMon = monthlySales.filter(d => daysUntil(d.due) <= 10);
-  const totalUrgent = urgentDef.length + urgentMon.length;
+async function payInstallment(id) {
+  const client = clients.find(c => c.id == id);
+  if (!client) return;
+  const amount = parseFloat(prompt('أدخل المبلغ المستحصل (ريال):', client.monthly));
+  if (isNaN(amount) || amount <= 0) return;
 
-  const tabBtn = document.getElementById('tab-deferred');
-  if (!tabBtn) return;
-  const badge = totalUrgent > 0 ? ` <span style="background:var(--red);color:white;border-radius:10px;padding:1px 6px;font-size:10px;vertical-align:middle">${totalUrgent}</span>` : '';
-  tabBtn.innerHTML = `<span class="tab-icon">🗓️</span>المبيعات الشهريه${badge}`;
-}
+  client.remaining = Math.max(0, client.remaining - amount);
+  client.paid += amount;
 
-function exportBackup() {
-  const data = { version: 2, exportDate: new Date().toISOString(), clients, deferred, monthlySalesList };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `نسخة_احتياطية_${new Date().toLocaleDateString('ar-SA').replace(/\//g,'-')}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('✅ تم تصدير النسخة الاحتياطية', 'green');
-}
-
-function importBackup(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if (!data.clients) throw new Error('ملف غير صالح');
-      clients = data.clients;
-      if (data.deferred) deferred = data.deferred;
-      if (data.monthlySalesList) monthlySalesList = data.monthlySalesList;
-      save();
-      saveDeferred();
-      saveMonthlySalesList();
-      renderHome();
-      renderClients();
-      updateDeferredTabBadge();
-      showToast('✅ تم استعادة البيانات بنجاح', 'green');
-    } catch(err) {
-      showToast('⚠️ ملف النسخة الاحتياطية غير صالح', 'red');
-    }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-}
-
-function init() {
-  const now = new Date();
-  document.getElementById('today-date').textContent =
-    now.toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric', calendar:'gregory' });
-
+  await saveToCloud();
+  showToast('💰 تم تسجيل القسط وحفظه في السحابة', 'green');
   renderHome();
-  updateDeferredTabBadge();
+  renderClients();
 }
 
-init();
+async function deleteClient(id) {
+  if (!confirm('هل أنت متأكد من الحذف؟')) return;
+  clients = clients.filter(c => c.id != id);
+  await saveToCloud();
+  renderHome();
+  renderClients();
+  showToast('🗑️ تم الحذف والتحديث سحابياً', 'green');
+}
+
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('ar-SA');
+loadDataFromCloud();
 </script>
 </body>
 </html>
