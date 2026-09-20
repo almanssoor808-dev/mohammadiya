@@ -18,7 +18,7 @@
   .topbar-title { font-size: 17px; font-weight: 700; }
   .topbar-title span { color: var(--gold); }
   .tabs { display: flex; background: var(--surface); border-bottom: 2px solid var(--border); position: sticky; top: 57px; z-index: 99; }
-  .tab-btn { flex: 1; padding: 12px 6px; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 600; background: none; border: none; cursor: pointer; color: var(--ink-soft); border-bottom: 3px solid transparent; text-align: center; transition: all 0.2s ease; }
+  .tab-btn { flex: 1; padding: 12px 6px; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 600; background: none; border: none; cursor: pointer; color: var(--ink-soft); border-bottom: 3px solid transparent; text-align: center; }
   .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
   .tab-btn .tab-icon { font-size: 15px; display: block; margin-bottom: 2px; }
   .page { display: none; padding: 16px; padding-bottom: 80px; }
@@ -35,9 +35,9 @@
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-group { margin-bottom: 12px; }
   label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 5px; }
-  input, select { width: 100%; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; background: #f8fafc; outline: none; transition: border-color 0.2s; }
+  input, select { width: 100%; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; background: #f8fafc; outline: none; }
   input:focus { border-color: var(--gold); background: white; }
-  .btn-primary { background: var(--ink); color: white; border: none; width: 100%; padding: 14px; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px; transition: opacity 0.2s; }
+  .btn-primary { background: var(--ink); color: white; border: none; width: 100%; padding: 14px; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px; }
   .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
   .client-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 12px; overflow: hidden; }
   .client-head { padding: 14px 16px 12px; display: flex; justify-content: space-between; align-items: flex-start; }
@@ -51,13 +51,20 @@
   .progress-wrap { margin: 10px 0; }
   .progress-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-soft); margin-bottom: 4px; }
   .progress-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--gold)); border-radius: 4px; transition: width 0.3s ease; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--gold)); border-radius: 4px; }
   .client-actions { display: flex; gap: 6px; padding: 10px 16px 14px; border-top: 1px solid var(--border); }
-  .action-btn { flex: 1; padding: 9px; border-radius: 8px; border: none; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
-  .action-btn:hover { opacity: 0.85; }
+  .action-btn { flex: 1; padding: 9px; border-radius: 8px; border: none; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; }
   .btn-pay { background: var(--teal-light); color: var(--teal); }
   .btn-del { background: var(--red-light); color: var(--red); flex: 0 0 45px; }
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; transition: transform 0.3s ease; max-width: 90%; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  
+  /* Report Table Styles */
+  .report-table-wrap { width: 100%; overflow-x: auto; margin-top: 14px; }
+  .report-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: right; }
+  .report-table th { background: var(--ink); color: white; padding: 10px 8px; font-weight: 700; white-space: nowrap; }
+  .report-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); color: var(--ink); white-space: nowrap; }
+  .report-table tr:nth-child(even) { background: #f8fafc; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; transition: transform 0.3s; max-width: 90%; text-align: center; }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.red { background: var(--red); }
   .toast.green { background: var(--green); }
@@ -68,7 +75,7 @@
 <div class="topbar">
   <div>
     <div class="topbar-title">نظام <span>المحمدية</span></div>
-    <div class="topbar-date" id="today-date" style="font-size: 11px; opacity: 0.8;"></div>
+    <div class="topbar-date" id="today-date"></div>
   </div>
   <div style="font-size:12px;color:#2ecc71;font-weight:700;cursor:pointer;" id="sync-status" onclick="loadDataFromCloud()">⏳ جاري الاتصال...</div>
 </div>
@@ -87,7 +94,7 @@
 </div>
 
 <div id="page-clients" class="page">
-  <div style="margin-bottom: 14px;"><input type="text" id="search-input" placeholder="بحث عن عميل بالاسم أو الجوال..." oninput="renderClients()"></div>
+  <div style="margin-bottom: 14px;"><input type="text" id="search-input" placeholder="بحث عن عميل (بالاسم، الجوال، أو الكفيل)..." oninput="renderClients()"></div>
   <div id="clients-list"></div>
 </div>
 
@@ -126,7 +133,7 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbycDMom8YvTBG4txLrRht1fgauVGLcnGQsdFJNqzJVzzDoMaGDrtjHKyxNbNNOa9vxi/exec";
 
 let clients = [];
-let loaded = false;
+let loaded = false; 
 
 const arabicMonths = [
   "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", 
@@ -162,8 +169,8 @@ async function loadDataFromCloud() {
       id: r[0],
       name: String(r[1] ?? ''),
       phone: r[2] ? String(r[2]) : '',
-      guarantor: r[3] ? String(r[3]) : '',
-      guarantorPhone: r[4] ? String(r[4]) : '',
+      guarantor: r[3] || '',
+      guarantorPhone: r[4] || '',
       total: parseFloat(r[5]) || 0,
       monthly: parseFloat(r[6]) || 0,
       paid: parseFloat(r[7]) || 0,
@@ -179,7 +186,7 @@ async function loadDataFromCloud() {
   } catch (e) {
     console.error(e);
     loaded = false;
-    setStatus('⚠️ خطأ بالاتصال (إعادة المحاولة)', '#e74c3c');
+    setStatus('⚠️ خطأ بالاتصال (اضغط لإعادة المحاولة)', '#e74c3c');
     showToast('⚠️ تعذر جلب البيانات: ' + e.message, 'red');
   }
 }
@@ -222,7 +229,6 @@ function calculateDelay(c) {
   const now = new Date();
   const dueDay = parseInt(c.dueDay) || start.getDate();
 
-  // حساب عدد الشهور المنقضية منذ تاريخ البداية حتى اليوم
   let yearsDiff = now.getFullYear() - start.getFullYear();
   let monthsDiff = now.getMonth() - start.getMonth();
   let totalElapsedMonths = yearsDiff * 12 + monthsDiff;
@@ -241,7 +247,6 @@ function calculateDelay(c) {
 
   if (delayedMonthsCount === 0) return { count: 0, names: [] };
 
-  // استخراج أسماء الشهور الميلادية المتأخرة تنازلياً من الشهر الحالي للخلف
   let names = [];
   let tempDate = new Date(now.getFullYear(), now.getMonth(), 1);
   for (let i = 0; i < delayedMonthsCount; i++) {
@@ -321,7 +326,7 @@ function clientCardHTML(c) {
         <div class="info-item"><div class="lbl">الإجمالي</div><div class="val">${fmt(c.total)} ر.س</div></div>
         <div class="info-item"><div class="lbl">المتبقي</div><div class="val danger">${fmt(c.remaining)} ر.س</div></div>
       </div>
-      
+
       <div style="margin-top:10px; padding:8px 10px; background:${delay.count > 0 ? 'var(--red-light)' : 'var(--green-light)'}; border-radius:8px; font-size:12px;">
         <div style="font-weight:700; color:${delay.count > 0 ? 'var(--red)' : 'var(--green)'};">
           ${delay.count > 0 ? `⚠️ متأخر بعدد: ${delay.count} شهر` : `✅ منتظم في السداد`}
@@ -407,14 +412,54 @@ function renderReports() {
   const remSum = clients.reduce((s,c) => s + c.remaining, 0);
   const totalDelayedClients = clients.filter(c => calculateDelay(c).count > 0).length;
 
+  let tableRows = '';
+  clients.forEach((c, index) => {
+    const delay = calculateDelay(c);
+    tableRows += `
+      <tr>
+        <td>${index + 1}</td>
+        <td><strong>${esc(c.name)}</strong><br><span style="color:var(--ink-soft);font-size:11px;">📱 ${esc(c.phone || '-')}</span></td>
+        <td><strong>${esc(c.guarantor || '-')}</strong><br><span style="color:var(--ink-soft);font-size:11px;">📱 ${esc(c.guarantorPhone || '-')}</span></td>
+        <td><strong>${fmt(c.monthly)} ر.س</strong></td>
+        <td>
+          <span style="color:${delay.count > 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700;">
+            ${delay.count > 0 ? `${delay.count} شهر` : 'منتظم'}
+          </span>
+          ${delay.names.length > 0 ? `<div style="font-size:10px; color:var(--ink-soft);">${delay.names.join(', ')}</div>` : ''}
+        </td>
+        <td>${esc(c.notes || '-')}</td>
+      </tr>
+    `;
+  });
+
   document.getElementById('reports-content').innerHTML = `
-    <div style="display:grid;gap:10px;font-size:14px;">
+    <div style="display:grid;gap:10px;font-size:14px; margin-bottom: 20px;">
       <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>إجمالي العقود:</span><strong>${clients.length}</strong></div>
       <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>العملاء المتأخرون:</span><strong style="color:var(--red);">${totalDelayedClients} عميل</strong></div>
       <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>إجمالي المبالغ:</span><strong>${fmt(totalSum)} ر.س</strong></div>
       <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>المسدد فعلياً:</span><strong style="color:var(--green);">${fmt(paidSum)} ر.س</strong></div>
       <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>المتبقي:</span><strong style="color:var(--red);">${fmt(remSum)} ر.س</strong></div>
-    </div>`;
+    </div>
+    
+    <div class="section-title" style="margin-bottom:10px;">تفاصيل العقود والعملاء والكفلاء</div>
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>العميل والجوال</th>
+            <th>الكفيل وجواله</th>
+            <th>القسط الشهري</th>
+            <th>التأخير</th>
+            <th>الملاحظات</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows.length > 0 ? tableRows : `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--ink-soft);">لا توجد بيانات مسجلة حالياً</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 document.getElementById('today-date').textContent = new Date().toLocaleDateString('ar-SA');
