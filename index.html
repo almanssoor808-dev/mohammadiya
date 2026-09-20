@@ -38,6 +38,7 @@
   input, select { width: 100%; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; background: #f8fafc; outline: none; }
   input:focus { border-color: var(--gold); background: white; }
   .btn-primary { background: var(--ink); color: white; border: none; width: 100%; padding: 14px; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
   .client-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 12px; overflow: hidden; }
   .client-head { padding: 14px 16px 12px; display: flex; justify-content: space-between; align-items: flex-start; }
   .client-name { font-size: 16px; font-weight: 700; color: var(--ink); }
@@ -55,8 +56,10 @@
   .action-btn { flex: 1; padding: 9px; border-radius: 8px; border: none; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; }
   .btn-pay { background: var(--teal-light); color: var(--teal); }
   .btn-del { background: var(--red-light); color: var(--red); flex: 0 0 45px; }
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; transition: transform 0.3s; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; transition: transform 0.3s; max-width: 90%; text-align: center; }
   .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.red { background: var(--red); }
+  .toast.green { background: var(--green); }
 </style>
 </head>
 <body>
@@ -66,14 +69,14 @@
     <div class="topbar-title">نظام <span>المحمدية</span></div>
     <div class="topbar-date" id="today-date"></div>
   </div>
-  <div style="font-size:12px;color:#2ecc71;font-weight:700;" id="sync-status">متصل بالسحابة ✅</div>
+  <div style="font-size:12px;color:#2ecc71;font-weight:700;cursor:pointer;" id="sync-status" onclick="loadDataFromCloud()">⏳ جاري الاتصال...</div>
 </div>
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('home')"><span class="tab-icon">🏠</span>الرئيسية</button>
-  <button class="tab-btn" onclick="switchTab('clients')"><span class="tab-icon">👥</span>العملاء</button>
-  <button class="tab-btn" onclick="switchTab('add')"><span class="tab-icon">➕</span>إضافة عقد</button>
-  <button class="tab-btn" onclick="switchTab('reports')"><span class="tab-icon">📊</span>التقارير</button>
+  <button class="tab-btn active" data-tab="home" onclick="switchTab('home')"><span class="tab-icon">🏠</span>الرئيسية</button>
+  <button class="tab-btn" data-tab="clients" onclick="switchTab('clients')"><span class="tab-icon">👥</span>العملاء</button>
+  <button class="tab-btn" data-tab="add" onclick="switchTab('add')"><span class="tab-icon">➕</span>إضافة عقد</button>
+  <button class="tab-btn" data-tab="reports" onclick="switchTab('reports')"><span class="tab-icon">📊</span>التقارير</button>
 </div>
 
 <div id="page-home" class="page active">
@@ -101,7 +104,7 @@
       <div class="form-group"><label>يوم الاستحقاق</label><input type="number" id="f-day" placeholder="20" min="1" max="28"></div>
     </div>
     <div class="form-group"><label>ملاحظات</label><input type="text" id="f-notes" placeholder="ملاحظات..."></div>
-    <button class="btn-primary" onclick="addClient()">💾 حفظ العقد سحابياً</button>
+    <button class="btn-primary" id="save-btn" onclick="addClient()">💾 حفظ العقد سحابياً</button>
   </div>
 </div>
 
@@ -115,41 +118,69 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTh-4W9evNCSX0C-9CyxfezSLZzt342-brgMd04p4fzjB06LukYBCuXH80ckLpni/exec";
+// ⚠️ ضع هنا رابط Web app URL الجديد من: Deploy ← Manage deployments ← Web app ← URL
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbycDMom8YvTBG4txLrRht1fgauVGLcnGQsdFJNqzJVzzDoMaGDrtjHKyxNbNNOa9vxi/exec";
+
 let clients = [];
+let loaded = false; // لا نسمح بالحفظ قبل نجاح الجلب (حماية من مسح البيانات)
+
+function setStatus(text, color) {
+  const el = document.getElementById('sync-status');
+  el.textContent = text;
+  el.style.color = color || '#2ecc71';
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function urlIsSet() {
+  return SCRIPT_URL.startsWith('https://script.google.com/');
+}
 
 async function loadDataFromCloud() {
-  document.getElementById('sync-status').textContent = '⏳ جاري الجلب...';
+  if (!urlIsSet()) {
+    setStatus('⚠️ رابط السكربت غير مضبوط', '#e74c3c');
+    showToast('⚠️ ضع رابط Web app في SCRIPT_URL', 'red');
+    return;
+  }
+  setStatus('⏳ جاري الجلب...', '#f1c40f');
   try {
     const res = await fetch(SCRIPT_URL);
     const rows = await res.json();
-    if (rows && rows.length > 1) {
-      clients = rows.slice(1).map(r => ({
-        id: r[0],
-        name: r[1],
-        phone: r[2],
-        guarantor: r[3],
-        guarantorPhone: r[4],
-        total: parseFloat(r[5]) || 0,
-        monthly: parseFloat(r[6]) || 0,
-        paid: parseFloat(r[7]) || 0,
-        remaining: parseFloat(r[8]) || 0,
-        startDate: r[9],
-        dueDay: r[10] || 1,
-        notes: r[11] || ''
-      }));
-    }
-    document.getElementById('sync-status').textContent = 'متصل بالسحابة ✅';
+    if (!Array.isArray(rows)) throw new Error('رد غير متوقع من السكربت');
+    clients = rows.slice(1).filter(r => r[0] !== '' && r[1] !== '').map(r => ({
+      id: r[0],
+      name: String(r[1] ?? ''),
+      phone: r[2] ? String(r[2]) : '',
+      guarantor: r[3] || '',
+      guarantorPhone: r[4] || '',
+      total: parseFloat(r[5]) || 0,
+      monthly: parseFloat(r[6]) || 0,
+      paid: parseFloat(r[7]) || 0,
+      remaining: parseFloat(r[8]) || 0,
+      startDate: r[9] || '',
+      dueDay: r[10] || 1,
+      notes: r[11] || ''
+    }));
+    loaded = true;
+    setStatus('متصل بالسحابة ✅');
     renderHome();
     renderClients();
-  } catch(e) {
-    document.getElementById('sync-status').textContent = '⚠️ خطأ بالاتصال';
-    showToast('⚠️ تعذر جلب البيانات من السحابة', 'red');
+  } catch (e) {
+    console.error(e);
+    loaded = false;
+    setStatus('⚠️ خطأ بالاتصال (اضغط لإعادة المحاولة)', '#e74c3c');
+    showToast('⚠️ تعذر جلب البيانات: ' + e.message, 'red');
   }
 }
 
 async function saveToCloud() {
-  document.getElementById('sync-status').textContent = '💾 جاري الحفظ...';
+  if (!loaded) {
+    showToast('⚠️ لم تُحمَّل البيانات بعد. اضغط على حالة الاتصال لإعادة المحاولة', 'red');
+    return false;
+  }
+  setStatus('💾 جاري الحفظ...', '#f1c40f');
   const rows = [
     ["ID", "الاسم", "الجوال", "الكفيل", "جوال_الكفيل", "الإجمالي", "القسط", "المسدد", "المتبقي", "تاريخ_البداية", "يوم_الاستحقاق", "الملاحظات"]
   ];
@@ -158,13 +189,20 @@ async function saveToCloud() {
   });
 
   try {
-    await fetch(SCRIPT_URL, {
+    const res = await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify({ sheetName: "Sheet1", rows: rows })
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ rows: rows })
     });
-    document.getElementById('sync-status').textContent = 'متصل بالسحابة ✅';
-  } catch(e) {
-    document.getElementById('sync-status').textContent = '⚠️ خطأ بالحفظ';
+    const out = await res.json();
+    if (!out.ok) throw new Error('السكربت لم يؤكد الحفظ');
+    setStatus('متصل بالسحابة ✅');
+    return true;
+  } catch (e) {
+    console.error(e);
+    setStatus('⚠️ خطأ بالحفظ', '#e74c3c');
+    showToast('❌ فشل الحفظ: ' + e.message, 'red');
+    return false;
   }
 }
 
@@ -174,14 +212,16 @@ function showToast(msg, type='') {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = 'toast show ' + type;
-  setTimeout(() => t.className = 'toast', 2500);
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.className = 'toast', 3000);
 }
 
 function switchTab(tab) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + tab).classList.add('active');
-  event.currentTarget.classList.add('active');
+  const btn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+  if (btn) btn.classList.add('active');
   if (tab === 'home') renderHome();
   if (tab === 'clients') renderClients();
   if (tab === 'reports') renderReports();
@@ -214,12 +254,12 @@ function renderClients() {
 }
 
 function clientCardHTML(c) {
-  const pct = Math.min(100, ((c.paid / c.total) * 100)).toFixed(0);
+  const pct = c.total > 0 ? Math.min(100, ((c.paid / c.total) * 100)).toFixed(0) : 0;
   return `<div class="client-card">
     <div class="client-head">
       <div>
-        <div class="client-name">${c.name}</div>
-        ${c.phone ? `<div class="client-phone">📱 ${c.phone}</div>` : ''}
+        <div class="client-name">${esc(c.name)}</div>
+        ${c.phone ? `<div class="client-phone">📱 ${esc(c.phone)}</div>` : ''}
       </div>
       <span style="font-size:11px;background:var(--gold-light);color:#8a5c0e;padding:4px 10px;border-radius:20px;font-weight:700;">نشط</span>
     </div>
@@ -234,8 +274,8 @@ function clientCardHTML(c) {
       </div>
     </div>
     <div class="client-actions">
-      <button class="action-btn btn-pay" onclick="payInstallment(${c.id})">💵 تحصيل</button>
-      <button class="action-btn btn-del" onclick="deleteClient(${c.id})">🗑️</button>
+      <button class="action-btn btn-pay" onclick="payInstallment('${esc(c.id)}')">💵 تحصيل</button>
+      <button class="action-btn btn-del" onclick="deleteClient('${esc(c.id)}')">🗑️</button>
     </div>
   </div>`;
 }
@@ -253,20 +293,33 @@ async function addClient() {
     showToast('⚠️ يرجى تعبئة الحقول المطلوبة', 'red'); return;
   }
 
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  const backup = clients.slice();
   clients.push({ id: Date.now(), name, phone, total, monthly, paid: 0, remaining: total, startDate, dueDay, notes });
-  await saveToCloud();
+
+  const ok = await saveToCloud();
+  btn.disabled = false;
+  if (!ok) { clients = backup; return; }
+
+  ['f-name','f-phone','f-total','f-monthly','f-start','f-day','f-notes'].forEach(id => document.getElementById(id).value = '');
   showToast('✅ تم الحفظ في قوقل شيت بنجاح', 'green');
   switchTab('clients');
 }
 
 async function payInstallment(id) {
-  const c = clients.find(x => x.id == id);
+  const c = clients.find(x => String(x.id) === String(id));
   if(!c) return;
   const amt = parseFloat(prompt('أدخل المبلغ المستحصل:', c.monthly));
   if(isNaN(amt) || amt <= 0) return;
+
+  const oldPaid = c.paid, oldRem = c.remaining;
   c.remaining = Math.max(0, c.remaining - amt);
   c.paid += amt;
-  await saveToCloud();
+
+  const ok = await saveToCloud();
+  if (!ok) { c.paid = oldPaid; c.remaining = oldRem; return; }
+
   showToast('💰 تم تسجيل القسط وتحديث السحابة', 'green');
   renderHome();
   renderClients();
@@ -274,8 +327,12 @@ async function payInstallment(id) {
 
 async function deleteClient(id) {
   if(!confirm('هل أنت متأكد من الحذف؟')) return;
-  clients = clients.filter(x => x.id != id);
-  await saveToCloud();
+  const backup = clients.slice();
+  clients = clients.filter(x => String(x.id) !== String(id));
+
+  const ok = await saveToCloud();
+  if (!ok) { clients = backup; return; }
+
   renderHome();
   renderClients();
   showToast('🗑️ تم الحذف والتحديث سحابياً', 'green');
