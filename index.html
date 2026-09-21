@@ -1,14 +1,16 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>نظام المحمدية (نسخة احترافية وآمنة)</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<!-- المكتبات الثقيلة تُحمَّل بـ defer حتى لا تعطّل ظهور الصفحة -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
-
   :root {
     --ink: #0f1923; --ink-soft: #3d5166; --gold: #c8922a; --gold-light: #f5e8d0;
     --gold-pale: #fdf8f0; --teal: #0d6b6b; --teal-light: #e0f2f1; --red: #c0392b;
@@ -17,7 +19,7 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Cairo', -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+  body { font-family: 'Cairo', -apple-system, 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
 
   .topbar { background: var(--ink); color: white; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
   .topbar-title { font-size: 17px; font-weight: 700; }
@@ -26,7 +28,7 @@
 
   .tabs { display: flex; background: var(--surface); border-bottom: 2px solid var(--border); overflow-x: auto; scrollbar-width: none; position: sticky; top: 57px; z-index: 99; }
   .tabs::-webkit-scrollbar { display: none; }
-  .tab-btn { flex: 1; min-width: 90px; padding: 13px 10px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600; background: none; border: none; cursor: pointer; color: var(--ink-soft); border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .tab-btn { flex: 1; min-width: 90px; padding: 13px 10px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600; background: none; border: none; cursor: pointer; color: var(--ink-soft); border-bottom: 3px solid transparent; transition: color 0.2s, border-color 0.2s; white-space: nowrap; }
   .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
   .tab-btn .tab-icon { font-size: 16px; display: block; margin-bottom: 2px; }
 
@@ -52,9 +54,10 @@
   label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 5px; }
   input, select, textarea { width: 100%; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; color: var(--ink); background: #f8fafc; outline: none; }
   input:focus, select:focus { border-color: var(--gold); background: white; }
-  
+
   .btn-primary { background: var(--ink); color: white; border: none; width: 100%; padding: 14px; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
   .btn-secondary { background: var(--gold-light); color: #7a5010; border: none; width: 100%; padding: 14px; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
+  .btn-primary:disabled, .btn-secondary:disabled { opacity: 0.6; cursor: wait; }
 
   .client-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 12px; overflow: hidden; }
   .client-card.delayed { border-right: 4px solid var(--red); }
@@ -106,7 +109,7 @@
   .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
   .modal-title { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 16px; text-align: center; }
 
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; transition: transform 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; transition: transform 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-width: 92vw; text-align: center; }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.green { background: var(--green); }
   .toast.red { background: var(--red); }
@@ -144,15 +147,15 @@
       style="background:rgba(200,146,42,0.2);border:1px solid var(--gold);color:white;padding:5px 10px;border-radius:8px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer">
       📋 التقرير
     </button>
-    <div style="font-size:12px;color:#2ecc71;font-weight:700;cursor:pointer;" id="sync-status" onclick="loadDataFromCloud()">🔄 مزامنة سحابية</div>
+    <div style="font-size:12px;color:#2ecc71;font-weight:700;cursor:pointer;" id="sync-status" onclick="loadDataFromCloud(true)">🔄 مزامنة سحابية</div>
   </div>
 </div>
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('home')"><span class="tab-icon">🏠</span>الرئيسية</button>
-  <button class="tab-btn" onclick="switchTab('clients')"><span class="tab-icon">👥</span>العملاء</button>
-  <button class="tab-btn" onclick="switchTab('add')"><span class="tab-icon">➕</span>إضافة عقد</button>
-  <button class="tab-btn" onclick="switchTab('reports')"><span class="tab-icon">📊</span>التقارير والأمان</button>
+  <button class="tab-btn active" data-tab="home" onclick="switchTab('home')"><span class="tab-icon">🏠</span>الرئيسية</button>
+  <button class="tab-btn" data-tab="clients" onclick="switchTab('clients')"><span class="tab-icon">👥</span>العملاء</button>
+  <button class="tab-btn" data-tab="add" onclick="switchTab('add')"><span class="tab-icon">➕</span>إضافة عقد</button>
+  <button class="tab-btn" data-tab="reports" onclick="switchTab('reports')"><span class="tab-icon">📊</span>التقارير والأمان</button>
 </div>
 
 <!-- HOME -->
@@ -166,7 +169,7 @@
 <div id="page-clients" class="page">
   <div class="search-box">
     <span class="search-icon">🔍</span>
-    <input type="text" id="search-input" placeholder="ابحث عن عميل أو كفيل..." oninput="renderClients()">
+    <input type="text" id="search-input" placeholder="ابحث عن عميل أو كفيل..." oninput="debouncedSearch()">
   </div>
   <div class="filter-chips">
     <span class="chip active" data-filter="all" onclick="setFilter(this,'all')">الكل</span>
@@ -205,7 +208,7 @@
   <div class="form-card">
     <div class="section-title" style="margin-bottom:14px;">التقرير الشامل والنسخ الاحتياطي للأمان</div>
     <div id="reports-content" style="margin-bottom: 20px;">جاري التحميل...</div>
-    
+
     <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
       <div class="section-title" style="margin-bottom:10px;">🛡️ إدارة النسخ الاحتياطي (الأمان التام)</div>
       <p style="font-size: 12px; color: var(--ink-soft); margin-bottom: 12px;">قم بتصدير ملف النسخة الاحتياطي دورياً لتفادي ضياع البيانات، أو استيرادها عند تغيير الجهاز.</p>
@@ -223,7 +226,7 @@
   <div class="modal-sheet" style="max-width: 780px;">
     <div class="modal-handle"></div>
     <div class="modal-title">📋 التقرير الشامل لجميع العملاء (جدول واحد)</div>
-    
+
     <div style="max-height: 55vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;">
       <table class="month-table" id="all-clients-table">
         <thead>
@@ -241,7 +244,7 @@
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <button class="btn-primary" style="background:var(--red);margin:0;" onclick="exportAllClientsPDF()">📥 تحميل PDF الشامل</button>
+      <button class="btn-primary" id="pdf-btn" style="background:var(--red);margin:0;" onclick="exportAllClientsPDF()">📥 تحميل PDF الشامل</button>
       <button class="btn-secondary" style="margin:0;" onclick="closeAllClientsModal()">إغلاق</button>
     </div>
   </div>
@@ -290,34 +293,88 @@
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbycDMom8YvTBG4txLrRht1fgauVGLcnGQsdFJNqzJVzzDoMaGDrtjHKyxNbNNOa9vxi/exec";
 
-let clients = JSON.parse(localStorage.getItem('iqsat_v3')) || [];
-let currentFilter = 'all';
+const LS_KEY = 'iqsat_v3';
+const LS_DIRTY = 'iqsat_v3_dirty';   // علامة: توجد تعديلات محلية لم تُرفع بعد
+const PAGE_SIZE = 40;                 // عدد العملاء المعروضين في كل دفعة
 
 const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
+/* ---------- أدوات مساعدة ---------- */
+function lsGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+function lsSet(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
+function lsDel(key) { try { localStorage.removeItem(key); } catch (e) {} }
+
+function safeParse(str, fallback) {
+  if (Array.isArray(str)) return str;
+  try {
+    const v = JSON.parse(str);
+    return Array.isArray(v) ? v : fallback;
+  } catch (e) { return fallback; }
+}
+
+function loadLocal() {
+  const raw = lsGet(LS_KEY);
+  return raw ? safeParse(raw, []) : [];
+}
+
+let clients = loadLocal();
+let currentFilter = 'all';
+let shownCount = PAGE_SIZE;
+
 function setStatus(text, color) {
   const el = document.getElementById('sync-status');
-  if(el) {
-    el.textContent = text;
-    el.style.color = color || '#2ecc71';
-  }
+  if (el) { el.textContent = text; el.style.color = color || '#2ecc71'; }
 }
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-function urlIsSet() {
-  return SCRIPT_URL.startsWith('https://script.google.com/');
+function urlIsSet() { return SCRIPT_URL.startsWith('https://script.google.com/'); }
+
+async function fetchWithTimeout(url, opts, ms) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try { return await fetch(url, { ...opts, signal: ctrl.signal }); }
+  finally { clearTimeout(timer); }
 }
 
-async function loadDataFromCloud() {
-  if (!urlIsSet()) return;
+// مُنسِّقات مخزّنة (إنشاؤها في كل مرة بطيء)
+const NF = new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const DF = new Intl.DateTimeFormat('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', calendar: 'gregory' });
+function fmt(n) { return NF.format(parseFloat(n || 0)); }
+function dateLabel(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  return isNaN(dt) ? '—' : DF.format(dt);
+}
+function today() { return new Date(); }
+
+/* ---------- المزامنة السحابية ---------- */
+let localVersion = 0;      // يزيد مع كل تعديل محلي
+let cloudSaving = false;
+let cloudPending = false;
+let cloudTimer = null;
+let cloudLoading = false;
+
+async function loadDataFromCloud(manual) {
+  if (!urlIsSet() || cloudLoading) return;
+
+  // حماية البيانات: إذا كان هناك تعديل محلي لم يُرفع، لا نستبدله ببيانات السحابة
+  if (lsGet(LS_DIRTY) === '1') {
+    if (manual) showToast('⏳ توجد تعديلات محلية، جاري رفعها أولاً', 'yellow');
+    pushToCloud();
+    return;
+  }
+
+  cloudLoading = true;
   setStatus('⏳ جاري جلب البيانات...', '#f1c40f');
   try {
-    const res = await fetch(SCRIPT_URL, { method: 'GET', mode: 'cors' });
+    const res = await fetchWithTimeout(SCRIPT_URL, { method: 'GET', mode: 'cors' }, 10000);
     const rows = await res.json();
     if (Array.isArray(rows) && rows.length > 1) {
+      // إذا ظهرت تعديلات محلية أثناء الجلب، نلغي الاستبدال
+      if (lsGet(LS_DIRTY) === '1') { setStatus('⏳ بانتظار رفع تعديلاتك', '#f1c40f'); return; }
       clients = rows.slice(1).filter(r => r[0] !== '' && r[1] !== '').map(r => ({
         id: r[0],
         name: String(r[1] ?? ''),
@@ -331,27 +388,38 @@ async function loadDataFromCloud() {
         startDate: r[9] || '',
         dueDay: parseInt(r[10]) || 1,
         notes: r[11] || '',
-        paymentsLog: r[12] ? JSON.parse(r[12]) : [],
-        discounts: r[13] ? JSON.parse(r[13]) : []
+        paymentsLog: r[12] ? safeParse(r[12], []) : [],
+        discounts: r[13] ? safeParse(r[13], []) : []
       }));
-      localStorage.setItem('iqsat_v3', JSON.stringify(clients));
-      renderHome();
-      renderClients();
-      renderReports();
-      showToast('✅ تمت المزامنة وجلب البيانات بنجاح', 'green');
+      lsSet(LS_KEY, JSON.stringify(clients));
+      renderAll();
+      if (manual) showToast('✅ تمت المزامنة وجلب البيانات بنجاح', 'green');
     }
     setStatus('متصل بالسحابة ✅');
   } catch (e) {
     setStatus('⚠️ تم الاعتماد على النسخة المحلية', '#f39c12');
+  } finally {
+    cloudLoading = false;
   }
 }
 
-async function saveToCloud() {
-  // الحفظ الفوري محلياً لضمان عدم ضياع اللحظة أبداً
-  localStorage.setItem('iqsat_v3', JSON.stringify(clients));
+// الحفظ المحلي فوري، والرفع للسحابة يتم في الخلفية دون تجميد الواجهة
+function saveToCloud() {
+  lsSet(LS_KEY, JSON.stringify(clients));
+  lsSet(LS_DIRTY, '1');
+  localVersion++;
   if (!urlIsSet()) return;
+  setStatus('💾 محفوظ محلياً، جاري الرفع...', '#f1c40f');
+  clearTimeout(cloudTimer);
+  cloudTimer = setTimeout(pushToCloud, 700);   // دمج التعديلات المتتالية في رفع واحد
+}
 
-  setStatus('💾 جاري الحفظ السحابي...', '#f1c40f');
+async function pushToCloud() {
+  if (!urlIsSet()) return;
+  if (cloudSaving) { cloudPending = true; return; }
+  cloudSaving = true;
+  const versionAtStart = localVersion;
+
   const rows = [
     ["ID", "الاسم", "الجوال", "الكفيل", "جوال_الكفيل", "الإجمالي", "القسط", "المسدد", "المتبقي", "تاريخ_البداية", "يوم_الاستحقاق", "الملاحظات", "PaymentsLog", "Discounts"]
   ];
@@ -364,69 +432,67 @@ async function saveToCloud() {
   });
 
   try {
-    await fetch(SCRIPT_URL, {
+    await fetchWithTimeout(SCRIPT_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ rows: rows })
-    });
-    setStatus('محدث بالسحابة ✅', '#2ecc71');
-    showToast('💾 تم الحفظ محلياً ورفعها للشيت بنجاح', 'green');
+    }, 20000);
+    // لا تُزال العلامة إذا حدث تعديل جديد أثناء الرفع
+    if (versionAtStart === localVersion) {
+      lsDel(LS_DIRTY);
+      setStatus('محدث بالسحابة ✅', '#2ecc71');
+    }
   } catch (e) {
     setStatus('⚠️ حفظ محلي (فشل الرفع)', '#e74c3c');
-    showToast('⚠️ تم الحفظ محلياً فقط لتعذر الاتصال', 'yellow');
+    showToast('⚠️ تم الحفظ محلياً فقط، سيُعاد الرفع لاحقاً', 'yellow');
+  } finally {
+    cloudSaving = false;
+    if (cloudPending) { cloudPending = false; pushToCloud(); }
   }
 }
 
-// ميزة النسخ الاحتياطي التام (تصدير ملف JSON)
+/* ---------- النسخ الاحتياطي ---------- */
 function exportBackupJSON() {
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients, null, 2));
-  const downloadAnchor = document.createElement('a');
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", `Almohammadiyah_Backup_${new Date().toISOString().split('T')[0]}.json`);
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  downloadAnchor.remove();
+  const a = document.createElement('a');
+  a.setAttribute("href", dataStr);
+  a.setAttribute("download", `Almohammadiyah_Backup_${new Date().toISOString().split('T')[0]}.json`);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
   showToast('✅ تم تصدير النسخة الاحتياطية بنجاح', 'green');
 }
 
-// ميزة استيراد النسخة الاحتياطية
 function importBackupJSON(event) {
-  const fileReader = new FileReader();
-  if (event.target.files[0]) {
-    fileReader.readAsText(event.target.files[0], "UTF-8");
-    fileReader.onload = async (e) => {
-      try {
-        const imported = JSON.parse(e.target.result);
-        if (Array.isArray(imported)) {
-          if (confirm(`هل أنت متأكد من استيراد ${imported.length} عميل؟ سيتم دمج أو استبدال البيانات الحالية.`)) {
-            clients = imported;
-            await saveToCloud();
-            renderHome();
-            renderClients();
-            renderReports();
-            showToast('✅ تم استعادة البيانات بنجاح', 'green');
-          }
-        } else {
-          showToast('⚠️ ملف النسخة الاحتياطية غير صالح', 'red');
-        }
-      } catch (err) {
-        showToast('⚠️ خطأ في قراءة الملف', 'red');
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) { showToast('⚠️ ملف النسخة الاحتياطية غير صالح', 'red'); return; }
+      const valid = imported.filter(c => c && c.id !== undefined && c.name);
+      if (valid.length === 0) { showToast('⚠️ الملف لا يحتوي على عملاء صالحين', 'red'); return; }
+      if (confirm(`هل أنت متأكد من استيراد ${valid.length} عميل؟ سيتم استبدال البيانات الحالية.`)) {
+        clients = valid;
+        saveToCloud();
+        renderAll();
+        showToast('✅ تم استعادة البيانات بنجاح', 'green');
       }
-    };
-  }
+    } catch (err) {
+      showToast('⚠️ خطأ في قراءة الملف', 'red');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file, "UTF-8");
 }
 
-function today() { return new Date(); }
-function fmt(n) { return parseFloat(n || 0).toLocaleString('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-function dateLabel(d) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('ar-SA', { year:'numeric', month:'long', day:'numeric', calendar:'gregory' });
-}
-
+/* ---------- الجدول الزمني والحالة ---------- */
 function generateSchedule(client) {
   const schedule = [];
   const start = new Date(client.startDate);
+  if (isNaN(start)) return schedule;
   const dueDay = client.dueDay || start.getDate();
   const log = client.paymentsLog || [];
 
@@ -436,11 +502,12 @@ function generateSchedule(client) {
 
   while (remaining > 0.001 || idx < log.length) {
     const dueDate = new Date(month.getFullYear(), month.getMonth(),
-      Math.min(dueDay, new Date(month.getFullYear(), month.getMonth()+1, 0).getDate()));
+      Math.min(dueDay, new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()));
 
     const paid = idx < log.length;
     const logEntry = paid ? (typeof log[idx] === 'string' ? { date: log[idx], amount: client.monthly } : log[idx]) : null;
-    const amount = paid ? logEntry.amount : Math.min(client.monthly, remaining);
+    const amount = paid ? (logEntry.amount || 0) : Math.min(client.monthly, remaining);
+    if (!paid && !(amount > 0)) break;   // قسط صفري: لا فائدة من المتابعة
 
     remaining = parseFloat((remaining - amount).toFixed(2));
     schedule.push({ idx, dueDate, amount, paid, payDate: paid ? logEntry.date : null, monthName: MONTHS_AR[dueDate.getMonth()] + ' ' + dueDate.getFullYear() });
@@ -451,39 +518,50 @@ function generateSchedule(client) {
   return schedule;
 }
 
-function getDelayedMonths(client) {
+// تحليل واحد لكل عميل (كان يُحسب 3 مرات أو أكثر)
+function analyze(client) {
   const schedule = generateSchedule(client);
-  const now = today();
-  return schedule.filter(s => !s.paid && s.dueDate < now);
+  const now = Date.now();
+  const delayed = schedule.filter(s => !s.paid && s.dueDate.getTime() < now);
+  const status = client.remaining <= 0.001 ? 'completed' : (delayed.length > 0 ? 'delayed' : 'on-track');
+  return { schedule, delayed, status };
 }
 
-function getStatus(client) {
-  if (client.remaining <= 0.001) return 'completed';
-  const delayed = getDelayedMonths(client);
-  return delayed.length > 0 ? 'delayed' : 'on-track';
+function analyzeAll(list) {
+  return list.map(c => ({ c, info: analyze(c) }));
 }
 
-function showToast(msg, type='') {
+/* ---------- واجهة ---------- */
+let toastTimer = null;
+function showToast(msg, type = '') {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = 'toast show ' + type;
-  setTimeout(() => t.className = 'toast', 2800);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = 'toast', 2800);
 }
 
 function switchTab(tab) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + tab).classList.add('active');
-  event.currentTarget.classList.add('active');
+  const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+  if (btn) btn.classList.add('active');
   if (tab === 'home') renderHome();
   if (tab === 'clients') renderClients();
   if (tab === 'reports') renderReports();
 }
 
+function renderAll() {
+  renderHome();
+  renderClients();
+  renderReports();
+}
+
 function renderHome() {
-  const totalRem = clients.reduce((s,c) => s + c.remaining, 0);
-  const totalPaid = clients.reduce((s,c) => s + c.paid, 0);
-  const delayedClients = clients.filter(c => getStatus(c) === 'delayed');
+  let totalRem = 0, totalPaid = 0;
+  clients.forEach(c => { totalRem += c.remaining; totalPaid += c.paid; });
+  const delayedItems = analyzeAll(clients).filter(x => x.info.status === 'delayed');
 
   document.getElementById('stats-strip').innerHTML = `
     <div class="stat-card">
@@ -500,22 +578,34 @@ function renderHome() {
     </div>
     <div class="stat-card">
       <div class="stat-label">متأخرون</div>
-      <div class="stat-value red">${delayedClients.length}</div>
+      <div class="stat-value red">${delayedItems.length}</div>
     </div>
   `;
 
   const dl = document.getElementById('delayed-list');
-  if (delayedClients.length === 0) {
+  if (delayedItems.length === 0) {
     dl.innerHTML = `<div style="text-align:center;padding:32px;color:var(--ink-soft)"><div style="font-size:40px;margin-bottom:10px">🎉</div><p>لا يوجد عملاء متأخرون حالياً</p></div>`;
     return;
   }
-  dl.innerHTML = delayedClients.map(c => clientCardHTML(c)).join('');
+  dl.innerHTML = delayedItems.map(x => clientCardHTML(x.c, x.info)).join('');
 }
 
 function setFilter(el, val) {
   currentFilter = val;
+  shownCount = PAGE_SIZE;
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
+  renderClients();
+}
+
+let searchTimer = null;
+function debouncedSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { shownCount = PAGE_SIZE; renderClients(); }, 250);
+}
+
+function showMore() {
+  shownCount += PAGE_SIZE;
   renderClients();
 }
 
@@ -523,38 +613,43 @@ function renderClients() {
   const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
   let list = clients;
   if (q) {
-    list = list.filter(c => 
-      c.name.toLowerCase().includes(q) || 
-      (c.phone||'').includes(q) || 
-      (c.guarantor||'').toLowerCase().includes(q) || 
-      (c.guarantorPhone||'').includes(q)
+    list = list.filter(c =>
+      (c.name || '').toLowerCase().includes(q) ||
+      (c.phone || '').includes(q) ||
+      (c.guarantor || '').toLowerCase().includes(q) ||
+      (c.guarantorPhone || '').includes(q)
     );
   }
-  if (currentFilter === 'delayed') list = list.filter(c => getStatus(c) === 'delayed');
-  else if (currentFilter === 'on-track') list = list.filter(c => getStatus(c) === 'on-track');
-  else if (currentFilter === 'completed') list = list.filter(c => getStatus(c) === 'completed');
+  let items = analyzeAll(list);
+  if (currentFilter !== 'all') items = items.filter(x => x.info.status === currentFilter);
 
   const container = document.getElementById('clients-list');
-  if (list.length === 0) {
+  if (items.length === 0) {
     container.innerHTML = `<div style="text-align:center;padding:32px;color:var(--ink-soft)"><div style="font-size:40px;margin-bottom:10px">📋</div><p>لا توجد نتائج مطابقة</p></div>`;
     return;
   }
-  container.innerHTML = list.map(c => clientCardHTML(c)).join('');
+  const visible = items.slice(0, shownCount);
+  let html = visible.map(x => clientCardHTML(x.c, x.info)).join('');
+  if (items.length > shownCount) {
+    html += `<button class="btn-secondary" onclick="showMore()">عرض المزيد (${items.length - shownCount} متبقي)</button>`;
+  }
+  container.innerHTML = html;
 }
 
-function clientCardHTML(client) {
-  const status = getStatus(client);
+function clientCardHTML(client, info) {
+  info = info || analyze(client);
+  const status = info.status;
   const statusLabels = { completed: ['مكتمل','badge-completed'], delayed: ['متأخر','badge-delayed'], 'on-track': ['منتظم','badge-on-track'] };
   const [label, badgeClass] = statusLabels[status];
-  const pct = Math.min(100, ((client.paid / client.total) * 100)).toFixed(0);
-  const delayed = getDelayedMonths(client);
+  const pct = client.total > 0 ? Math.max(0, Math.min(100, (client.paid / client.total) * 100)).toFixed(0) : '0';
+  const delayed = info.delayed;
 
   return `<div class="client-card ${status}">
     <div class="client-head">
       <div>
         <div class="client-name">${esc(client.name)}</div>
         ${client.phone ? `<div class="client-phone">📱 العميل: <a href="tel:${esc(client.phone)}">${esc(client.phone)}</a></div>` : ''}
-        ${client.guarantor ? `<div class="client-phone">🤝 الكفيل: ${esc(client.guarantor)}${client.guarantorPhone ? `(<a href="tel:${esc(client.guarantorPhone)}">${esc(client.guarantorPhone)}</a>)` : ''}</div>` : ''}
+        ${client.guarantor ? `<div class="client-phone">🤝 الكفيل: ${esc(client.guarantor)}${client.guarantorPhone ? ` (<a href="tel:${esc(client.guarantorPhone)}">${esc(client.guarantorPhone)}</a>)` : ''}</div>` : ''}
       </div>
       <span class="status-badge ${badgeClass}">${label}</span>
     </div>
@@ -570,7 +665,7 @@ function clientCardHTML(client) {
         <div class="info-item"><div class="lbl">الإجمالي</div><div class="val">${fmt(client.total)} ر.س</div></div>
         <div class="info-item"><div class="lbl">القسط</div><div class="val">${fmt(client.monthly)} ر.س</div></div>
         <div class="info-item"><div class="lbl">المتبقي</div><div class="val danger">${fmt(client.remaining)} ر.س</div></div>
-        <div class="info-item" style="grid-column:1/-1"><div class="lbl">الأشهر المتأخرة</div><div class="val ${delayed.length > 0 ? 'danger' : 'success'}">${delayed.length > 0 ? `⚠️ ${delayed.length} شهر (${delayed.map(d => d.monthName).join(', ')})` : 'لا توجد تأخيرات'}</div></div>
+        <div class="info-item" style="grid-column:1/-1"><div class="lbl">الأشهر المتأخرة</div><div class="val ${delayed.length > 0 ? 'danger' : 'success'}">${delayed.length > 0 ? `⚠️ ${delayed.length} شهر (${delayed.map(d => d.monthName).join('، ')})` : 'لا توجد تأخيرات'}</div></div>
       </div>
     </div>
     <div class="client-actions">
@@ -583,22 +678,25 @@ function clientCardHTML(client) {
   </div>`;
 }
 
+function statusLabel(status) {
+  return status === 'completed' ? 'مكتمل' : (status === 'delayed' ? 'متأخر' : 'منتظم');
+}
+
 function openAllClientsSummary() {
   if (clients.length === 0) {
     showToast('⚠️ لا توجد عملاء مسجلون حالياً', 'red');
     return;
   }
-  const tbody = document.getElementById('all-clients-table-body');
-  tbody.innerHTML = clients.map((c, idx) => {
-    const status = getStatus(c);
-    const label = status === 'completed' ? 'مكتمل' : (status === 'delayed' ? 'متأخر' : 'منتظم');
+  const items = analyzeAll(clients);
+  document.getElementById('all-clients-table-body').innerHTML = items.map((x, idx) => {
+    const c = x.c;
     return `<tr>
       <td>${idx + 1}</td>
       <td style="text-align:right;font-weight:700">${esc(c.name)}<br><small>${esc(c.phone || '')}</small></td>
       <td style="text-align:right">${esc(c.guarantor || '—')}<br><small>${esc(c.guarantorPhone || '')}</small></td>
       <td><b>${fmt(c.monthly)} ر.س</b></td>
       <td style="color:var(--red)"><b>${fmt(c.remaining)} ر.س</b></td>
-      <td>${label}</td>
+      <td>${statusLabel(x.info.status)}</td>
     </tr>`;
   }).join('');
   document.getElementById('all-clients-modal').classList.add('open');
@@ -608,74 +706,96 @@ function closeAllClientsModal() {
   document.getElementById('all-clients-modal').classList.remove('open');
 }
 
+/* ---------- تصدير PDF ---------- */
+let pdfBusy = false;
 async function exportAllClientsPDF() {
-  if (clients.length === 0) return;
+  if (clients.length === 0 || pdfBusy) return;
+  if (!window.jspdf || !window.html2canvas) {
+    showToast('⚠️ مكتبة PDF لم تُحمَّل بعد، تحقق من الاتصال وأعد المحاولة', 'red');
+    return;
+  }
+  pdfBusy = true;
+  const btn = document.getElementById('pdf-btn');
+  if (btn) btn.disabled = true;
   showToast('⏳ جاري إنشاء ملف PDF...', '');
 
   const renderArea = document.getElementById('pdf-render-area');
-  const ROWS_PER_PAGE = 15;
-  const pages = [];
-  for (let i = 0; i < clients.length; i += ROWS_PER_PAGE) pages.push(clients.slice(i, i + ROWS_PER_PAGE));
+  try {
+    const items = analyzeAll(clients);
+    const ROWS_PER_PAGE = 15;
+    const pages = [];
+    for (let i = 0; i < items.length; i += ROWS_PER_PAGE) pages.push(items.slice(i, i + ROWS_PER_PAGE));
+    const dateStr = new Date().toLocaleDateString('ar-SA');
 
-  renderArea.innerHTML = pages.map((pageClients, pIdx) => `
-    <div class="pdf-page" id="pdf-full-page-${pIdx}">
-      <div class="pdf-header">
-        <h1>التقرير الشامل لجميع العملاء والكفلاء</h1>
-        <div class="pdf-sub">نظام المحمدية</div>
-        <div class="pdf-meta">تاريخ التقرير: ${new Date().toLocaleDateString('ar-SA')} &nbsp;|&nbsp; إجمالي العملاء: ${clients.length} &nbsp;|&nbsp; صفحة ${pIdx + 1} من ${pages.length}</div>
+    renderArea.innerHTML = pages.map((pageItems, pIdx) => `
+      <div class="pdf-page" id="pdf-full-page-${pIdx}">
+        <div class="pdf-header">
+          <h1>التقرير الشامل لجميع العملاء والكفلاء</h1>
+          <div class="pdf-sub">نظام المحمدية</div>
+          <div class="pdf-meta">تاريخ التقرير: ${dateStr} &nbsp;|&nbsp; إجمالي العملاء: ${clients.length} &nbsp;|&nbsp; صفحة ${pIdx + 1} من ${pages.length}</div>
+        </div>
+        <table class="pdf-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th style="text-align:right;">اسم العميل والجوال</th>
+              <th style="text-align:right;">الكفيل وجواله</th>
+              <th>القسط الشهري</th>
+              <th>المتبقي</th>
+              <th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pageItems.map((x, i) => {
+              const c = x.c;
+              return `<tr>
+                <td>${pIdx * ROWS_PER_PAGE + i + 1}</td>
+                <td style="text-align:right;font-weight:700">${esc(c.name)}<br><small>${esc(c.phone || '')}</small></td>
+                <td style="text-align:right">${esc(c.guarantor || '—')}<br><small>${esc(c.guarantorPhone || '')}</small></td>
+                <td><b>${fmt(c.monthly)} ر.س</b></td>
+                <td>${fmt(c.remaining)} ر.س</td>
+                <td>${statusLabel(x.info.status)}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="pdf-footer">
+          <span>نظام المحمدية لإدارة الأقساط</span>
+          <span>صفحة ${pIdx + 1} من ${pages.length}</span>
+        </div>
       </div>
-      <table class="pdf-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th style="text-align:right;">اسم العميل والجوال</th>
-            <th style="text-align:right;">الكفيل وجواله</th>
-            <th>القسط الشهري</th>
-            <th>المتبقي</th>
-            <th>الحالة</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${pageClients.map((c, i) => {
-            let rowIdx = pIdx * ROWS_PER_PAGE + i + 1;
-            const status = getStatus(c);
-            const label = status === 'completed' ? 'مكتمل' : (status === 'delayed' ? 'متأخر' : 'منتظم');
-            return `<tr>
-              <td>${rowIdx}</td>
-              <td style="text-align:right;font-weight:700">${esc(c.name)}<br><small>${esc(c.phone || '')}</small></td>
-              <td style="text-align:right">${esc(c.guarantor \vert{}\vert{} '—')}<br><small>${esc(c.guarantorPhone || '')}</small></td>
-              <td><b>${fmt(c.monthly)} ر.س</b></td>
-              <td>${fmt(c.remaining)} ر.س</td>
-              <td>${label}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      <div class="pdf-footer">
-        <span>نظام المحمدية لإدارة الأقساط</span>
-        <span>صفحة ${pIdx + 1} من ${pages.length}</span>
-      </div>
-    </div>
-  `).join('');
+    `).join('');
 
-  await new Promise(r => setTimeout(r, 120));
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    // انتظار تحميل الخطوط قبل التصوير
+    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
+    await new Promise(r => setTimeout(r, 120));
 
-  for (let pIdx = 0; pIdx < pages.length; pIdx++) {
-    const pageEl = document.getElementById(`pdf-full-page-${pIdx}`);
-    const canvas = await html2canvas(pageEl, { scale: 3, useCORS: true, backgroundColor: '#ffffff' });
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-    if (pIdx > 0) doc.addPage();
-    doc.addImage(imgData, 'JPEG', 0, 0, 297, 210);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+    for (let pIdx = 0; pIdx < pages.length; pIdx++) {
+      showToast(`⏳ جاري إنشاء PDF (${pIdx + 1}/${pages.length})...`, '');
+      await new Promise(r => setTimeout(r, 0));   // إفساح المجال للواجهة
+      const pageEl = document.getElementById(`pdf-full-page-${pIdx}`);
+      const canvas = await html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+      const imgData = canvas.toDataURL('image/jpeg', 0.85);
+      if (pIdx > 0) doc.addPage();
+      doc.addImage(imgData, 'JPEG', 0, 0, 297, 210);
+    }
+
+    doc.save(`التقرير_الشامل_${new Date().toISOString().split('T')[0]}.pdf`);
+    showToast('✅ تم تحميل ملف PDF الشامل', 'green');
+  } catch (err) {
+    showToast('⚠️ تعذر إنشاء ملف PDF', 'red');
+  } finally {
+    renderArea.innerHTML = '';
+    pdfBusy = false;
+    if (btn) btn.disabled = false;
   }
-
-  renderArea.innerHTML = '';
-  doc.save(`التقرير_الشامل_${new Date().toISOString().split('T')[0]}.pdf`);
-  showToast('✅ تم تحميل ملف PDF الشامل', 'green');
 }
 
-async function addClient() {
+/* ---------- العمليات ---------- */
+function addClient() {
   const name = document.getElementById('f-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
   const guarantor = document.getElementById('f-guarantor').value.trim();
@@ -696,11 +816,12 @@ async function addClient() {
     notes, paymentsLog: [], discounts: []
   });
 
-  await saveToCloud();
+  saveToCloud();
   ['f-name','f-phone','f-guarantor','f-guarantor-phone','f-total','f-monthly','f-start','f-day','f-notes'].forEach(id => {
     const el = document.getElementById(id);
-    if(el) el.value = '';
+    if (el) el.value = '';
   });
+  showToast('✅ تم حفظ العقد', 'green');
   switchTab('clients');
 }
 
@@ -723,8 +844,8 @@ function openEditModal(id) {
 
 function closeEditModal() { document.getElementById('edit-modal').classList.remove('open'); }
 
-async function saveClientEdit() {
-  const id = parseInt(document.getElementById('e-id').value);
+function saveClientEdit() {
+  const id = document.getElementById('e-id').value;
   const name = document.getElementById('e-name').value.trim();
   const phone = document.getElementById('e-phone').value.trim();
   const guarantor = document.getElementById('e-guarantor').value.trim();
@@ -736,9 +857,13 @@ async function saveClientEdit() {
   const paid = parseFloat(document.getElementById('e-paid').value) || 0;
   const notes = document.getElementById('e-notes').value.trim();
 
+  if (!name || !total || !monthly || !startDate) {
+    showToast('⚠️ يرجى ملء الحقول المطلوبة', 'red'); return;
+  }
+
   clients = clients.map(c => {
     if (String(c.id) !== String(id)) return c;
-    const totalDiscount = (c.discounts || []).reduce((s,d)=>s+d.amount, 0);
+    const totalDiscount = (c.discounts || []).reduce((s, d) => s + d.amount, 0);
     return {
       ...c, name, phone, guarantor, guarantorPhone, total, monthly, startDate, dueDay, notes,
       paid: parseFloat(paid.toFixed(2)),
@@ -746,13 +871,14 @@ async function saveClientEdit() {
     };
   });
 
-  await saveToCloud();
+  saveToCloud();
   closeEditModal();
   renderHome();
   renderClients();
+  showToast('✅ تم حفظ التعديلات', 'green');
 }
 
-async function payInstallment(id) {
+function payInstallment(id) {
   const client = clients.find(x => String(x.id) === String(id));
   if (!client) return;
   const suggested = Math.min(client.monthly, client.remaining);
@@ -767,12 +893,13 @@ async function payInstallment(id) {
   if (!client.paymentsLog) client.paymentsLog = [];
   client.paymentsLog.push({ date: nowStr, amount: parseFloat(amount.toFixed(2)) });
 
-  await saveToCloud();
+  saveToCloud();
   renderHome();
   renderClients();
+  showToast('✅ تم تسجيل التحصيل', 'green');
 }
 
-async function addDiscount(id) {
+function addDiscount(id) {
   const client = clients.find(x => String(x.id) === String(id));
   if (!client) return;
   const input = prompt('أدخل مبلغ الخصم:', '0.00');
@@ -782,20 +909,22 @@ async function addDiscount(id) {
 
   if (!client.discounts) client.discounts = [];
   client.discounts.push({ date: new Date().toISOString().split('T')[0], amount: amt, reason: 'خصم' });
-  const totalDiscount = client.discounts.reduce((s,d)=>s+d.amount, 0);
+  const totalDiscount = client.discounts.reduce((s, d) => s + d.amount, 0);
   client.remaining = parseFloat((client.total - client.paid - totalDiscount).toFixed(2));
 
-  await saveToCloud();
+  saveToCloud();
   renderHome();
   renderClients();
+  showToast('✅ تم تسجيل الخصم', 'green');
 }
 
-async function deleteClient(id) {
+function deleteClient(id) {
   if (!confirm('هل أنت متأكد من الحذف؟')) return;
   clients = clients.filter(x => String(x.id) !== String(id));
-  await saveToCloud();
+  saveToCloud();
   renderHome();
   renderClients();
+  showToast('🗑️ تم الحذف', 'green');
 }
 
 function openDetail(id) {
@@ -803,14 +932,17 @@ function openDetail(id) {
   if (!c) return;
   document.getElementById('modal-client-name').textContent = c.name;
   const schedule = generateSchedule(c);
-  const rows = schedule.map(s => `
-    <tr class="${s.paid ? 'paid-row' : (s.dueDate < today() ? 'delayed-row' : 'upcoming-row')}">
+  const now = Date.now();
+  const rows = schedule.map(s => {
+    const late = s.dueDate.getTime() < now;
+    return `
+    <tr class="${s.paid ? 'paid-row' : (late ? 'delayed-row' : 'upcoming-row')}">
       <td>${s.idx + 1}</td>
       <td>${dateLabel(s.dueDate)}</td>
       <td>${fmt(s.amount)} ر.س</td>
-      <td>${s.paid ? '✅ مدفوع' : (s.dueDate < today() ? '⚠️ متأخر' : '🔜 قادم')}</td>
-    </tr>
-  `).join('');
+      <td>${s.paid ? '✅ مدفوع' : (late ? '⚠️ متأخر' : '🔜 قادم')}</td>
+    </tr>`;
+  }).join('');
 
   document.getElementById('modal-body').innerHTML = `
     ${c.guarantor ? `<div>🤝 الكفيل: <b>${esc(c.guarantor)}</b> (${esc(c.guarantorPhone || 'بدون جوال')})</div><br>` : ''}
@@ -825,9 +957,8 @@ function openDetail(id) {
 function closeModal() { document.getElementById('detail-modal').classList.remove('open'); }
 
 function renderReports() {
-  const totalRem = clients.reduce((s,c) => s + c.remaining, 0);
-  const totalPaid = clients.reduce((s,c) => s + c.paid, 0);
-  const totalSum = clients.reduce((s,c) => s + c.total, 0);
+  let totalRem = 0, totalPaid = 0, totalSum = 0;
+  clients.forEach(c => { totalRem += c.remaining; totalPaid += c.paid; totalSum += c.total; });
 
   document.getElementById('reports-content').innerHTML = `
     <div style="display:grid;gap:10px;font-size:14px; margin-bottom:16px;">
@@ -840,13 +971,19 @@ function renderReports() {
   `;
 }
 
+/* ---------- التشغيل ---------- */
 function init() {
-  document.getElementById('today-date').textContent = new Date().toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric', calendar:'gregory' });
-  renderHome();
-  renderClients();
-  renderReports();
-  loadDataFromCloud();
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', calendar: 'gregory' });
+  renderAll();          // عرض فوري من النسخة المحلية
+  loadDataFromCloud();  // ثم مزامنة في الخلفية دون انتظار
 }
+
+// محاولة رفع أي تعديل معلّق عند عودة الاتصال أو عند العودة للتطبيق
+window.addEventListener('online', () => { if (lsGet(LS_DIRTY) === '1') pushToCloud(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && lsGet(LS_DIRTY) === '1') pushToCloud();
+});
+
 init();
 </script>
 </body>
