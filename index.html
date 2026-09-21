@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>نظام المحمدية (سحابي مبسط وآمن)</title>
+<title>نظام المحمدية (نسخة احترافية وآمنة)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -142,9 +142,9 @@
   <div style="display:flex;gap:10px;align-items:center">
     <button onclick="openAllClientsSummary()" title="عرض التقرير الشامل"
       style="background:rgba(200,146,42,0.2);border:1px solid var(--gold);color:white;padding:5px 10px;border-radius:8px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer">
-      📋 التقرير الشامل
+      📋 التقرير
     </button>
-    <div style="font-size:12px;color:#2ecc71;font-weight:700;cursor:pointer;" id="sync-status" onclick="loadDataFromCloud()">⏳ جاري الاتصال...</div>
+    <div style="font-size:12px;color:#2ecc71;font-weight:700;cursor:pointer;" id="sync-status" onclick="loadDataFromCloud()">🔄 مزامنة سحابية</div>
   </div>
 </div>
 
@@ -152,7 +152,7 @@
   <button class="tab-btn active" onclick="switchTab('home')"><span class="tab-icon">🏠</span>الرئيسية</button>
   <button class="tab-btn" onclick="switchTab('clients')"><span class="tab-icon">👥</span>العملاء</button>
   <button class="tab-btn" onclick="switchTab('add')"><span class="tab-icon">➕</span>إضافة عقد</button>
-  <button class="tab-btn" onclick="switchTab('reports')"><span class="tab-icon">📊</span>التقارير</button>
+  <button class="tab-btn" onclick="switchTab('reports')"><span class="tab-icon">📊</span>التقارير والأمان</button>
 </div>
 
 <!-- HOME -->
@@ -203,8 +203,18 @@
 <!-- REPORTS -->
 <div id="page-reports" class="page">
   <div class="form-card">
-    <div class="section-title" style="margin-bottom:14px;">التقرير الشامل والملخص</div>
-    <div id="reports-content">جاري التحميل...</div>
+    <div class="section-title" style="margin-bottom:14px;">التقرير الشامل والنسخ الاحتياطي للأمان</div>
+    <div id="reports-content" style="margin-bottom: 20px;">جاري التحميل...</div>
+    
+    <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
+      <div class="section-title" style="margin-bottom:10px;">🛡️ إدارة النسخ الاحتياطي (الأمان التام)</div>
+      <p style="font-size: 12px; color: var(--ink-soft); margin-bottom: 12px;">قم بتصدير ملف النسخة الاحتياطي دورياً لتفادي ضياع البيانات، أو استيرادها عند تغيير الجهاز.</p>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <button class="btn-secondary" onclick="exportBackupJSON()">📤 تصدير نسخة (JSON)</button>
+        <button class="btn-primary" style="background:var(--teal); margin:0;" onclick="document.getElementById('import-file').click()">📥 استيراد نسخة</button>
+        <input type="file" id="import-file" style="display:none" accept=".json" onchange="importBackupJSON(event)">
+      </div>
+    </div>
   </div>
 </div>
 
@@ -278,10 +288,8 @@
 <div id="pdf-render-area"></div>
 
 <script>
-// ⚠️ رابط الـ Web App الخاص بك
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbycDMom8YvTBG4txLrRht1fgauVGLcnGQsdFJNqzJVzzDoMaGDrtjHKyxNbNNOa9vxi/exec";
 
-// تحميل البيانات من الذاكرة المحلية كبديل فوري وسريع لضمان عدم توقف العمل
 let clients = JSON.parse(localStorage.getItem('iqsat_v3')) || [];
 let currentFilter = 'all';
 
@@ -303,15 +311,11 @@ function urlIsSet() {
   return SCRIPT_URL.startsWith('https://script.google.com/');
 }
 
-// دالة مبسطة جداً وآمنة لجلب البيانات من قوقل شيت بدون مشاكل CORS معقّدة
 async function loadDataFromCloud() {
-  if (!urlIsSet()) {
-    setStatus('⚠️ رابط السكربت غير مضبوط', '#e74c3c');
-    return;
-  }
-  setStatus('⏳ جاري المزامنة...', '#f1c40f');
+  if (!urlIsSet()) return;
+  setStatus('⏳ جاري جلب البيانات...', '#f1c40f');
   try {
-    const res = await fetch(SCRIPT_URL);
+    const res = await fetch(SCRIPT_URL, { method: 'GET', mode: 'cors' });
     const rows = await res.json();
     if (Array.isArray(rows) && rows.length > 1) {
       clients = rows.slice(1).filter(r => r[0] !== '' && r[1] !== '').map(r => ({
@@ -331,22 +335,23 @@ async function loadDataFromCloud() {
         discounts: r[13] ? JSON.parse(r[13]) : []
       }));
       localStorage.setItem('iqsat_v3', JSON.stringify(clients));
+      renderHome();
+      renderClients();
+      renderReports();
+      showToast('✅ تمت المزامنة وجلب البيانات بنجاح', 'green');
     }
     setStatus('متصل بالسحابة ✅');
-    renderHome();
-    renderClients();
   } catch (e) {
-    console.warn("استخدام النسخة المحلية لاانقطاع الاتصال السحابي", e);
-    setStatus('⚠️ وضع غير متصل (محلي) 🟢', '#f39c12');
+    setStatus('⚠️ تم الاعتماد على النسخة المحلية', '#f39c12');
   }
 }
 
-// حفظ مبسط وسريع
 async function saveToCloud() {
+  // الحفظ الفوري محلياً لضمان عدم ضياع اللحظة أبداً
   localStorage.setItem('iqsat_v3', JSON.stringify(clients));
   if (!urlIsSet()) return;
 
-  setStatus('💾 جاري الحفظ...', '#f1c40f');
+  setStatus('💾 جاري الحفظ السحابي...', '#f1c40f');
   const rows = [
     ["ID", "الاسم", "الجوال", "الكفيل", "جوال_الكفيل", "الإجمالي", "القسط", "المسدد", "المتبقي", "تاريخ_البداية", "يوم_الاستحقاق", "الملاحظات", "PaymentsLog", "Discounts"]
   ];
@@ -365,10 +370,50 @@ async function saveToCloud() {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ rows: rows })
     });
-    setStatus('متصل بالسحابة ✅');
+    setStatus('محدث بالسحابة ✅', '#2ecc71');
+    showToast('💾 تم الحفظ محلياً ورفعها للشيت بنجاح', 'green');
   } catch (e) {
-    console.error(e);
-    setStatus('⚠️ تم الحفظ محلياً (فشل الرفع)', '#e74c3c');
+    setStatus('⚠️ حفظ محلي (فشل الرفع)', '#e74c3c');
+    showToast('⚠️ تم الحفظ محلياً فقط لتعذر الاتصال', 'yellow');
+  }
+}
+
+// ميزة النسخ الاحتياطي التام (تصدير ملف JSON)
+function exportBackupJSON() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `Almohammadiyah_Backup_${new Date().toISOString().split('T')[0]}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+  showToast('✅ تم تصدير النسخة الاحتياطية بنجاح', 'green');
+}
+
+// ميزة استيراد النسخة الاحتياطية
+function importBackupJSON(event) {
+  const fileReader = new FileReader();
+  if (event.target.files[0]) {
+    fileReader.readAsText(event.target.files[0], "UTF-8");
+    fileReader.onload = async (e) => {
+      try {
+        const imported = JSON.parse(e.target.result);
+        if (Array.isArray(imported)) {
+          if (confirm(`هل أنت متأكد من استيراد ${imported.length} عميل؟ سيتم دمج أو استبدال البيانات الحالية.`)) {
+            clients = imported;
+            await saveToCloud();
+            renderHome();
+            renderClients();
+            renderReports();
+            showToast('✅ تم استعادة البيانات بنجاح', 'green');
+          }
+        } else {
+          showToast('⚠️ ملف النسخة الاحتياطية غير صالح', 'red');
+        }
+      } catch (err) {
+        showToast('⚠️ خطأ في قراءة الملف', 'red');
+      }
+    };
   }
 }
 
@@ -652,7 +697,6 @@ async function addClient() {
   });
 
   await saveToCloud();
-  showToast('✅ تم الحفظ بنجاح', 'green');
   ['f-name','f-phone','f-guarantor','f-guarantor-phone','f-total','f-monthly','f-start','f-day','f-notes'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.value = '';
@@ -704,7 +748,6 @@ async function saveClientEdit() {
 
   await saveToCloud();
   closeEditModal();
-  showToast('✅ تم التعديل بنجاح', 'green');
   renderHome();
   renderClients();
 }
@@ -725,7 +768,6 @@ async function payInstallment(id) {
   client.paymentsLog.push({ date: nowStr, amount: parseFloat(amount.toFixed(2)) });
 
   await saveToCloud();
-  showToast('💰 تم تسجيل التحصيل', 'green');
   renderHome();
   renderClients();
 }
@@ -744,7 +786,6 @@ async function addDiscount(id) {
   client.remaining = parseFloat((client.total - client.paid - totalDiscount).toFixed(2));
 
   await saveToCloud();
-  showToast('🏷️ تم إضافة الخصم', 'green');
   renderHome();
   renderClients();
 }
@@ -755,7 +796,6 @@ async function deleteClient(id) {
   await saveToCloud();
   renderHome();
   renderClients();
-  showToast('🗑️ تم الحذف', 'red');
 }
 
 function openDetail(id) {
@@ -804,6 +844,7 @@ function init() {
   document.getElementById('today-date').textContent = new Date().toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric', calendar:'gregory' });
   renderHome();
   renderClients();
+  renderReports();
   loadDataFromCloud();
 }
 init();
