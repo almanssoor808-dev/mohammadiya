@@ -143,9 +143,9 @@
     <div class="topbar-date" id="today-date"></div>
   </div>
   <div style="display:flex;gap:10px;align-items:center">
-    <button onclick="openAllClientsSummary()" title="عرض التقارير والأيقونات"
+    <button onclick="openAllClientsSummary()" title="عرض التقرير الشامل"
       style="background:rgba(200,146,42,0.2);border:1px solid var(--gold);color:white;padding:5px 10px;border-radius:8px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer">
-      📋 الأيقونات والتقارير
+      📋 التقرير
     </button>
     <div style="font-size:12px;color:#2ecc71;font-weight:700;cursor:pointer;" id="sync-status" onclick="loadDataFromCloud(true)">🔄 مزامنة سحابية</div>
   </div>
@@ -221,78 +221,26 @@
   </div>
 </div>
 
-<!-- ALL CLIENTS SUMMARY & ICONS MODAL -->
+<!-- ALL CLIENTS SUMMARY MODAL -->
 <div class="modal-overlay" id="all-clients-modal">
-  <div class="modal-sheet" style="max-width: 820px;">
+  <div class="modal-sheet" style="max-width: 780px;">
     <div class="modal-handle"></div>
-    <div class="modal-title">📋 لوحة التقارير والأيقونات المخصصة</div>
+    <div class="modal-title">📋 التقرير الشامل لجميع العملاء (جدول واحد)</div>
 
-    <!-- أزرار تبديل الأيقونات الثلاث المطلوبة داخل النافذة -->
-    <div style="display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto;">
-      <button class="btn-primary" style="flex:1; margin:0; background:var(--ink);" onclick="switchCustomIcon('followup', this)">أيقونة متابعة العملاء</button>
-      <button class="btn-secondary" style="flex:1; margin:0;" onclick="switchCustomIcon('deferred', this)">أيقونة المبيعات الآجلة</button>
-      <button class="btn-primary" style="flex:1; margin:0; background:var(--teal);" onclick="switchCustomIcon('monthly', this)">المبيعات الشهرية</button>
-    </div>
-
-    <!-- 1. أيقونة متابعة العملاء -->
-    <div id="custom-view-followup" class="custom-view-section">
-      <div style="font-size:13px; font-weight:700; color:var(--ink); margin-bottom:6px;">متابعة العملاء (شاملة بيانات التواصل والقسط والملاحظات)</div>
-      <div style="max-height: 50vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 12px;">
-        <table class="month-table">
-          <thead>
-            <tr>
-              <th>اسم العميل</th>
-              <th>رقم جوال العميل</th>
-              <th>اسم الكفيل</th>
-              <th>رقم جوال الكفيل</th>
-              <th>مقدار القسط الشهري</th>
-              <th>الملاحظات</th>
-            </tr>
-          </thead>
-          <tbody id="table-followup-body"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 2. أيقونة المبيعات الآجلة -->
-    <div id="custom-view-deferred" class="custom-view-section" style="display:none;">
-      <div style="font-size:13px; font-weight:700; color:var(--ink); margin-bottom:6px;">المبيعات الآجلة (مرتبطة بالمبالغ الإجمالية والربط الأساسي)</div>
-      <div style="max-height: 50vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 12px;">
-        <table class="month-table">
-          <thead>
-            <tr>
-              <th>اسم العميل</th>
-              <th>المبلغ الإجمالي (مرتبط)</th>
-              <th>المسدد</th>
-              <th>المتبقي</th>
-              <th>الحالة</th>
-            </tr>
-          </thead>
-          <tbody id="table-deferred-body"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 3. أيقونة المبيعات الشهرية -->
-    <div id="custom-view-monthly" class="custom-view-section" style="display:none;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-        <div style="font-size:13px; font-weight:700; color:var(--ink);">المبيعات الشهرية (مستقلة كلياً)</div>
-        <div style="background:var(--gold-pale); border:1px solid var(--gold); padding:4px 10px; border-radius:8px; font-size:12px; font-weight:700; color:#7a5010;">
-          عداد المبيعات الشهرية: <span id="monthly-counter-val">0</span>
-        </div>
-      </div>
-      <div style="max-height: 50vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 12px;">
-        <table class="month-table">
-          <thead>
-            <tr>
-              <th>اسم العميل</th>
-              <th>المبلغ الأساسي</th>
-              <th>المبلغ الإجمالي</th>
-            </tr>
-          </thead>
-          <tbody id="table-monthly-body"></tbody>
-        </table>
-      </div>
+    <div style="max-height: 55vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;">
+      <table class="month-table" id="all-clients-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>اسم العميل والجوال</th>
+            <th>الكفيل وجواله</th>
+            <th>القسط الشهري</th>
+            <th>المتبقي</th>
+            <th>الحالة</th>
+          </tr>
+        </thead>
+        <tbody id="all-clients-table-body"></tbody>
+      </table>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
@@ -346,11 +294,12 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbycDMom8YvTBG4txLrRht1fgauVGLcnGQsdFJNqzJVzzDoMaGDrtjHKyxNbNNOa9vxi/exec";
 
 const LS_KEY = 'iqsat_v3';
-const LS_DIRTY = 'iqsat_v3_dirty';
-const PAGE_SIZE = 40;
+const LS_DIRTY = 'iqsat_v3_dirty';   // علامة: توجد تعديلات محلية لم تُرفع بعد
+const PAGE_SIZE = 40;                 // عدد العملاء المعروضين في كل دفعة
 
 const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
+/* ---------- أدوات مساعدة ---------- */
 function lsGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
 function lsSet(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
 function lsDel(key) { try { localStorage.removeItem(key); } catch (e) {} }
@@ -390,6 +339,7 @@ async function fetchWithTimeout(url, opts, ms) {
   finally { clearTimeout(timer); }
 }
 
+// مُنسِّقات مخزّنة (إنشاؤها في كل مرة بطيء)
 const NF = new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const DF = new Intl.DateTimeFormat('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', calendar: 'gregory' });
 function fmt(n) { return NF.format(parseFloat(n || 0)); }
@@ -398,8 +348,10 @@ function dateLabel(d) {
   const dt = new Date(d);
   return isNaN(dt) ? '—' : DF.format(dt);
 }
+function today() { return new Date(); }
 
-let localVersion = 0;
+/* ---------- المزامنة السحابية ---------- */
+let localVersion = 0;      // يزيد مع كل تعديل محلي
 let cloudSaving = false;
 let cloudPending = false;
 let cloudTimer = null;
@@ -407,6 +359,8 @@ let cloudLoading = false;
 
 async function loadDataFromCloud(manual) {
   if (!urlIsSet() || cloudLoading) return;
+
+  // حماية البيانات: إذا كان هناك تعديل محلي لم يُرفع، لا نستبدله ببيانات السحابة
   if (lsGet(LS_DIRTY) === '1') {
     if (manual) showToast('⏳ توجد تعديلات محلية، جاري رفعها أولاً', 'yellow');
     pushToCloud();
@@ -419,6 +373,7 @@ async function loadDataFromCloud(manual) {
     const res = await fetchWithTimeout(SCRIPT_URL, { method: 'GET', mode: 'cors' }, 10000);
     const rows = await res.json();
     if (Array.isArray(rows) && rows.length > 1) {
+      // إذا ظهرت تعديلات محلية أثناء الجلب، نلغي الاستبدال
       if (lsGet(LS_DIRTY) === '1') { setStatus('⏳ بانتظار رفع تعديلاتك', '#f1c40f'); return; }
       clients = rows.slice(1).filter(r => r[0] !== '' && r[1] !== '').map(r => ({
         id: r[0],
@@ -448,6 +403,7 @@ async function loadDataFromCloud(manual) {
   }
 }
 
+// الحفظ المحلي فوري، والرفع للسحابة يتم في الخلفية دون تجميد الواجهة
 function saveToCloud() {
   lsSet(LS_KEY, JSON.stringify(clients));
   lsSet(LS_DIRTY, '1');
@@ -455,7 +411,7 @@ function saveToCloud() {
   if (!urlIsSet()) return;
   setStatus('💾 محفوظ محلياً، جاري الرفع...', '#f1c40f');
   clearTimeout(cloudTimer);
-  cloudTimer = setTimeout(pushToCloud, 700);
+  cloudTimer = setTimeout(pushToCloud, 700);   // دمج التعديلات المتتالية في رفع واحد
 }
 
 async function pushToCloud() {
@@ -482,6 +438,7 @@ async function pushToCloud() {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ rows: rows })
     }, 20000);
+    // لا تُزال العلامة إذا حدث تعديل جديد أثناء الرفع
     if (versionAtStart === localVersion) {
       lsDel(LS_DIRTY);
       setStatus('محدث بالسحابة ✅', '#2ecc71');
@@ -495,6 +452,7 @@ async function pushToCloud() {
   }
 }
 
+/* ---------- النسخ الاحتياطي ---------- */
 function exportBackupJSON() {
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients, null, 2));
   const a = document.createElement('a');
@@ -530,6 +488,7 @@ function importBackupJSON(event) {
   reader.readAsText(file, "UTF-8");
 }
 
+/* ---------- الجدول الزمني والحالة ---------- */
 function generateSchedule(client) {
   const schedule = [];
   const start = new Date(client.startDate);
@@ -548,7 +507,7 @@ function generateSchedule(client) {
     const paid = idx < log.length;
     const logEntry = paid ? (typeof log[idx] === 'string' ? { date: log[idx], amount: client.monthly } : log[idx]) : null;
     const amount = paid ? (logEntry.amount || 0) : Math.min(client.monthly, remaining);
-    if (!paid && !(amount > 0)) break;
+    if (!paid && !(amount > 0)) break;   // قسط صفري: لا فائدة من المتابعة
 
     remaining = parseFloat((remaining - amount).toFixed(2));
     schedule.push({ idx, dueDate, amount, paid, payDate: paid ? logEntry.date : null, monthName: MONTHS_AR[dueDate.getMonth()] + ' ' + dueDate.getFullYear() });
@@ -559,6 +518,7 @@ function generateSchedule(client) {
   return schedule;
 }
 
+// تحليل واحد لكل عميل (كان يُحسب 3 مرات أو أكثر)
 function analyze(client) {
   const schedule = generateSchedule(client);
   const now = Date.now();
@@ -571,6 +531,7 @@ function analyzeAll(list) {
   return list.map(c => ({ c, info: analyze(c) }));
 }
 
+/* ---------- واجهة ---------- */
 let toastTimer = null;
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
@@ -721,53 +682,23 @@ function statusLabel(status) {
   return status === 'completed' ? 'مكتمل' : (status === 'delayed' ? 'متأخر' : 'منتظم');
 }
 
-/* تبديل الأيقونات الثلاث داخل نافذة التقارير */
-function switchCustomIcon(viewName, btnEl) {
-  document.querySelectorAll('.custom-view-section').forEach(el => el.style.display = 'none');
-  document.getElementById('custom-view-' + viewName).style.display = 'block';
-}
-
 function openAllClientsSummary() {
   if (clients.length === 0) {
     showToast('⚠️ لا توجد عملاء مسجلون حالياً', 'red');
     return;
   }
-
-  // 1. تعبئة أيقونة متابعة العملاء (اسم العميل، جواله، اسم الكفيل، جواله، القسط الشهري، الملاحظات)
-  document.getElementById('table-followup-body').innerHTML = clients.map(c => `
-    <tr>
-      <td style="font-weight:700">${esc(c.name)}</td>
-      <td>${esc(c.phone || '—')}</td>
-      <td>${esc(c.guarantor || '—')}</td>
-      <td>${esc(c.guarantorPhone || '—')}</td>
+  const items = analyzeAll(clients);
+  document.getElementById('all-clients-table-body').innerHTML = items.map((x, idx) => {
+    const c = x.c;
+    return `<tr>
+      <td>${idx + 1}</td>
+      <td style="text-align:right;font-weight:700">${esc(c.name)}<br><small>${esc(c.phone || '')}</small></td>
+      <td style="text-align:right">${esc(c.guarantor || '—')}<br><small>${esc(c.guarantorPhone || '')}</small></td>
       <td><b>${fmt(c.monthly)} ر.س</b></td>
-      <td>${esc(c.notes || '—')}</td>
-    </tr>
-  `).join('');
-
-  // 2. تعبئة أيقونة المبيعات الآجلة (مرتبطة بالمبالغ الإجمالية والربط الأساسي)
-  document.getElementById('table-deferred-body').innerHTML = clients.map(c => `
-    <tr>
-      <td style="font-weight:700">${esc(c.name)}</td>
-      <td><b>${fmt(c.total)} ر.س</b></td>
-      <td style="color:var(--green)">${fmt(c.paid)} ر.س</td>
-      <td style="color:var(--red)">${fmt(c.remaining)} ر.س</td>
-      <td>${statusLabel(analyze(c).status)}</td>
-    </tr>
-  `).join('');
-
-  // 3. تعبئة أيقونة المبيعات الشهرية (مستقلة وبعداد خاص)
-  document.getElementById('table-monthly-body').innerHTML = clients.map(c => `
-    <tr>
-      <td style="font-weight:700">${esc(c.name)}</td>
-      <td>${fmt(c.monthly)} ر.س</td>
-      <td><b>${fmt(c.total)} ر.س</b></td>
-    </tr>
-  `).join('');
-
-  // تحديث عداد المبيعات الشهرية الخاص والمستقل
-  document.getElementById('monthly-counter-val').textContent = clients.length;
-
+      <td style="color:var(--red)"><b>${fmt(c.remaining)} ر.س</b></td>
+      <td>${statusLabel(x.info.status)}</td>
+    </tr>`;
+  }).join('');
   document.getElementById('all-clients-modal').classList.add('open');
 }
 
@@ -775,6 +706,7 @@ function closeAllClientsModal() {
   document.getElementById('all-clients-modal').classList.remove('open');
 }
 
+/* ---------- تصدير PDF ---------- */
 let pdfBusy = false;
 async function exportAllClientsPDF() {
   if (clients.length === 0 || pdfBusy) return;
@@ -819,7 +751,7 @@ async function exportAllClientsPDF() {
               return `<tr>
                 <td>${pIdx * ROWS_PER_PAGE + i + 1}</td>
                 <td style="text-align:right;font-weight:700">${esc(c.name)}<br><small>${esc(c.phone || '')}</small></td>
-                <td style="text-align:right">${esc(c.guarantor \vert{}\vert{} '—')}<br><small>${esc(c.guarantorPhone || '')}</small></td>
+                <td style="text-align:right">${esc(c.guarantor || '—')}<br><small>${esc(c.guarantorPhone || '')}</small></td>
                 <td><b>${fmt(c.monthly)} ر.س</b></td>
                 <td>${fmt(c.remaining)} ر.س</td>
                 <td>${statusLabel(x.info.status)}</td>
@@ -834,6 +766,7 @@ async function exportAllClientsPDF() {
       </div>
     `).join('');
 
+    // انتظار تحميل الخطوط قبل التصوير
     if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
     await new Promise(r => setTimeout(r, 120));
 
@@ -842,7 +775,7 @@ async function exportAllClientsPDF() {
 
     for (let pIdx = 0; pIdx < pages.length; pIdx++) {
       showToast(`⏳ جاري إنشاء PDF (${pIdx + 1}/${pages.length})...`, '');
-      await new Promise(r => setTimeout(r, 0));
+      await new Promise(r => setTimeout(r, 0));   // إفساح المجال للواجهة
       const pageEl = document.getElementById(`pdf-full-page-${pIdx}`);
       const canvas = await html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
       const imgData = canvas.toDataURL('image/jpeg', 0.85);
@@ -861,6 +794,7 @@ async function exportAllClientsPDF() {
   }
 }
 
+/* ---------- العمليات ---------- */
 function addClient() {
   const name = document.getElementById('f-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
@@ -1033,16 +967,18 @@ function renderReports() {
       <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>المسدد فعلياً:</span><strong style="color:var(--green);">${fmt(totalPaid)} ر.س</strong></div>
       <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>المتبقي:</span><strong style="color:var(--red);">${fmt(totalRem)} ر.س</strong></div>
     </div>
-    <button class="btn-primary" onclick="openAllClientsSummary()">📋 عرض التقارير والأيقونات المخصصة</button>
+    <button class="btn-primary" onclick="openAllClientsSummary()">📋 عرض وعمل PDF التقرير الشامل</button>
   `;
 }
 
+/* ---------- التشغيل ---------- */
 function init() {
   document.getElementById('today-date').textContent = new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', calendar: 'gregory' });
-  renderAll();
-  loadDataFromCloud();
+  renderAll();          // عرض فوري من النسخة المحلية
+  loadDataFromCloud();  // ثم مزامنة في الخلفية دون انتظار
 }
 
+// محاولة رفع أي تعديل معلّق عند عودة الاتصال أو عند العودة للتطبيق
 window.addEventListener('online', () => { if (lsGet(LS_DIRTY) === '1') pushToCloud(); });
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && lsGet(LS_DIRTY) === '1') pushToCloud();
