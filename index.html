@@ -115,7 +115,7 @@
   .toast.red { background: var(--red); }
   .toast.yellow { background: #f1c40f; color: var(--ink); }
 
-  .quick-reports-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+  .quick-reports-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px; }
   .quick-report-btn { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; box-shadow: var(--shadow); font-family: 'Cairo', sans-serif; }
   .quick-report-btn:active { transform: scale(0.97); }
   .quick-report-btn .qr-icon { font-size: 24px; }
@@ -140,9 +140,41 @@
   .pdf-table tbody td { padding: 10px; border-bottom: 1px solid var(--border); text-align: center; font-weight: 600; color: var(--ink); }
   .pdf-table tbody tr:nth-child(even) { background: #f8fafc; }
   .pdf-footer { margin-top: 14px; padding-top: 10px; border-top: 2px solid var(--gold); font-size: 12px; color: var(--ink-soft); display: flex; justify-content: space-between; }
+
+  /* ---------- شاشة قفل الدخول (PIN) ---------- */
+  #lock-screen { position: fixed; inset: 0; background: var(--ink); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .lock-box { background: var(--surface); border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
+  .lock-icon { font-size: 40px; margin-bottom: 10px; }
+  .lock-title { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .lock-sub { font-size: 12px; color: var(--ink-soft); margin-bottom: 18px; }
+  .lock-box input { text-align: center; font-size: 20px; letter-spacing: 6px; margin-bottom: 10px; }
+  .lock-error { color: var(--red); font-size: 12px; min-height: 16px; margin-bottom: 8px; }
+
+  /* ---------- بطاقات سجل التحصيل/الخصم داخل تفاصيل العميل ---------- */
+  .log-entry { display: flex; justify-content: space-between; align-items: center; padding: 9px 10px; background: var(--bg); border-radius: 8px; margin-bottom: 6px; font-size: 12.5px; }
+  .log-entry .le-main { text-align: right; }
+  .log-entry .le-amount { font-weight: 700; color: var(--ink); }
+  .log-entry .le-date { font-size: 11px; color: var(--ink-soft); }
+  .log-entry .le-actions { display: flex; gap: 4px; }
+  .le-btn { border: none; background: #e6edf7; color: #2952a3; border-radius: 6px; padding: 5px 8px; font-size: 11px; cursor: pointer; font-family: 'Cairo', sans-serif; }
+  .le-btn.le-del { background: var(--red-light); color: var(--red); }
+  .subsection-title { font-size: 12.5px; font-weight: 700; color: var(--ink-soft); margin: 14px 0 8px; }
 </style>
 </head>
 <body>
+
+<!-- شاشة القفل: تمنع فتح البيانات بدون رمز دخول -->
+<div id="lock-screen">
+  <div class="lock-box">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-title" id="lock-title">أدخل رمز الدخول</div>
+    <div class="lock-sub" id="lock-sub">نظام المحمدية محمي برمز دخول محلي</div>
+    <input type="password" id="lock-input" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" autocomplete="off">
+    <input type="password" id="lock-input-confirm" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="تأكيد الرمز" autocomplete="off" style="display:none">
+    <div class="lock-error" id="lock-error"></div>
+    <button class="btn-primary" onclick="submitLock()" style="margin-top:4px;">دخول</button>
+  </div>
+</div>
 
 <div class="topbar">
   <div>
@@ -227,6 +259,10 @@
         <span class="qr-icon">🗓️</span>
         <span class="qr-label">المبيعات الشهرية</span>
       </button>
+      <button class="quick-report-btn" onclick="openSettledReport()">
+        <span class="qr-icon">🧾</span>
+        <span class="qr-label">المسددين</span>
+      </button>
     </div>
   </div>
 
@@ -241,6 +277,19 @@
         <button class="btn-secondary" onclick="exportBackupJSON()">📤 تصدير نسخة (JSON)</button>
         <button class="btn-primary" style="background:var(--teal); margin:0;" onclick="document.getElementById('import-file').click()">📥 استيراد نسخة</button>
         <input type="file" id="import-file" style="display:none" accept=".json" onchange="importBackupJSON(event)">
+      </div>
+    </div>
+
+    <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
+      <div class="section-title" style="margin-bottom:10px;">🔐 رمز الدخول ومفتاح حماية المزامنة</div>
+      <p style="font-size: 12px; color: var(--ink-soft); margin-bottom: 12px;">
+        رمز الدخول يمنع فتح التطبيق من هذا الجهاز بدون رمز، لكنه حماية محلية فقط.
+        الحماية الحقيقية لبيانات السحابة تتطلب إضافة "مفتاح المزامنة" هنا مطابقاً لنفس المفتاح المضبوط داخل Google Apps Script (راجع ملف الشرح المرفق).
+      </p>
+      <button class="btn-secondary" onclick="openChangePinModal()">✏️ تغيير رمز الدخول</button>
+      <div class="form-group" style="margin-top:12px;">
+        <label>مفتاح حماية المزامنة (Sync Token)</label>
+        <input type="text" id="sync-token-input" placeholder="اتركه فارغاً إن لم تُفعّل الحماية بعد" oninput="saveSyncToken()">
       </div>
     </div>
   </div>
@@ -382,6 +431,36 @@
   </div>
 </div>
 
+<!-- SETTLED / PAID REPORT MODAL: المسددين — كل عملية سداد فعلية بتاريخها -->
+<div class="modal-overlay" id="settled-modal">
+  <div class="modal-sheet" style="max-width: 780px;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🧾 تقرير المسددين</div>
+
+    <div class="stats-strip" id="settled-stats" style="margin-bottom:14px;"></div>
+
+    <div style="max-height: 55vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;">
+      <table class="month-table" id="settled-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>اسم العميل</th>
+            <th>تاريخ السداد الفعلي</th>
+            <th>المبلغ المسدد</th>
+            <th>ملاحظات</th>
+          </tr>
+        </thead>
+        <tbody id="settled-table-body"></tbody>
+      </table>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="btn-primary" style="background:var(--green);margin:0;" onclick="exportSettledPDF()">📥 تحميل PDF</button>
+      <button class="btn-secondary" style="margin:0;" onclick="closeSettledModal()">إغلاق</button>
+    </div>
+  </div>
+</div>
+
 <!-- DETAIL MODAL -->
 <div class="modal-overlay" id="detail-modal">
   <div class="modal-sheet">
@@ -413,9 +492,59 @@
       <div class="form-group"><label>يوم الاستحقاق (1-28)</label><input type="number" id="e-day" inputmode="numeric" min="1" max="28"></div>
     </div>
     <div class="form-group"><label>المبلغ المسدد حتى الآن</label><input type="number" id="e-paid" inputmode="decimal" step="any"></div>
+    <div class="form-group">
+      <label>🔒 قفل زر "تحصيل" حتى تاريخ (فارغ = غير مقفل)</label>
+      <input type="date" id="e-lock-until">
+      <button type="button" class="btn-secondary" style="margin-top:6px;padding:9px;font-size:12.5px;" onclick="document.getElementById('e-lock-until').value=''">فك القفل الآن</button>
+    </div>
     <div class="form-group"><label>ملاحظات</label><input type="text" id="e-notes"></div>
     <button class="btn-primary" onclick="saveClientEdit()">💾 حفظ التعديلات</button>
     <button class="btn-secondary" onclick="closeEditModal()">إلغاء</button>
+  </div>
+</div>
+
+<!-- CHANGE PIN MODAL -->
+<div class="modal-overlay" id="change-pin-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">تغيير رمز الدخول</div>
+    <div class="form-group"><label>الرمز الحالي</label><input type="password" id="cp-old" inputmode="numeric" maxlength="8"></div>
+    <div class="form-group"><label>الرمز الجديد</label><input type="password" id="cp-new" inputmode="numeric" maxlength="8"></div>
+    <div class="form-group"><label>تأكيد الرمز الجديد</label><input type="password" id="cp-confirm" inputmode="numeric" maxlength="8"></div>
+    <button class="btn-primary" onclick="submitChangePin()">💾 حفظ الرمز الجديد</button>
+    <button class="btn-secondary" onclick="closeChangePinModal()">إلغاء</button>
+  </div>
+</div>
+
+<!-- PAYMENT (COLLECTION) MODAL -->
+<div class="modal-overlay" id="payment-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💵 تسجيل تحصيل</div>
+    <div id="payment-client-label" style="text-align:center;font-weight:700;margin-bottom:14px;color:var(--ink-soft);"></div>
+    <input type="hidden" id="pm-client-id">
+    <input type="hidden" id="pm-entry-index" value="">
+    <div class="form-group"><label>المبلغ المستحصل (ريال) *</label><input type="number" id="pm-amount" inputmode="decimal" step="any" placeholder="0.00"></div>
+    <div class="form-group"><label>تاريخ التحصيل *</label><input type="date" id="pm-date"></div>
+    <div class="form-group"><label>ملاحظات</label><input type="text" id="pm-notes" placeholder="اختياري"></div>
+    <button class="btn-primary" onclick="confirmPayment()">💾 حفظ</button>
+    <button class="btn-secondary" onclick="closePaymentModal()">إلغاء</button>
+  </div>
+</div>
+
+<!-- DISCOUNT MODAL -->
+<div class="modal-overlay" id="discount-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🏷️ تسجيل خصم</div>
+    <div id="discount-client-label" style="text-align:center;font-weight:700;margin-bottom:14px;color:var(--ink-soft);"></div>
+    <input type="hidden" id="dm-client-id">
+    <input type="hidden" id="dm-entry-index" value="">
+    <div class="form-group"><label>مبلغ الخصم (ريال) *</label><input type="number" id="dm-amount" inputmode="decimal" step="any" placeholder="0.00"></div>
+    <div class="form-group"><label>تاريخ الخصم *</label><input type="date" id="dm-date"></div>
+    <div class="form-group"><label>سبب الخصم</label><input type="text" id="dm-reason" placeholder="اختياري"></div>
+    <button class="btn-primary" onclick="confirmDiscount()">💾 حفظ</button>
+    <button class="btn-secondary" onclick="closeDiscountModal()">إلغاء</button>
   </div>
 </div>
 
@@ -430,6 +559,101 @@ const LS_DIRTY = 'iqsat_v3_dirty';   // علامة: توجد تعديلات مح
 const PAGE_SIZE = 40;                 // عدد العملاء المعروضين في كل دفعة
 
 const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+const PIN_KEY = 'iqsat_pin_hash';
+const SYNC_TOKEN_KEY = 'iqsat_sync_token';
+
+/* ---------- شاشة القفل (حماية محلية فقط - راجع ملاحظة الأمان في صفحة التقارير) ---------- */
+async function sha256Hex(text) {
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+let lockMode = 'enter';
+function initLock() {
+  const hash = lsGet(PIN_KEY);
+  const confirmInput = document.getElementById('lock-input-confirm');
+  if (!hash) {
+    lockMode = 'setup';
+    document.getElementById('lock-title').textContent = 'أنشئ رمز دخول جديد';
+    document.getElementById('lock-sub').textContent = 'أدخل رمزاً من 4 أرقام على الأقل لحماية التطبيق على هذا الجهاز';
+    confirmInput.style.display = 'block';
+  } else {
+    lockMode = 'enter';
+    document.getElementById('lock-title').textContent = 'أدخل رمز الدخول';
+    document.getElementById('lock-sub').textContent = 'نظام المحمدية محمي برمز دخول محلي';
+    confirmInput.style.display = 'none';
+  }
+  document.getElementById('lock-input').value = '';
+  document.getElementById('lock-input').focus();
+}
+
+async function submitLock() {
+  const errEl = document.getElementById('lock-error');
+  errEl.textContent = '';
+  const val = document.getElementById('lock-input').value.trim();
+  if (val.length < 4) { errEl.textContent = 'الرمز يجب أن يكون 4 أرقام على الأقل'; return; }
+
+  if (lockMode === 'setup') {
+    const confirmVal = document.getElementById('lock-input-confirm').value.trim();
+    if (val !== confirmVal) { errEl.textContent = 'الرمزان غير متطابقين'; return; }
+    const hash = await sha256Hex(val);
+    lsSet(PIN_KEY, hash);
+    unlockApp();
+  } else {
+    const hash = await sha256Hex(val);
+    if (hash === lsGet(PIN_KEY)) {
+      unlockApp();
+    } else {
+      errEl.textContent = 'رمز غير صحيح';
+      document.getElementById('lock-input').value = '';
+      document.getElementById('lock-input').focus();
+    }
+  }
+}
+
+function unlockApp() {
+  document.getElementById('lock-screen').style.display = 'none';
+  init();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  ['lock-input', 'lock-input-confirm'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') submitLock(); });
+  });
+});
+
+function openChangePinModal() { document.getElementById('change-pin-modal').classList.add('open'); }
+function closeChangePinModal() {
+  document.getElementById('change-pin-modal').classList.remove('open');
+  ['cp-old', 'cp-new', 'cp-confirm'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+}
+async function submitChangePin() {
+  const oldVal = document.getElementById('cp-old').value.trim();
+  const newVal = document.getElementById('cp-new').value.trim();
+  const confirmVal = document.getElementById('cp-confirm').value.trim();
+  const storedHash = lsGet(PIN_KEY);
+  const oldHash = await sha256Hex(oldVal);
+  if (storedHash && oldHash !== storedHash) { showToast('⚠️ الرمز الحالي غير صحيح', 'red'); return; }
+  if (newVal.length < 4) { showToast('⚠️ الرمز الجديد يجب أن يكون 4 أرقام على الأقل', 'red'); return; }
+  if (newVal !== confirmVal) { showToast('⚠️ الرمزان الجديدان غير متطابقين', 'red'); return; }
+  const newHash = await sha256Hex(newVal);
+  lsSet(PIN_KEY, newHash);
+  closeChangePinModal();
+  showToast('✅ تم تغيير رمز الدخول', 'green');
+}
+
+/* ---------- مفتاح حماية المزامنة (Sync Token) ---------- */
+function loadSyncTokenIntoField() {
+  const el = document.getElementById('sync-token-input');
+  if (el) el.value = lsGet(SYNC_TOKEN_KEY) || '';
+}
+function saveSyncToken() {
+  const el = document.getElementById('sync-token-input');
+  if (el) lsSet(SYNC_TOKEN_KEY, el.value.trim());
+}
 
 /* ---------- أدوات مساعدة ---------- */
 function lsGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
@@ -482,12 +706,26 @@ function dateLabel(d) {
 }
 function today() { return new Date(); }
 
-/* ---------- المزامنة السحابية ---------- */
+/* ---------- المزامنة السحابية (تدريجية: تُرسل فقط السجلات المتغيرة، لا القائمة كاملة) ---------- */
 let localVersion = 0;      // يزيد مع كل تعديل محلي
 let cloudSaving = false;
 let cloudPending = false;
 let cloudTimer = null;
 let cloudLoading = false;
+
+let pendingUpserts = {};   // id -> صف العميل بعد التعديل (سجلات بانتظار الرفع فقط)
+let pendingDeletes = {};   // id -> true (سجلات بانتظار الحذف من السحابة فقط)
+
+function clientToRow(c) {
+  return [
+    c.id, c.name, c.phone || '', c.guarantor || '', c.guarantorPhone || '',
+    c.total, c.monthly, c.paid, c.remaining, c.startDate, c.dueDay || '',
+    c.notes || '', JSON.stringify(c.paymentsLog || []), JSON.stringify(c.discounts || []),
+    c.paymentLockUntil || ''
+  ];
+}
+function persistLocal() { lsSet(LS_KEY, JSON.stringify(clients)); }
+function getSyncToken() { return lsGet(SYNC_TOKEN_KEY) || ''; }
 
 async function loadDataFromCloud(manual) {
   if (!urlIsSet() || cloudLoading) return;
@@ -495,14 +733,15 @@ async function loadDataFromCloud(manual) {
   // حماية البيانات: إذا كان هناك تعديل محلي لم يُرفع، لا نستبدله ببيانات السحابة
   if (lsGet(LS_DIRTY) === '1') {
     if (manual) showToast('⏳ توجد تعديلات محلية، جاري رفعها أولاً', 'yellow');
-    pushToCloud();
+    retryPendingSync();
     return;
   }
 
   cloudLoading = true;
   setStatus('⏳ جاري جلب البيانات...', '#f1c40f');
   try {
-    const res = await fetchWithTimeout(SCRIPT_URL, { method: 'GET', mode: 'cors' }, 10000);
+    const url = SCRIPT_URL + (getSyncToken() ? ('?token=' + encodeURIComponent(getSyncToken())) : '');
+    const res = await fetchWithTimeout(url, { method: 'GET', mode: 'cors' }, 10000);
     const rows = await res.json();
     if (Array.isArray(rows) && rows.length > 1) {
       // إذا ظهرت تعديلات محلية أثناء الجلب، نلغي الاستبدال
@@ -521,9 +760,10 @@ async function loadDataFromCloud(manual) {
         dueDay: parseInt(r[10]) || 1,
         notes: r[11] || '',
         paymentsLog: r[12] ? safeParse(r[12], []) : [],
-        discounts: r[13] ? safeParse(r[13], []) : []
+        discounts: r[13] ? safeParse(r[13], []) : [],
+        paymentLockUntil: r[14] || ''
       }));
-      lsSet(LS_KEY, JSON.stringify(clients));
+      persistLocal();
       renderAll();
       if (manual) showToast('✅ تمت المزامنة وجلب البيانات بنجاح', 'green');
     }
@@ -535,42 +775,114 @@ async function loadDataFromCloud(manual) {
   }
 }
 
-// الحفظ المحلي فوري، والرفع للسحابة يتم في الخلفية دون تجميد الواجهة
-function saveToCloud() {
-  lsSet(LS_KEY, JSON.stringify(clients));
+// تُستخدم بعد إضافة/تعديل عميل واحد فقط: تحفظ محلياً فوراً، وتُجدول رفع هذا السجل وحده (وليس كل القائمة)
+function commitClientChange(client) {
+  persistLocal();
   lsSet(LS_DIRTY, '1');
   localVersion++;
+  pendingUpserts[client.id] = clientToRow(client);
+  delete pendingDeletes[client.id];
   if (!urlIsSet()) return;
   setStatus('💾 محفوظ محلياً، جاري الرفع...', '#f1c40f');
   clearTimeout(cloudTimer);
-  cloudTimer = setTimeout(pushToCloud, 700);   // دمج التعديلات المتتالية في رفع واحد
+  cloudTimer = setTimeout(pushIncrementalToCloud, 700);   // دمج التعديلات المتتالية على نفس العميل برفعة واحدة
 }
 
-async function pushToCloud() {
+// تُستخدم بعد حذف عميل: تُجدول حذف هذا السجل وحده من السحابة
+function commitClientDelete(id) {
+  persistLocal();
+  lsSet(LS_DIRTY, '1');
+  localVersion++;
+  pendingDeletes[id] = true;
+  delete pendingUpserts[id];
+  if (!urlIsSet()) return;
+  setStatus('💾 محفوظ محلياً، جاري الرفع...', '#f1c40f');
+  clearTimeout(cloudTimer);
+  cloudTimer = setTimeout(pushIncrementalToCloud, 700);
+}
+
+async function pushIncrementalToCloud() {
   if (!urlIsSet()) return;
   if (cloudSaving) { cloudPending = true; return; }
+  const upsertIds = Object.keys(pendingUpserts);
+  const deleteIds = Object.keys(pendingDeletes);
+  if (upsertIds.length === 0 && deleteIds.length === 0) return;
+
   cloudSaving = true;
   const versionAtStart = localVersion;
-
-  const rows = [
-    ["ID", "الاسم", "الجوال", "الكفيل", "جوال_الكفيل", "الإجمالي", "القسط", "المسدد", "المتبقي", "تاريخ_البداية", "يوم_الاستحقاق", "الملاحظات", "PaymentsLog", "Discounts"]
-  ];
-  clients.forEach(c => {
-    rows.push([
-      c.id, c.name, c.phone || '', c.guarantor || '', c.guarantorPhone || '',
-      c.total, c.monthly, c.paid, c.remaining, c.startDate, c.dueDay || '',
-      c.notes || '', JSON.stringify(c.paymentsLog || []), JSON.stringify(c.discounts || [])
-    ]);
-  });
+  const upsertsSent = { ...pendingUpserts };
+  const deletesSent = { ...pendingDeletes };
 
   try {
     await fetchWithTimeout(SCRIPT_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ rows: rows })
+      body: JSON.stringify({
+        token: getSyncToken(),
+        upserts: Object.values(upsertsSent),   // فقط السجلات المتغيرة
+        deletes: Object.keys(deletesSent)      // فقط المعرّفات المطلوب حذفها
+      })
     }, 20000);
-    // لا تُزال العلامة إذا حدث تعديل جديد أثناء الرفع
+    // إزالة العناصر التي أُرسلت بنجاح فقط (قد تكون هناك تعديلات جديدة وصلت أثناء الرفع)
+    Object.keys(upsertsSent).forEach(id => { if (pendingUpserts[id] === upsertsSent[id]) delete pendingUpserts[id]; });
+    Object.keys(deletesSent).forEach(id => { delete pendingDeletes[id]; });
+    if (versionAtStart === localVersion) {
+      lsDel(LS_DIRTY);
+      setStatus('محدث بالسحابة ✅', '#2ecc71');
+    } else {
+      setStatus('💾 محفوظ محلياً، جاري الرفع...', '#f1c40f');
+    }
+  } catch (e) {
+    setStatus('⚠️ حفظ محلي (فشل الرفع)', '#e74c3c');
+    showToast('⚠️ تم الحفظ محلياً فقط، سيُعاد الرفع لاحقاً', 'yellow');
+  } finally {
+    cloudSaving = false;
+    if (cloudPending || Object.keys(pendingUpserts).length || Object.keys(pendingDeletes).length) {
+      cloudPending = false;
+      pushIncrementalToCloud();
+    }
+  }
+}
+
+function retryPendingSync() {
+  if (Object.keys(pendingUpserts).length || Object.keys(pendingDeletes).length) {
+    pushIncrementalToCloud();
+  } else if (lsGet(LS_DIRTY) === '1') {
+    // حالة احتياطية نادرة: علامة تعديل معلّقة بدون طابور محدد، نلجأ لاستبدال كامل حفاظاً على البيانات
+    pushFullReplaceToCloud();
+  }
+}
+
+// عملية استبدال كامل — تُستخدم فقط عند استيراد نسخة احتياطية كاملة بقرار صريح من المستخدم
+function saveToCloud() {
+  persistLocal();
+  lsSet(LS_DIRTY, '1');
+  localVersion++;
+  if (!urlIsSet()) return;
+  setStatus('💾 محفوظ محلياً، جاري الرفع...', '#f1c40f');
+  clearTimeout(cloudTimer);
+  cloudTimer = setTimeout(pushFullReplaceToCloud, 700);
+}
+
+async function pushFullReplaceToCloud() {
+  if (!urlIsSet()) return;
+  if (cloudSaving) { cloudPending = true; return; }
+  cloudSaving = true;
+  const versionAtStart = localVersion;
+
+  const rows = [
+    ["ID", "الاسم", "الجوال", "الكفيل", "جوال_الكفيل", "الإجمالي", "القسط", "المسدد", "المتبقي", "تاريخ_البداية", "يوم_الاستحقاق", "الملاحظات", "PaymentsLog", "Discounts", "قفل_التحصيل_حتى"]
+  ];
+  clients.forEach(c => rows.push(clientToRow(c)));
+
+  try {
+    await fetchWithTimeout(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: getSyncToken(), bulkReplace: rows })
+    }, 20000);
     if (versionAtStart === localVersion) {
       lsDel(LS_DIRTY);
       setStatus('محدث بالسحابة ✅', '#2ecc71');
@@ -580,7 +892,7 @@ async function pushToCloud() {
     showToast('⚠️ تم الحفظ محلياً فقط، سيُعاد الرفع لاحقاً', 'yellow');
   } finally {
     cloudSaving = false;
-    if (cloudPending) { cloudPending = false; pushToCloud(); }
+    if (cloudPending) { cloudPending = false; pushFullReplaceToCloud(); }
   }
 }
 
@@ -775,6 +1087,7 @@ function clientCardHTML(client, info) {
   const [label, badgeClass] = statusLabels[status];
   const pct = client.total > 0 ? Math.max(0, Math.min(100, (client.paid / client.total) * 100)).toFixed(0) : '0';
   const delayed = info.delayed;
+  const locked = isPaymentLocked(client);
 
   return `<div class="client-card ${status}">
     <div class="client-head">
@@ -801,7 +1114,10 @@ function clientCardHTML(client, info) {
       </div>
     </div>
     <div class="client-actions">
-      ${status !== 'completed' ? `<button class="action-btn btn-pay" onclick="payInstallment('${esc(client.id)}')">💵 تحصيل</button>` : ''}
+      ${status !== 'completed' ? (locked
+        ? `<button class="action-btn btn-pay" style="opacity:0.55;cursor:not-allowed;" onclick="showLockedToast('${esc(client.id)}')">🔒 حتى ${dateLabel(client.paymentLockUntil)}</button>`
+        : `<button class="action-btn btn-pay" onclick="payInstallment('${esc(client.id)}')">💵 تحصيل</button>`
+      ) : ''}
       <button class="action-btn btn-discount" onclick="addDiscount('${esc(client.id)}')">🏷️ خصم</button>
       <button class="action-btn btn-details" onclick="openDetail('${esc(client.id)}')">📋 التفاصيل</button>
       <button class="action-btn btn-edit" onclick="openEditModal('${esc(client.id)}')">✏️ تعديل</button>
@@ -1159,6 +1475,68 @@ function exportMonthlySalesPDF() {
   });
 }
 
+/* ---------- 4) تقرير المسددين: كل عملية سداد فعلية عبر كل العملاء، مرتبة بالأحدث أولاً ---------- */
+function getSettledEntries() {
+  const entries = [];
+  clients.forEach(c => {
+    normalizePaymentsLog(c);
+    c.paymentsLog.forEach(p => {
+      entries.push({ clientName: c.name, date: p.date, amount: parseFloat(p.amount) || 0, notes: p.notes || '' });
+    });
+  });
+  entries.sort((a, b) => new Date(b.date) - new Date(a.date));   // الأحدث أولاً
+  return entries;
+}
+
+function openSettledReport() {
+  const entries = getSettledEntries();
+  if (entries.length === 0) { showToast('⚠️ لا توجد عمليات سداد مسجلة بعد', 'red'); return; }
+  const totalSettled = entries.reduce((s, e) => s + e.amount, 0);
+  document.getElementById('settled-stats').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">عدد عمليات السداد</div>
+      <div class="stat-value gold">${entries.length}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">إجمالي المسدد</div>
+      <div class="stat-value green">${fmt(totalSettled)} <span class="stat-unit">ر.س</span></div>
+    </div>
+  `;
+  document.getElementById('settled-table-body').innerHTML = entries.map((e, idx) => `
+    <tr>
+      <td>${idx + 1}</td>
+      <td style="text-align:right;font-weight:700">${esc(e.clientName)}</td>
+      <td>${dateLabel(e.date)}</td>
+      <td><b>${fmt(e.amount)} ر.س</b></td>
+      <td style="text-align:right;font-size:11.5px">${esc(e.notes || '—')}</td>
+    </tr>`).join('');
+  document.getElementById('settled-modal').classList.add('open');
+}
+function closeSettledModal() { document.getElementById('settled-modal').classList.remove('open'); }
+
+function exportSettledPDF() {
+  const entries = getSettledEntries();
+  if (entries.length === 0) return;
+  const rowsHtml = entries.map((e, idx) => `<tr>
+    <td>${idx + 1}</td>
+    <td style="text-align:right;font-weight:700">${esc(e.clientName)}</td>
+    <td>${dateLabel(e.date)}</td>
+    <td><b>${fmt(e.amount)} ر.س</b></td>
+    <td style="text-align:right;font-size:12px">${esc(e.notes || '—')}</td>
+  </tr>`);
+  exportGenericPDF({
+    title: 'تقرير المسددين',
+    headers: [
+      { label: '#' },
+      { label: 'اسم العميل', align: 'right' },
+      { label: 'تاريخ السداد الفعلي' },
+      { label: 'المبلغ المسدد' },
+      { label: 'ملاحظات', align: 'right' }
+    ],
+    rowsHtml, rowCount: entries.length, filenamePrefix: 'تقرير_المسددين'
+  });
+}
+
 /* ---------- العمليات ---------- */
 function addClient() {
   const name = document.getElementById('f-name').value.trim();
@@ -1175,13 +1553,14 @@ function addClient() {
     showToast('⚠️ يرجى ملء الحقول المطلوبة', 'red'); return;
   }
 
-  clients.push({
+  const newClient = {
     id: Date.now(), name, phone, guarantor, guarantorPhone, total, monthly,
     remaining: total, paid: 0, startDate, dueDay,
-    notes, paymentsLog: [], discounts: []
-  });
+    notes, paymentsLog: [], discounts: [], paymentLockUntil: ''
+  };
+  clients.push(newClient);
+  commitClientChange(newClient);   // يرفع هذا العميل فقط، وليس القائمة كاملة
 
-  saveToCloud();
   ['f-name','f-phone','f-guarantor','f-guarantor-phone','f-total','f-monthly','f-start','f-day','f-notes'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
@@ -1203,6 +1582,7 @@ function openEditModal(id) {
   document.getElementById('e-start').value = c.startDate;
   document.getElementById('e-day').value = c.dueDay || '';
   document.getElementById('e-paid').value = c.paid;
+  document.getElementById('e-lock-until').value = c.paymentLockUntil || '';
   document.getElementById('e-notes').value = c.notes || '';
   document.getElementById('edit-modal').classList.add('open');
 }
@@ -1220,73 +1600,220 @@ function saveClientEdit() {
   const startDate = document.getElementById('e-start').value;
   const dueDay = parseInt(document.getElementById('e-day').value) || 1;
   const paid = parseFloat(document.getElementById('e-paid').value) || 0;
+  const paymentLockUntil = document.getElementById('e-lock-until').value || '';
   const notes = document.getElementById('e-notes').value.trim();
 
   if (!name || !total || !monthly || !startDate) {
     showToast('⚠️ يرجى ملء الحقول المطلوبة', 'red'); return;
   }
 
+  let updatedClient = null;
   clients = clients.map(c => {
     if (String(c.id) !== String(id)) return c;
     const totalDiscount = (c.discounts || []).reduce((s, d) => s + d.amount, 0);
-    return {
+    updatedClient = {
       ...c, name, phone, guarantor, guarantorPhone, total, monthly, startDate, dueDay, notes,
+      paymentLockUntil,
       paid: parseFloat(paid.toFixed(2)),
       remaining: parseFloat((total - paid - totalDiscount).toFixed(2))
     };
+    return updatedClient;
   });
 
-  saveToCloud();
+  if (updatedClient) commitClientChange(updatedClient);   // يرفع هذا العميل فقط
   closeEditModal();
   renderHome();
   renderClients();
   showToast('✅ تم حفظ التعديلات', 'green');
 }
 
-function payInstallment(id) {
-  const client = clients.find(x => String(x.id) === String(id));
-  if (!client) return;
-  const suggested = Math.min(client.monthly, client.remaining);
-  const input = prompt('أدخل المبلغ المستحصل (ريال):', suggested.toFixed(2));
-  if (input === null) return;
-  const amount = parseFloat(input);
-  if (isNaN(amount) || amount <= 0) return showToast('⚠️ مبلغ غير صالح', 'red');
-
-  const nowStr = new Date().toISOString().split('T')[0];
-  client.remaining = parseFloat((client.remaining - amount).toFixed(2));
-  client.paid = parseFloat((client.paid + amount).toFixed(2));
-  if (!client.paymentsLog) client.paymentsLog = [];
-  client.paymentsLog.push({ date: nowStr, amount: parseFloat(amount.toFixed(2)) });
-
-  saveToCloud();
-  renderHome();
-  renderClients();
-  showToast('✅ تم تسجيل التحصيل', 'green');
+/* ---------- تطبيع سجل التحصيلات وإعادة حساب الأرصدة (يدعم التعديل والحذف بأمان) ---------- */
+function normalizePaymentsLog(client) {
+  client.paymentsLog = (client.paymentsLog || []).map(entry =>
+    typeof entry === 'string' ? { date: entry, amount: client.monthly, notes: '' } : entry
+  );
+}
+function recomputeClientTotals(client) {
+  normalizePaymentsLog(client);
+  const paid = client.paymentsLog.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+  const totalDiscount = (client.discounts || []).reduce((s, d) => s + (parseFloat(d.amount) || 0), 0);
+  client.paid = parseFloat(paid.toFixed(2));
+  client.remaining = parseFloat((client.total - client.paid - totalDiscount).toFixed(2));
 }
 
-function addDiscount(id) {
+/* ---------- قفل زر "تحصيل" لمدة أيام بعد كل عملية تحصيل جديدة (لمنع تكرار التحصيل بالخطأ) ---------- */
+const PAYMENT_LOCK_DAYS = 20;
+
+function isPaymentLocked(client) {
+  if (!client.paymentLockUntil) return false;
+  const lockDate = new Date(client.paymentLockUntil);
+  if (isNaN(lockDate)) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  lockDate.setHours(0, 0, 0, 0);
+  return today <= lockDate;
+}
+
+function showLockedToast(id) {
+  const client = clients.find(x => String(x.id) === String(id));
+  const untilLabel = client ? dateLabel(client.paymentLockUntil) : '';
+  showToast(`🔒 زر التحصيل مقفل حتى ${untilLabel}. لفكّه قبل موعده افتح "✏️ تعديل" وامسح تاريخ القفل.`, 'yellow');
+}
+
+/* ---------- 4) تحصيل الأقساط عبر نافذة مخصصة (بدل prompt) ---------- */
+function payInstallment(id) { openPaymentModal(id); }   // اسم قديم محفوظ لتوافق أزرار البطاقات
+
+function openPaymentModal(id) {
   const client = clients.find(x => String(x.id) === String(id));
   if (!client) return;
-  const input = prompt('أدخل مبلغ الخصم:', '0.00');
-  if (input === null) return;
-  const amt = parseFloat(input);
-  if (isNaN(amt) || amt <= 0) return showToast('⚠️ مبلغ غير صالح', 'red');
+  if (isPaymentLocked(client)) { showLockedToast(id); return; }   // حماية إضافية حتى لو استُدعيت الدالة من مكان آخر
+  document.getElementById('pm-client-id').value = client.id;
+  document.getElementById('pm-entry-index').value = '';
+  document.getElementById('payment-client-label').textContent = client.name;
+  const suggested = Math.min(client.monthly, client.remaining > 0 ? client.remaining : client.monthly);
+  document.getElementById('pm-amount').value = suggested > 0 ? suggested.toFixed(2) : '';
+  document.getElementById('pm-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('pm-notes').value = '';
+  document.getElementById('payment-modal').classList.add('open');
+}
+function closePaymentModal() { document.getElementById('payment-modal').classList.remove('open'); }
 
-  if (!client.discounts) client.discounts = [];
-  client.discounts.push({ date: new Date().toISOString().split('T')[0], amount: amt, reason: 'خصم' });
-  const totalDiscount = client.discounts.reduce((s, d) => s + d.amount, 0);
-  client.remaining = parseFloat((client.total - client.paid - totalDiscount).toFixed(2));
+function openEditPaymentEntry(clientId, idx) {
+  const client = clients.find(x => String(x.id) === String(clientId));
+  if (!client) return;
+  normalizePaymentsLog(client);
+  const entry = client.paymentsLog[idx];
+  if (!entry) return;
+  document.getElementById('pm-client-id').value = client.id;
+  document.getElementById('pm-entry-index').value = idx;
+  document.getElementById('payment-client-label').textContent = client.name + ' — تعديل تحصيل';
+  document.getElementById('pm-amount').value = entry.amount;
+  document.getElementById('pm-date').value = entry.date;
+  document.getElementById('pm-notes').value = entry.notes || '';
+  document.getElementById('payment-modal').classList.add('open');
+}
 
-  saveToCloud();
+function confirmPayment() {
+  const id = document.getElementById('pm-client-id').value;
+  const entryIdxStr = document.getElementById('pm-entry-index').value;
+  const client = clients.find(x => String(x.id) === String(id));
+  if (!client) return;
+  const amount = parseFloat(document.getElementById('pm-amount').value);
+  const date = document.getElementById('pm-date').value;
+  const notes = document.getElementById('pm-notes').value.trim();
+  if (isNaN(amount) || amount <= 0) { showToast('⚠️ مبلغ غير صالح', 'red'); return; }
+  if (!date) { showToast('⚠️ يرجى تحديد التاريخ', 'red'); return; }
+
+  normalizePaymentsLog(client);
+  const entry = { date, amount: parseFloat(amount.toFixed(2)), notes };
+  const isNewCollection = (entryIdxStr === '');
+  if (!isNewCollection) {
+    client.paymentsLog[parseInt(entryIdxStr)] = entry;   // تعديل تحصيل سابق: لا نجدّد القفل
+  } else {
+    client.paymentsLog.push(entry);
+    // قفل زر "تحصيل" تلقائياً لمدة 20 يوماً لمنع تسجيل تحصيل ثانٍ بالخطأ
+    const lockDate = new Date();
+    lockDate.setDate(lockDate.getDate() + PAYMENT_LOCK_DAYS);
+    client.paymentLockUntil = lockDate.toISOString().split('T')[0];
+  }
+  recomputeClientTotals(client);
+  commitClientChange(client);
+  closePaymentModal();
   renderHome();
   renderClients();
-  showToast('✅ تم تسجيل الخصم', 'green');
+  if (document.getElementById('detail-modal').classList.contains('open')) openDetail(client.id);
+  showToast(isNewCollection ? `✅ تم تسجيل التحصيل، وقُفل الزر تلقائياً حتى ${dateLabel(client.paymentLockUntil)}` : '✅ تم حفظ التعديل', 'green');
+}
+
+/* ---------- 7) إمكانية تعديل/حذف تحصيل مسجّل بالخطأ، مع إعادة حساب المتبقي تلقائياً ---------- */
+function deletePaymentEntry(clientId, idx) {
+  const client = clients.find(x => String(x.id) === String(clientId));
+  if (!client) return;
+  if (!confirm('هل تريد حذف هذا التحصيل؟ سيتم تعديل الرصيد المتبقي تلقائياً.')) return;
+  normalizePaymentsLog(client);
+  client.paymentsLog.splice(idx, 1);
+  recomputeClientTotals(client);
+  commitClientChange(client);
+  renderHome();
+  renderClients();
+  openDetail(client.id);
+  showToast('🗑️ تم حذف التحصيل وتحديث الرصيد', 'green');
+}
+
+/* ---------- 4) الخصومات عبر نافذة مخصصة (بدل prompt) ---------- */
+function addDiscount(id) { openDiscountModal(id); }   // اسم قديم محفوظ لتوافق أزرار البطاقات
+
+function openDiscountModal(id) {
+  const client = clients.find(x => String(x.id) === String(id));
+  if (!client) return;
+  document.getElementById('dm-client-id').value = client.id;
+  document.getElementById('dm-entry-index').value = '';
+  document.getElementById('discount-client-label').textContent = client.name;
+  document.getElementById('dm-amount').value = '';
+  document.getElementById('dm-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('dm-reason').value = '';
+  document.getElementById('discount-modal').classList.add('open');
+}
+function closeDiscountModal() { document.getElementById('discount-modal').classList.remove('open'); }
+
+function openEditDiscountEntry(clientId, idx) {
+  const client = clients.find(x => String(x.id) === String(clientId));
+  if (!client || !client.discounts || !client.discounts[idx]) return;
+  const entry = client.discounts[idx];
+  document.getElementById('dm-client-id').value = client.id;
+  document.getElementById('dm-entry-index').value = idx;
+  document.getElementById('discount-client-label').textContent = client.name + ' — تعديل خصم';
+  document.getElementById('dm-amount').value = entry.amount;
+  document.getElementById('dm-date').value = entry.date;
+  document.getElementById('dm-reason').value = entry.reason || '';
+  document.getElementById('discount-modal').classList.add('open');
+}
+
+function confirmDiscount() {
+  const id = document.getElementById('dm-client-id').value;
+  const entryIdxStr = document.getElementById('dm-entry-index').value;
+  const client = clients.find(x => String(x.id) === String(id));
+  if (!client) return;
+  const amount = parseFloat(document.getElementById('dm-amount').value);
+  const date = document.getElementById('dm-date').value;
+  const reason = document.getElementById('dm-reason').value.trim() || 'خصم';
+  if (isNaN(amount) || amount <= 0) { showToast('⚠️ مبلغ غير صالح', 'red'); return; }
+  if (!date) { showToast('⚠️ يرجى تحديد التاريخ', 'red'); return; }
+
+  if (!client.discounts) client.discounts = [];
+  const entry = { date, amount: parseFloat(amount.toFixed(2)), reason };
+  if (entryIdxStr !== '') {
+    client.discounts[parseInt(entryIdxStr)] = entry;
+  } else {
+    client.discounts.push(entry);
+  }
+  recomputeClientTotals(client);
+  commitClientChange(client);
+  closeDiscountModal();
+  renderHome();
+  renderClients();
+  if (document.getElementById('detail-modal').classList.contains('open')) openDetail(client.id);
+  showToast('✅ تم حفظ الخصم', 'green');
+}
+
+/* ---------- 7) إمكانية تعديل/حذف خصم مسجّل بالخطأ، مع إعادة حساب المتبقي تلقائياً ---------- */
+function deleteDiscountEntry(clientId, idx) {
+  const client = clients.find(x => String(x.id) === String(clientId));
+  if (!client || !client.discounts) return;
+  if (!confirm('هل تريد حذف هذا الخصم؟ سيتم تعديل الرصيد المتبقي تلقائياً.')) return;
+  client.discounts.splice(idx, 1);
+  recomputeClientTotals(client);
+  commitClientChange(client);
+  renderHome();
+  renderClients();
+  openDetail(client.id);
+  showToast('🗑️ تم حذف الخصم وتحديث الرصيد', 'green');
 }
 
 function deleteClient(id) {
   if (!confirm('هل أنت متأكد من الحذف؟')) return;
   clients = clients.filter(x => String(x.id) !== String(id));
-  saveToCloud();
+  commitClientDelete(id);   // يحذف هذا السجل فقط من السحابة، وليس القائمة كاملة
   renderHome();
   renderClients();
   showToast('🗑️ تم الحذف', 'green');
@@ -1295,6 +1822,7 @@ function deleteClient(id) {
 function openDetail(id) {
   const c = clients.find(x => String(x.id) === String(id));
   if (!c) return;
+  normalizePaymentsLog(c);
   document.getElementById('modal-client-name').textContent = c.name;
   const schedule = generateSchedule(c);
   const now = Date.now();
@@ -1309,12 +1837,44 @@ function openDetail(id) {
     </tr>`;
   }).join('');
 
+  const paymentsHtml = c.paymentsLog.length === 0
+    ? `<div style="font-size:12px;color:var(--ink-soft);padding:6px 0;">لا توجد تحصيلات مسجلة بعد</div>`
+    : c.paymentsLog.map((p, idx) => `
+      <div class="log-entry">
+        <div class="le-main">
+          <div class="le-amount">${fmt(p.amount)} ر.س</div>
+          <div class="le-date">${dateLabel(p.date)}${p.notes ? ' — ' + esc(p.notes) : ''}</div>
+        </div>
+        <div class="le-actions">
+          <button class="le-btn" onclick="openEditPaymentEntry('${esc(c.id)}', ${idx})">✏️</button>
+          <button class="le-btn le-del" onclick="deletePaymentEntry('${esc(c.id)}', ${idx})">🗑️</button>
+        </div>
+      </div>`).join('');
+
+  const discountsHtml = (!c.discounts || c.discounts.length === 0)
+    ? `<div style="font-size:12px;color:var(--ink-soft);padding:6px 0;">لا توجد خصومات مسجلة</div>`
+    : c.discounts.map((d, idx) => `
+      <div class="log-entry">
+        <div class="le-main">
+          <div class="le-amount">${fmt(d.amount)} ر.س</div>
+          <div class="le-date">${dateLabel(d.date)}${d.reason ? ' — ' + esc(d.reason) : ''}</div>
+        </div>
+        <div class="le-actions">
+          <button class="le-btn" onclick="openEditDiscountEntry('${esc(c.id)}', ${idx})">✏️</button>
+          <button class="le-btn le-del" onclick="deleteDiscountEntry('${esc(c.id)}', ${idx})">🗑️</button>
+        </div>
+      </div>`).join('');
+
   document.getElementById('modal-body').innerHTML = `
     ${c.guarantor ? `<div>🤝 الكفيل: <b>${esc(c.guarantor)}</b> (${esc(c.guarantorPhone || 'بدون جوال')})</div><br>` : ''}
     <table class="month-table">
       <thead><tr><th>#</th><th>التاريخ</th><th>المبلغ</th><th>الحالة</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
+    <div class="subsection-title">سجل التحصيلات (قابل للتعديل والحذف)</div>
+    ${paymentsHtml}
+    <div class="subsection-title">سجل الخصومات (قابل للتعديل والحذف)</div>
+    ${discountsHtml}
   `;
   document.getElementById('detail-modal').classList.add('open');
 }
@@ -1339,17 +1899,18 @@ function renderReports() {
 /* ---------- التشغيل ---------- */
 function init() {
   document.getElementById('today-date').textContent = new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', calendar: 'gregory' });
+  loadSyncTokenIntoField();
   renderAll();          // عرض فوري من النسخة المحلية
   loadDataFromCloud();  // ثم مزامنة في الخلفية دون انتظار
 }
 
 // محاولة رفع أي تعديل معلّق عند عودة الاتصال أو عند العودة للتطبيق
-window.addEventListener('online', () => { if (lsGet(LS_DIRTY) === '1') pushToCloud(); });
+window.addEventListener('online', () => { if (lsGet(LS_DIRTY) === '1') retryPendingSync(); });
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && lsGet(LS_DIRTY) === '1') pushToCloud();
+  if (document.visibilityState === 'visible' && lsGet(LS_DIRTY) === '1') retryPendingSync();
 });
 
-init();
+initLock();
 </script>
 </body>
 </html>
