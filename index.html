@@ -404,10 +404,10 @@ async function loadDataFromCloud(manual) {
   }
 }
 
-async function saveToCloud() {
+async function saveToCloud(force) {
   lsSet(LS_KEY, JSON.stringify(clients));
   if (!SCRIPT_URL.startsWith('https://')) return;
-  if (!cloudReady) { setStatus('⚠️ محفوظ محلياً (لم تتم المزامنة بعد)', '#f39c12'); return; }
+  if (!cloudReady && !force) { setStatus('⚠️ محفوظ محلياً (لم تتم المزامنة بعد)', '#f39c12'); return; }
   if (cloudSaving) { cloudPending = true; return; }
   cloudSaving = true;
   setStatus('💾 جاري الحفظ بالسحابة...', '#f1c40f');
@@ -416,7 +416,7 @@ async function saveToCloud() {
   try {
     const res = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify({ bulkReplace: rows }) });
     const out = await res.json();
-    if (out && (out.ok || out.status === 'success')) setStatus('محدث بالسحابة ✅', '#2ecc71');
+    if (out && (out.ok || out.status === 'success')) { cloudReady = true; setStatus('محدث بالسحابة ✅', '#2ecc71'); if (force) showToast('✅ تمت الاستعادة ورُفعت للسحابة', 'green'); }
     else throw new Error((out && out.error) || 'server');
   } catch(e) {
     setStatus('⚠️ حفظ محلي فقط (فشل الرفع)', '#e74c3c');
@@ -595,7 +595,13 @@ function importBackupJSON(e) {
   r.onload = (ev) => {
     try {
       const imported = JSON.parse(ev.target.result);
-      if (Array.isArray(imported)) { clients = imported; saveToCloud(); renderAll(); showToast('✅ تم الاستعادة بنجاح', 'green'); }
+      const valid = Array.isArray(imported) ? imported.filter(c => c && c.id !== undefined && c.name) : [];
+      if (valid.length === 0) { showToast('⚠️ الملف لا يحتوي على عملاء صالحين', 'red'); }
+      else if (confirm('استيراد ' + valid.length + ' عميل؟ سيتم استبدال البيانات الحالية ورفعها للسحابة.')) {
+        clients = valid; lsSet(LS_KEY, JSON.stringify(clients)); renderAll();
+        showToast('⏳ جاري رفع البيانات المستعادة للسحابة...', '');
+        saveToCloud(true);   // رفع إجباري: قرار صريح من المستخدم
+      }
     } catch(err) { showToast('⚠️ خطأ بالملف', 'red'); }
     e.target.value = '';
   };
