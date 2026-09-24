@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-<!-- المكتبات الثقيلة تُحمَّل بـ defer حتى لا تعطّل ظهور الصفحة -->
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -17,24 +16,19 @@
     --red-light: #fdecea; --green: #1a7a4a; --green-light: #e8f5ee; --surface: #ffffff;
     --bg: #f4f6f9; --border: #dde3ec; --shadow: 0 2px 12px rgba(15,25,35,0.08); --radius: 14px;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Cairo', -apple-system, 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
-
   .topbar { background: var(--ink); color: white; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
   .topbar-title { font-size: 17px; font-weight: 700; }
   .topbar-title span { color: var(--gold); }
   .topbar-date { font-size: 12px; color: #8fa0b4; }
-
   .tabs { display: flex; background: var(--surface); border-bottom: 2px solid var(--border); overflow-x: auto; scrollbar-width: none; position: sticky; top: 57px; z-index: 99; }
   .tabs::-webkit-scrollbar { display: none; }
   .tab-btn { flex: 1; min-width: 90px; padding: 13px 10px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600; background: none; border: none; cursor: pointer; color: var(--ink-soft); border-bottom: 3px solid transparent; transition: color 0.2s, border-color 0.2s; white-space: nowrap; }
   .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
   .tab-btn .tab-icon { font-size: 16px; display: block; margin-bottom: 2px; }
-
   .page { display: none; padding: 16px; padding-bottom: 80px; }
   .page.active { display: block; }
-
   .stats-strip { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
   .stat-card { background: var(--surface); border-radius: var(--radius); padding: 14px 16px; border: 1px solid var(--border); box-shadow: var(--shadow); }
   .stat-label { font-size: 11px; color: var(--ink-soft); margin-bottom: 4px; }
@@ -43,49 +37,39 @@
   .stat-value.red { color: var(--red); }
   .stat-value.green { color: var(--green); }
   .stat-unit { font-size: 11px; font-weight: 400; color: var(--ink-soft); margin-right: 2px; }
-
   .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
   .section-title { font-size: 15px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 6px; }
   .section-title::before { content: ''; display: block; width: 4px; height: 18px; background: var(--gold); border-radius: 2px; }
-
   .form-card { background: var(--surface); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 16px; }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-group { margin-bottom: 12px; }
   label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 5px; }
   input, select, textarea { width: 100%; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; color: var(--ink); background: #f8fafc; outline: none; }
   input:focus, select:focus { border-color: var(--gold); background: white; }
-
   .btn-primary { background: var(--ink); color: white; border: none; width: 100%; padding: 14px; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
   .btn-secondary { background: var(--gold-light); color: #7a5010; border: none; width: 100%; padding: 14px; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
-  .btn-primary:disabled, .btn-secondary:disabled { opacity: 0.6; cursor: wait; }
-
   .client-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 12px; overflow: hidden; }
   .client-card.delayed { border-right: 4px solid var(--red); }
   .client-card.completed { border-right: 4px solid var(--green); }
   .client-card.on-track { border-right: 4px solid var(--gold); }
-
   .client-head { padding: 14px 16px 12px; display: flex; justify-content: space-between; align-items: flex-start; }
   .client-name { font-size: 16px; font-weight: 700; color: var(--ink); }
   .client-phone { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
   .client-phone a { color: inherit; text-decoration: none; }
-
   .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
   .badge-completed { background: var(--green-light); color: var(--green); }
   .badge-delayed { background: var(--red-light); color: var(--red); }
   .badge-on-track { background: var(--gold-light); color: #8a5c0e; }
-
   .client-body { padding: 0 16px 14px; }
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12.5px; }
   .info-item .lbl { color: var(--ink-soft); font-size: 11px; }
   .info-item .val { font-weight: 700; color: var(--ink); font-size: 13px; }
   .info-item .val.danger { color: var(--red); }
   .info-item .val.success { color: var(--green); }
-
   .progress-wrap { margin: 12px 0 10px; }
   .progress-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-soft); margin-bottom: 5px; }
   .progress-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
   .progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--gold)); border-radius: 4px; }
-
   .client-actions { display: flex; gap: 6px; padding: 10px 16px 14px; border-top: 1px solid var(--border); flex-wrap: wrap; }
   .action-btn { flex: 1; min-width: 60px; padding: 9px 6px; border-radius: 8px; border: none; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
   .btn-pay { background: var(--teal-light); color: var(--teal); }
@@ -93,42 +77,28 @@
   .btn-details { background: var(--gold-light); color: #7a5010; }
   .btn-edit { background: #e6edf7; color: #2952a3; }
   .btn-del { background: var(--red-light); color: var(--red); flex: 0 0 42px !important; }
-
   .search-box { position: relative; margin-bottom: 14px; }
   .search-box input { background: white; padding-right: 40px; }
   .search-icon { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
-
   .filter-chips { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
   .filter-chips::-webkit-scrollbar { display: none; }
   .chip { flex-shrink: 0; padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--ink-soft); }
   .chip.active { background: var(--ink); color: white; border-color: var(--ink); }
-
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,25,35,0.6); z-index: 200; align-items: flex-end; justify-content: center; }
   .modal-overlay.open { display: flex; }
   .modal-sheet { background: white; border-radius: 20px 20px 0 0; width: 100%; max-height: 85vh; overflow-y: auto; padding: 20px; }
   .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
   .modal-title { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 16px; text-align: center; }
-
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; transition: transform 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-width: 92vw; text-align: center; }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.green { background: var(--green); }
   .toast.red { background: var(--red); }
   .toast.yellow { background: #f1c40f; color: var(--ink); }
-
   .quick-reports-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px; }
   .quick-report-btn { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; box-shadow: var(--shadow); font-family: 'Cairo', sans-serif; }
-  .quick-report-btn:active { transform: scale(0.97); }
-  .quick-report-btn .qr-icon { font-size: 24px; }
-  .quick-report-btn .qr-label { font-size: 11.5px; font-weight: 700; color: var(--ink); text-align: center; line-height: 1.3; }
-  .ms-inline-form { background: var(--bg); border-radius: 10px; padding: 12px; margin-bottom: 14px; }
-
   .month-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
   .month-table th { background: var(--gold-pale); color: #7a5010; padding: 9px; font-weight: 700; border-bottom: 2px solid var(--gold); text-align: center; }
   .month-table td { padding: 8px; border-bottom: 1px solid var(--border); text-align: center; font-size: 12px; }
-  .month-table tr.paid-row { background: var(--green-light); }
-  .month-table tr.delayed-row { background: var(--red-light); }
-  .month-table tr.upcoming-row { background: #f8fafc; }
-
   #pdf-render-area { position: fixed; top: -99999px; left: -99999px; width: 1122px; background: #ffffff; direction: rtl; font-family: 'Cairo', sans-serif; }
   .pdf-page { width: 1122px; min-height: 794px; background: #ffffff; padding: 30px 40px; box-sizing: border-box; page-break-after: always; }
   .pdf-header { background: var(--ink); color: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; position: relative; }
@@ -138,24 +108,10 @@
   .pdf-table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .pdf-table thead th { background: var(--gold-light); color: #7a5010; padding: 11px 10px; font-weight: 900; border-bottom: 2px solid var(--gold); }
   .pdf-table tbody td { padding: 10px; border-bottom: 1px solid var(--border); text-align: center; font-weight: 600; color: var(--ink); }
-  .pdf-table tbody tr:nth-child(even) { background: #f8fafc; }
   .pdf-footer { margin-top: 14px; padding-top: 10px; border-top: 2px solid var(--gold); font-size: 12px; color: var(--ink-soft); display: flex; justify-content: space-between; }
-
-  /* ---------- شاشة قفل الدخول (PIN) ---------- */
   #lock-screen { position: fixed; inset: 0; background: var(--ink); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 24px; }
   .lock-box { background: var(--surface); border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
-  .lock-icon { font-size: 40px; margin-bottom: 10px; }
-  .lock-title { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
-  .lock-sub { font-size: 12px; color: var(--ink-soft); margin-bottom: 18px; }
-  .lock-box input { text-align: center; font-size: 20px; letter-spacing: 6px; margin-bottom: 10px; }
-  .lock-error { color: var(--red); font-size: 12px; min-height: 16px; margin-bottom: 8px; }
-
-  /* ---------- بطاقات سجل التحصيل/الخصم داخل تفاصيل العميل ---------- */
   .log-entry { display: flex; justify-content: space-between; align-items: center; padding: 9px 10px; background: var(--bg); border-radius: 8px; margin-bottom: 6px; font-size: 12.5px; }
-  .log-entry .le-main { text-align: right; }
-  .log-entry .le-amount { font-weight: 700; color: var(--ink); }
-  .log-entry .le-date { font-size: 11px; color: var(--ink-soft); }
-  .log-entry .le-actions { display: flex; gap: 4px; }
   .le-btn { border: none; background: #e6edf7; color: #2952a3; border-radius: 6px; padding: 5px 8px; font-size: 11px; cursor: pointer; font-family: 'Cairo', sans-serif; }
   .le-btn.le-del { background: var(--red-light); color: var(--red); }
   .subsection-title { font-size: 12.5px; font-weight: 700; color: var(--ink-soft); margin: 14px 0 8px; }
@@ -163,15 +119,14 @@
 </head>
 <body>
 
-<!-- شاشة القفل: تمنع فتح البيانات بدون رمز دخول -->
 <div id="lock-screen">
   <div class="lock-box">
-    <div class="lock-icon">🔒</div>
-    <div class="lock-title" id="lock-title">أدخل رمز الدخول</div>
-    <div class="lock-sub" id="lock-sub">نظام المحمدية محمي برمز دخول محلي</div>
+    <div class="lock-icon" style="font-size:40px;margin-bottom:10px;">🔒</div>
+    <div class="lock-title" id="lock-title" style="font-size:17px;font-weight:700;margin-bottom:4px;">أدخل رمز الدخول</div>
+    <div class="lock-sub" id="lock-sub" style="font-size:12px;color:var(--ink-soft);margin-bottom:18px;">نظام المحمدية محمي برمز دخول محلي</div>
     <input type="password" id="lock-input" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" autocomplete="off">
     <input type="password" id="lock-input-confirm" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="تأكيد الرمز" autocomplete="off" style="display:none">
-    <div class="lock-error" id="lock-error"></div>
+    <div class="lock-error" id="lock-error" style="color:var(--red);font-size:12px;min-height:16px;margin-bottom:8px;"></div>
     <button class="btn-primary" onclick="submitLock()" style="margin-top:4px;">دخول</button>
   </div>
 </div>
@@ -247,304 +202,104 @@
   <div class="form-card">
     <div class="section-title" style="margin-bottom:14px;">تقارير سريعة</div>
     <div class="quick-reports-grid">
-      <button class="quick-report-btn" onclick="openFollowUpReport()">
-        <span class="qr-icon">📇</span>
-        <span class="qr-label">متابعة العملاء</span>
-      </button>
-      <button class="quick-report-btn" onclick="openDeferredSalesReport()">
-        <span class="qr-icon">📈</span>
-        <span class="qr-label">المبيعات الآجلة</span>
-      </button>
-      <button class="quick-report-btn" onclick="openMonthlySalesReport()">
-        <span class="qr-icon">🗓️</span>
-        <span class="qr-label">المبيعات الشهرية</span>
-      </button>
-      <button class="quick-report-btn" onclick="openSettledReport()">
-        <span class="qr-icon">🧾</span>
-        <span class="qr-label">المسددين</span>
-      </button>
+      <button class="quick-report-btn" onclick="openFollowUpReport()"><span style="font-size:24px;">📇</span><span style="font-size:11.5px;font-weight:700;">متابعة العملاء</span></button>
+      <button class="quick-report-btn" onclick="openDeferredSalesReport()"><span style="font-size:24px;">📈</span><span style="font-size:11.5px;font-weight:700;">المبيعات الآجلة</span></button>
+      <button class="quick-report-btn" onclick="openMonthlySalesReport()"><span style="font-size:24px;">🗓️</span><span style="font-size:11.5px;font-weight:700;">المبيعات الشهرية</span></button>
+      <button class="quick-report-btn" onclick="openSettledReport()"><span style="font-size:24px;">🧾</span><span style="font-size:11.5px;font-weight:700;">المسددين</span></button>
     </div>
   </div>
 
   <div class="form-card">
     <div class="section-title" style="margin-bottom:14px;">التقرير الشامل والنسخ الاحتياطي للأمان</div>
     <div id="reports-content" style="margin-bottom: 20px;">جاري التحميل...</div>
-
     <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
       <div class="section-title" style="margin-bottom:10px;">🛡️ إدارة النسخ الاحتياطي (الأمان التام)</div>
-      <p style="font-size: 12px; color: var(--ink-soft); margin-bottom: 12px;">قم بتصدير ملف النسخة الاحتياطي دورياً لتفادي ضياع البيانات، أو استيرادها عند تغيير الجهاز.</p>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <button class="btn-secondary" onclick="exportBackupJSON()">📤 تصدير نسخة (JSON)</button>
         <button class="btn-primary" style="background:var(--teal); margin:0;" onclick="document.getElementById('import-file').click()">📥 استيراد نسخة</button>
         <input type="file" id="import-file" style="display:none" accept=".json" onchange="importBackupJSON(event)">
       </div>
     </div>
-
-    <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
-      <div class="section-title" style="margin-bottom:10px;">🔐 رمز الدخول ومفتاح حماية المزامنة</div>
-      <p style="font-size: 12px; color: var(--ink-soft); margin-bottom: 12px;">
-        رمز الدخول يمنع فتح التطبيق من هذا الجهاز بدون رمز، لكنه حماية محلية فقط.
-        الحماية الحقيقية لبيانات السحابة تتطلب إضافة "مفتاح المزامنة" هنا مطابقاً لنفس المفتاح المضبوط داخل Google Apps Script (راجع ملف الشرح المرفق).
-      </p>
-      <button class="btn-secondary" onclick="openChangePinModal()">✏️ تغيير رمز الدخول</button>
-      <div class="form-group" style="margin-top:12px;">
-        <label>مفتاح حماية المزامنة (Sync Token)</label>
-        <input type="text" id="sync-token-input" placeholder="اتركه فارغاً إن لم تُفعّل الحماية بعد" oninput="saveSyncToken()">
-      </div>
-    </div>
   </div>
 </div>
 
-<!-- ALL CLIENTS SUMMARY MODAL -->
+<!-- MODALS -->
 <div class="modal-overlay" id="all-clients-modal">
   <div class="modal-sheet" style="max-width: 780px;">
     <div class="modal-handle"></div>
-    <div class="modal-title">📋 التقرير الشامل لجميع العملاء (جدول واحد)</div>
-
+    <div class="modal-title">📋 التقرير الشامل لجميع العملاء</div>
     <div style="max-height: 55vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;">
-      <table class="month-table" id="all-clients-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>اسم العميل والجوال</th>
-            <th>الكفيل وجواله</th>
-            <th>القسط الشهري</th>
-            <th>المتبقي</th>
-            <th>الحالة</th>
-          </tr>
-        </thead>
-        <tbody id="all-clients-table-body"></tbody>
-      </table>
+      <table class="month-table"><thead><tr><th>#</th><th>اسم العميل والجوال</th><th>الكفيل</th><th>القسط</th><th>المتبقي</th><th>الحالة</th></tr></thead><tbody id="all-clients-table-body"></tbody></table>
     </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <button class="btn-primary" id="pdf-btn" style="background:var(--red);margin:0;" onclick="exportAllClientsPDF()">📥 تحميل PDF الشامل</button>
-      <button class="btn-secondary" style="margin:0;" onclick="closeAllClientsModal()">إغلاق</button>
-    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><button class="btn-primary" id="pdf-btn" style="background:var(--red);margin:0;" onclick="exportAllClientsPDF()">📥 تحميل PDF</button><button class="btn-secondary" style="margin:0;" onclick="closeAllClientsModal()">إغلاق</button></div>
   </div>
 </div>
 
-<!-- FOLLOW-UP REPORT MODAL: متابعة العملاء -->
 <div class="modal-overlay" id="followup-modal">
-  <div class="modal-sheet" style="max-width: 780px;">
-    <div class="modal-handle"></div>
-    <div class="modal-title">📇 تقرير متابعة العملاء</div>
-
-    <div style="max-height: 58vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;">
-      <table class="month-table" id="followup-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>اسم العميل والجوال</th>
-            <th>اسم الكفيل والجوال</th>
-            <th>القسط الشهري</th>
-            <th>ملاحظات</th>
-          </tr>
-        </thead>
-        <tbody id="followup-table-body"></tbody>
-      </table>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <button class="btn-primary" style="background:var(--teal);margin:0;" onclick="exportFollowUpPDF()">📥 تحميل PDF</button>
-      <button class="btn-secondary" style="margin:0;" onclick="closeFollowUpModal()">إغلاق</button>
-    </div>
+  <div class="modal-sheet" style="max-width: 780px;"><div class="modal-handle"></div><div class="modal-title">📇 متابعة العملاء</div>
+    <div style="max-height: 58vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;"><table class="month-table"><thead><tr><th>#</th><th>العميل</th><th>الكفيل</th><th>القسط</th><th>ملاحظات</th></tr></thead><tbody id="followup-table-body"></tbody></table></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><button class="btn-primary" style="background:var(--teal);margin:0;" onclick="exportFollowUpPDF()">📥 تحميل PDF</button><button class="btn-secondary" style="margin:0;" onclick="closeFollowUpModal()">إغلاق</button></div>
   </div>
 </div>
 
-<!-- DEFERRED SALES MODAL: المبيعات الآجلة (مرتبطة بالمبالغ الإجمالية) -->
 <div class="modal-overlay" id="deferred-modal">
-  <div class="modal-sheet" style="max-width: 780px;">
-    <div class="modal-handle"></div>
-    <div class="modal-title">📈 تقرير المبيعات الآجلة</div>
-
+  <div class="modal-sheet" style="max-width: 780px;"><div class="modal-handle"></div><div class="modal-title">📈 المبيعات الآجلة</div>
     <div class="stats-strip" id="deferred-stats" style="margin-bottom:14px;"></div>
-
-    <div style="max-height: 52vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;">
-      <table class="month-table" id="deferred-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>اسم العميل</th>
-            <th>المبلغ الإجمالي</th>
-            <th>المسدد</th>
-            <th>المتبقي</th>
-          </tr>
-        </thead>
-        <tbody id="deferred-table-body"></tbody>
-      </table>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <button class="btn-primary" style="background:var(--gold);margin:0;" onclick="exportDeferredPDF()">📥 تحميل PDF</button>
-      <button class="btn-secondary" style="margin:0;" onclick="closeDeferredModal()">إغلاق</button>
-    </div>
+    <div style="max-height: 52vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;"><table class="month-table"><thead><tr><th>#</th><th>العميل</th><th>الإجمالي</th><th>المسدد</th><th>المتبقي</th></tr></thead><tbody id="deferred-table-body"></tbody></table></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><button class="btn-primary" style="background:var(--gold);margin:0;" onclick="exportDeferredPDF()">📥 تحميل PDF</button><button class="btn-secondary" style="margin:0;" onclick="closeDeferredModal()">إغلاق</button></div>
   </div>
 </div>
 
-<!-- MONTHLY SALES MODAL: المبيعات الشهرية (مستقلة تماماً - عداد وبيانات خاصة بها) -->
 <div class="modal-overlay" id="monthly-sales-modal">
-  <div class="modal-sheet" style="max-width: 780px;">
-    <div class="modal-handle"></div>
-    <div class="modal-title">🗓️ المبيعات الشهرية (مستقلة)</div>
-
+  <div class="modal-sheet" style="max-width: 780px;"><div class="modal-handle"></div><div class="modal-title">🗓️ المبيعات الشهرية</div>
     <div class="stats-strip" style="grid-template-columns:1fr 1fr;margin-bottom:14px;">
-      <div class="stat-card">
-        <div class="stat-label">عدد عمليات المبيعات الشهرية</div>
-        <div class="stat-value gold" id="ms-count">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">إجمالي المبيعات الشهرية</div>
-        <div class="stat-value green" id="ms-total">0 ر.س</div>
-      </div>
+      <div class="stat-card"><div class="stat-label">العدد</div><div class="stat-value gold" id="ms-count">0</div></div>
+      <div class="stat-card"><div class="stat-label">الإجمالي</div><div class="stat-value green" id="ms-total">0 ر.س</div></div>
     </div>
-
-    <div class="ms-inline-form">
-      <div class="form-grid">
-        <div class="form-group"><label>اسم العميل</label><input type="text" id="ms-name" placeholder="اسم العميل"></div>
-        <div class="form-group"><label>المبلغ الأساسي</label><input type="number" id="ms-base" inputmode="decimal" step="any" placeholder="0.00"></div>
-      </div>
-      <div class="form-group"><label>المبلغ الإجمالي</label><input type="number" id="ms-full" inputmode="decimal" step="any" placeholder="0.00"></div>
-      <button class="btn-primary" style="margin-top:4px;" onclick="addMonthlySale()">➕ إضافة عملية بيع</button>
+    <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:14px;">
+      <div class="form-grid"><input type="text" id="ms-name" placeholder="اسم العميل"><input type="number" id="ms-base" placeholder="المبلغ الأساسي"></div>
+      <input type="number" id="ms-full" placeholder="المبلغ الإجمالي" style="margin-top:8px;">
+      <button class="btn-primary" style="margin-top:8px;" onclick="addMonthlySale()">➕ إضافة</button>
     </div>
-
-    <div style="max-height: 42vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;">
-      <table class="month-table" id="monthly-sales-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>اسم العميل</th>
-            <th>المبلغ الأساسي</th>
-            <th>المبلغ الإجمالي</th>
-            <th>التاريخ</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="monthly-sales-table-body"></tbody>
-      </table>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <button class="btn-primary" style="background:var(--teal);margin:0;" onclick="exportMonthlySalesPDF()">📥 تحميل PDF</button>
-      <button class="btn-secondary" style="margin:0;" onclick="closeMonthlySalesModal()">إغلاق</button>
-    </div>
+    <div style="max-height: 40vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;"><table class="month-table"><thead><tr><th>#</th><th>العميل</th><th>الأساسي</th><th>الإجمالي</th><th>التاريخ</th><th></th></tr></thead><tbody id="monthly-sales-table-body"></tbody></table></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><button class="btn-primary" style="background:var(--teal);margin:0;" onclick="exportMonthlySalesPDF()">📥 تحميل PDF</button><button class="btn-secondary" style="margin:0;" onclick="closeMonthlySalesModal()">إغلاق</button></div>
   </div>
 </div>
 
-<!-- SETTLED / PAID REPORT MODAL: المسددين — كل عملية سداد فعلية بتاريخها -->
 <div class="modal-overlay" id="settled-modal">
-  <div class="modal-sheet" style="max-width: 780px;">
-    <div class="modal-handle"></div>
-    <div class="modal-title">🧾 تقرير المسددين</div>
-
+  <div class="modal-sheet" style="max-width: 780px;"><div class="modal-handle"></div><div class="modal-title">🧾 المسددين</div>
     <div class="stats-strip" id="settled-stats" style="margin-bottom:14px;"></div>
-
-    <div style="max-height: 55vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;">
-      <table class="month-table" id="settled-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>اسم العميل</th>
-            <th>تاريخ السداد الفعلي</th>
-            <th>المبلغ المسدد</th>
-            <th>ملاحظات</th>
-          </tr>
-        </thead>
-        <tbody id="settled-table-body"></tbody>
-      </table>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <button class="btn-primary" style="background:var(--green);margin:0;" onclick="exportSettledPDF()">📥 تحميل PDF</button>
-      <button class="btn-secondary" style="margin:0;" onclick="closeSettledModal()">إغلاق</button>
-    </div>
+    <div style="max-height: 55vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-bottom: 16px;"><table class="month-table"><thead><tr><th>#</th><th>العميل</th><th>التاريخ</th><th>المبلغ</th><th>ملاحظات</th></tr></thead><tbody id="settled-table-body"></tbody></table></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><button class="btn-primary" style="background:var(--green);margin:0;" onclick="exportSettledPDF()">📥 تحميل PDF</button><button class="btn-secondary" style="margin:0;" onclick="closeSettledModal()">إغلاق</button></div>
   </div>
 </div>
 
-<!-- DETAIL MODAL -->
-<div class="modal-overlay" id="detail-modal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-client-name"></div>
-    <div id="modal-body"></div>
-    <button class="btn-primary" style="margin-top:16px;background:var(--ink-soft)" onclick="closeModal()">إغلاق</button>
-  </div>
-</div>
+<div class="modal-overlay" id="detail-modal"><div class="modal-sheet"><div class="modal-handle"></div><div class="modal-title" id="modal-client-name"></div><div id="modal-body"></div><button class="btn-primary" style="margin-top:16px;background:var(--ink-soft)" onclick="closeModal()">إغلاق</button></div></div>
 
-<!-- EDIT CLIENT MODAL -->
 <div class="modal-overlay" id="edit-modal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">تعديل بيانات العميل</div>
-    <input type="hidden" id="e-id">
-    <div class="form-group"><label>اسم العميل الكامل *</label><input type="text" id="e-name"></div>
-    <div class="form-group"><label>رقم جوال العميل</label><input type="tel" id="e-phone" inputmode="tel"></div>
-    <div class="form-grid">
-      <div class="form-group"><label>اسم الكفيل</label><input type="text" id="e-guarantor"></div>
-      <div class="form-group"><label>رقم جوال الكفيل</label><input type="tel" id="e-guarantor-phone" inputmode="tel"></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>المبلغ الإجمالي (ريال) *</label><input type="number" id="e-total" inputmode="decimal" step="any"></div>
-      <div class="form-group"><label>القسط الشهري (ريال) *</label><input type="number" id="e-monthly" inputmode="decimal" step="any"></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>تاريخ أول قسط *</label><input type="date" id="e-start"></div>
-      <div class="form-group"><label>يوم الاستحقاق (1-28)</label><input type="number" id="e-day" inputmode="numeric" min="1" max="28"></div>
-    </div>
-    <div class="form-group"><label>المبلغ المسدد حتى الآن</label><input type="number" id="e-paid" inputmode="decimal" step="any"></div>
-    <div class="form-group">
-      <label>🔒 قفل زر "تحصيل" حتى تاريخ (فارغ = غير مقفل)</label>
-      <input type="date" id="e-lock-until">
-      <button type="button" class="btn-secondary" style="margin-top:6px;padding:9px;font-size:12.5px;" onclick="document.getElementById('e-lock-until').value=''">فك القفل الآن</button>
-    </div>
-    <div class="form-group"><label>ملاحظات</label><input type="text" id="e-notes"></div>
-    <button class="btn-primary" onclick="saveClientEdit()">💾 حفظ التعديلات</button>
-    <button class="btn-secondary" onclick="closeEditModal()">إلغاء</button>
+  <div class="modal-sheet"><div class="modal-handle"></div><div class="modal-title">تعديل عميل</div><input type="hidden" id="e-id">
+    <div class="form-group"><label>الاسم</label><input type="text" id="e-name"></div>
+    <div class="form-grid"><input type="tel" id="e-phone" placeholder="جوال"><input type="text" id="e-guarantor" placeholder="الكفيل"></div>
+    <div class="form-grid" style="margin-top:8px;"><input type="number" id="e-total" placeholder="الإجمالي"><input type="number" id="e-monthly" placeholder="القسط"></div>
+    <div class="form-grid" style="margin-top:8px;"><input type="date" id="e-start"><input type="number" id="e-day" placeholder="يوم الاستحقاق"></div>
+    <input type="number" id="e-paid" placeholder="المسدد" style="margin-top:8px;">
+    <button class="btn-primary" style="margin-top:12px;" onclick="saveClientEdit()">💾 حفظ</button><button class="btn-secondary" style="margin-top:6px;" onclick="closeEditModal()">إلغاء</button>
   </div>
 </div>
 
-<!-- CHANGE PIN MODAL -->
-<div class="modal-overlay" id="change-pin-modal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">تغيير رمز الدخول</div>
-    <div class="form-group"><label>الرمز الحالي</label><input type="password" id="cp-old" inputmode="numeric" maxlength="8"></div>
-    <div class="form-group"><label>الرمز الجديد</label><input type="password" id="cp-new" inputmode="numeric" maxlength="8"></div>
-    <div class="form-group"><label>تأكيد الرمز الجديد</label><input type="password" id="cp-confirm" inputmode="numeric" maxlength="8"></div>
-    <button class="btn-primary" onclick="submitChangePin()">💾 حفظ الرمز الجديد</button>
-    <button class="btn-secondary" onclick="closeChangePinModal()">إلغاء</button>
-  </div>
-</div>
-
-<!-- PAYMENT (COLLECTION) MODAL -->
 <div class="modal-overlay" id="payment-modal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">💵 تسجيل تحصيل</div>
-    <div id="payment-client-label" style="text-align:center;font-weight:700;margin-bottom:14px;color:var(--ink-soft);"></div>
-    <input type="hidden" id="pm-client-id">
-    <input type="hidden" id="pm-entry-index" value="">
-    <div class="form-group"><label>المبلغ المستحصل (ريال) *</label><input type="number" id="pm-amount" inputmode="decimal" step="any" placeholder="0.00"></div>
-    <div class="form-group"><label>تاريخ التحصيل *</label><input type="date" id="pm-date"></div>
-    <div class="form-group"><label>ملاحظات</label><input type="text" id="pm-notes" placeholder="اختياري"></div>
-    <button class="btn-primary" onclick="confirmPayment()">💾 حفظ</button>
-    <button class="btn-secondary" onclick="closePaymentModal()">إلغاء</button>
+  <div class="modal-sheet"><div class="modal-handle"></div><div class="modal-title">💵 تسجيل تحصيل</div><div id="payment-client-label" style="text-align:center;font-weight:700;margin-bottom:14px;"></div><input type="hidden" id="pm-client-id"><input type="hidden" id="pm-entry-index">
+    <div class="form-group"><label>المبلغ</label><input type="number" id="pm-amount" step="any"></div>
+    <div class="form-group"><label>التاريخ</label><input type="date" id="pm-date"></div>
+    <button class="btn-primary" onclick="confirmPayment()">💾 حفظ</button><button class="btn-secondary" style="margin-top:6px;" onclick="closePaymentModal()">إلغاء</button>
   </div>
 </div>
 
-<!-- DISCOUNT MODAL -->
 <div class="modal-overlay" id="discount-modal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">🏷️ تسجيل خصم</div>
-    <div id="discount-client-label" style="text-align:center;font-weight:700;margin-bottom:14px;color:var(--ink-soft);"></div>
-    <input type="hidden" id="dm-client-id">
-    <input type="hidden" id="dm-entry-index" value="">
-    <div class="form-group"><label>مبلغ الخصم (ريال) *</label><input type="number" id="dm-amount" inputmode="decimal" step="any" placeholder="0.00"></div>
-    <div class="form-group"><label>تاريخ الخصم *</label><input type="date" id="dm-date"></div>
-    <div class="form-group"><label>سبب الخصم</label><input type="text" id="dm-reason" placeholder="اختياري"></div>
-    <button class="btn-primary" onclick="confirmDiscount()">💾 حفظ</button>
-    <button class="btn-secondary" onclick="closeDiscountModal()">إلغاء</button>
+  <div class="modal-sheet"><div class="modal-handle"></div><div class="modal-title">🏷️ تسجيل خصم</div><div id="discount-client-label" style="text-align:center;font-weight:700;margin-bottom:14px;"></div><input type="hidden" id="dm-client-id"><input type="hidden" id="dm-entry-index">
+    <div class="form-group"><label>مبلغ الخصم</label><input type="number" id="dm-amount" step="any"></div>
+    <div class="form-group"><label>التاريخ</label><input type="date" id="dm-date"></div>
+    <button class="btn-primary" onclick="confirmDiscount()">💾 حفظ</button><button class="btn-secondary" style="margin-top:6px;" onclick="closeDiscountModal()">إلغاء</button>
   </div>
 </div>
 
@@ -552,18 +307,12 @@
 <div id="pdf-render-area"></div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxDJiw1h2R7YpUelYx4e8tQioyIA4woXpPnImzK7By3IEbaEqJ1HDalBnJSLLVbAlIO/exec";
-
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHgeBO7HlH-ZOwR-bwVjPrzfhxYKJQ9QdYj4EJZDW3x7-JkizDTZRi1ZLFuFkz-ZZC/exec";
 const LS_KEY = 'iqsat_v3';
-const LS_DIRTY = 'iqsat_v3_dirty';   // علامة: توجد تعديلات محلية لم تُرفع بعد
-const PAGE_SIZE = 40;                 // عدد العملاء المعروضين في كل دفعة
-
+const PAGE_SIZE = 40;
 const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-
 const PIN_KEY = 'iqsat_pin_hash';
-const SYNC_TOKEN_KEY = 'iqsat_sync_token';
 
-/* ---------- شاشة القفل (حماية محلية فقط - راجع ملاحظة الأمان في صفحة التقارير) ---------- */
 async function sha256Hex(text) {
   const enc = new TextEncoder().encode(text);
   const buf = await crypto.subtle.digest('SHA-256', enc);
@@ -577,103 +326,36 @@ function initLock() {
   if (!hash) {
     lockMode = 'setup';
     document.getElementById('lock-title').textContent = 'أنشئ رمز دخول جديد';
-    document.getElementById('lock-sub').textContent = 'أدخل رمزاً من 4 أرقام على الأقل لحماية التطبيق على هذا الجهاز';
     confirmInput.style.display = 'block';
   } else {
     lockMode = 'enter';
     document.getElementById('lock-title').textContent = 'أدخل رمز الدخول';
-    document.getElementById('lock-sub').textContent = 'نظام المحمدية محمي برمز دخول محلي';
     confirmInput.style.display = 'none';
   }
-  document.getElementById('lock-input').value = '';
-  document.getElementById('lock-input').focus();
 }
-
 async function submitLock() {
-  const errEl = document.getElementById('lock-error');
-  errEl.textContent = '';
   const val = document.getElementById('lock-input').value.trim();
-  if (val.length < 4) { errEl.textContent = 'الرمز يجب أن يكون 4 أرقام على الأقل'; return; }
-
+  if (val.length < 4) return;
   if (lockMode === 'setup') {
     const confirmVal = document.getElementById('lock-input-confirm').value.trim();
-    if (val !== confirmVal) { errEl.textContent = 'الرمزان غير متطابقين'; return; }
-    const hash = await sha256Hex(val);
-    lsSet(PIN_KEY, hash);
+    if (val !== confirmVal) return;
+    lsSet(PIN_KEY, await sha256Hex(val));
     unlockApp();
   } else {
-    const hash = await sha256Hex(val);
-    if (hash === lsGet(PIN_KEY)) {
-      unlockApp();
-    } else {
-      errEl.textContent = 'رمز غير صحيح';
-      document.getElementById('lock-input').value = '';
-      document.getElementById('lock-input').focus();
-    }
+    if (await sha256Hex(val) === lsGet(PIN_KEY)) unlockApp();
   }
 }
+function unlockApp() { document.getElementById('lock-screen').style.display = 'none'; init(); }
 
-function unlockApp() {
-  document.getElementById('lock-screen').style.display = 'none';
-  init();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  ['lock-input', 'lock-input-confirm'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') submitLock(); });
-  });
-});
-
-function openChangePinModal() { document.getElementById('change-pin-modal').classList.add('open'); }
-function closeChangePinModal() {
-  document.getElementById('change-pin-modal').classList.remove('open');
-  ['cp-old', 'cp-new', 'cp-confirm'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-}
-async function submitChangePin() {
-  const oldVal = document.getElementById('cp-old').value.trim();
-  const newVal = document.getElementById('cp-new').value.trim();
-  const confirmVal = document.getElementById('cp-confirm').value.trim();
-  const storedHash = lsGet(PIN_KEY);
-  const oldHash = await sha256Hex(oldVal);
-  if (storedHash && oldHash !== storedHash) { showToast('⚠️ الرمز الحالي غير صحيح', 'red'); return; }
-  if (newVal.length < 4) { showToast('⚠️ الرمز الجديد يجب أن يكون 4 أرقام على الأقل', 'red'); return; }
-  if (newVal !== confirmVal) { showToast('⚠️ الرمزان الجديدان غير متطابقين', 'red'); return; }
-  const newHash = await sha256Hex(newVal);
-  lsSet(PIN_KEY, newHash);
-  closeChangePinModal();
-  showToast('✅ تم تغيير رمز الدخول', 'green');
-}
-
-/* ---------- مفتاح حماية المزامنة (Sync Token) ---------- */
-function loadSyncTokenIntoField() {
-  const el = document.getElementById('sync-token-input');
-  if (el) el.value = lsGet(SYNC_TOKEN_KEY) || '';
-}
-function saveSyncToken() {
-  const el = document.getElementById('sync-token-input');
-  if (el) lsSet(SYNC_TOKEN_KEY, el.value.trim());
-}
-
-/* ---------- أدوات مساعدة ---------- */
-function lsGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
-function lsSet(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
-function lsDel(key) { try { localStorage.removeItem(key); } catch (e) {} }
+function lsGet(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
 
 function safeParse(str, fallback) {
   if (Array.isArray(str)) return str;
-  try {
-    const v = JSON.parse(str);
-    return Array.isArray(v) ? v : fallback;
-  } catch (e) { return fallback; }
+  try { const v = JSON.parse(str); return Array.isArray(v) ? v : fallback; } catch(e) { return fallback; }
 }
 
-function loadLocal() {
-  const raw = lsGet(LS_KEY);
-  return raw ? safeParse(raw, []) : [];
-}
-
-let clients = loadLocal();
+let clients = lsGet(LS_KEY) ? safeParse(lsGet(LS_KEY), []) : [];
 let currentFilter = 'all';
 let shownCount = PAGE_SIZE;
 
@@ -682,1234 +364,223 @@ function setStatus(text, color) {
   if (el) { el.textContent = text; el.style.color = color || '#2ecc71'; }
 }
 
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-
-function urlIsSet() { return SCRIPT_URL.startsWith('https://script.google.com/'); }
-
-async function fetchWithTimeout(url, opts, ms) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), ms);
-  try { return await fetch(url, { ...opts, signal: ctrl.signal }); }
-  finally { clearTimeout(timer); }
-}
-
-// مُنسِّقات مخزّنة (إنشاؤها في كل مرة بطيء)
-const NF = new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const DF = new Intl.DateTimeFormat('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', calendar: 'gregory' });
-function fmt(n) { return NF.format(parseFloat(n || 0)); }
-function dateLabel(d) {
-  if (!d) return '—';
-  const dt = new Date(d);
-  return isNaN(dt) ? '—' : DF.format(dt);
-}
-function today() { return new Date(); }
-
-/* ---------- المزامنة السحابية (تدريجية: تُرسل فقط السجلات المتغيرة، لا القائمة كاملة) ---------- */
-let localVersion = 0;      // يزيد مع كل تعديل محلي
-let cloudSaving = false;
-let cloudPending = false;
-let cloudTimer = null;
-let cloudLoading = false;
-
-let pendingUpserts = {};   // id -> صف العميل بعد التعديل (سجلات بانتظار الرفع فقط)
-let pendingDeletes = {};   // id -> true (سجلات بانتظار الحذف من السحابة فقط)
-
-function clientToRow(c) {
-  return [
-    c.id, c.name, c.phone || '', c.guarantor || '', c.guarantorPhone || '',
-    c.total, c.monthly, c.paid, c.remaining, c.startDate, c.dueDay || '',
-    c.notes || '', JSON.stringify(c.paymentsLog || []), JSON.stringify(c.discounts || []),
-    c.paymentLockUntil || ''
-  ];
-}
-function persistLocal() { lsSet(LS_KEY, JSON.stringify(clients)); }
-function getSyncToken() { return lsGet(SYNC_TOKEN_KEY) || ''; }
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function fmt(n) { return new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(n || 0)); }
+function dateLabel(d) { if (!d) return '—'; const dt = new Date(d); return isNaN(dt) ? '—' : new Intl.DateTimeFormat('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', calendar: 'gregory' }).format(dt); }
 
 async function loadDataFromCloud(manual) {
-  if (!urlIsSet() || cloudLoading) return;
-
-  // حماية البيانات: إذا كان هناك تعديل محلي لم يُرفع، لا نستبدله ببيانات السحابة
-  if (lsGet(LS_DIRTY) === '1') {
-    if (manual) showToast('⏳ توجد تعديلات محلية، جاري رفعها أولاً', 'yellow');
-    retryPendingSync();
-    return;
-  }
-
-  cloudLoading = true;
+  if (!SCRIPT_URL.startsWith('https://')) return;
   setStatus('⏳ جاري جلب البيانات...', '#f1c40f');
   try {
-    const url = SCRIPT_URL + (getSyncToken() ? ('?token=' + encodeURIComponent(getSyncToken())) : '');
-    const res = await fetchWithTimeout(url, { method: 'GET', mode: 'cors' }, 10000);
+    const res = await fetch(SCRIPT_URL, { method: 'GET', mode: 'cors' });
     const rows = await res.json();
     if (Array.isArray(rows) && rows.length > 1) {
-      // إذا ظهرت تعديلات محلية أثناء الجلب، نلغي الاستبدال
-      if (lsGet(LS_DIRTY) === '1') { setStatus('⏳ بانتظار رفع تعديلاتك', '#f1c40f'); return; }
       clients = rows.slice(1).filter(r => r[0] !== '' && r[1] !== '').map(r => ({
-        id: r[0],
-        name: String(r[1] ?? ''),
-        phone: r[2] ? String(r[2]) : '',
-        guarantor: r[3] ? String(r[3]) : '',
-        guarantorPhone: r[4] ? String(r[4]) : '',
-        total: parseFloat(r[5]) || 0,
-        monthly: parseFloat(r[6]) || 0,
-        paid: parseFloat(r[7]) || 0,
-        remaining: parseFloat(r[8]) || 0,
-        startDate: r[9] || '',
-        dueDay: parseInt(r[10]) || 1,
-        notes: r[11] || '',
-        paymentsLog: r[12] ? safeParse(r[12], []) : [],
-        discounts: r[13] ? safeParse(r[13], []) : [],
-        paymentLockUntil: r[14] || ''
+        id: r[0], name: String(r[1] ?? ''), phone: r[2] ? String(r[2]) : '', guarantor: r[3] ? String(r[3]) : '', guarantorPhone: r[4] ? String(r[4]) : '',
+        total: parseFloat(r[5]) || 0, monthly: parseFloat(r[6]) || 0, paid: parseFloat(r[7]) || 0, remaining: parseFloat(r[8]) || 0,
+        startDate: r[9] || '', dueDay: parseInt(r[10]) || 1, notes: r[11] || '', paymentsLog: r[12] ? safeParse(r[12], []) : [], discounts: r[13] ? safeParse(r[13], []) : []
       }));
-      persistLocal();
+      lsSet(LS_KEY, JSON.stringify(clients));
       renderAll();
       if (manual) showToast('✅ تمت المزامنة وجلب البيانات بنجاح', 'green');
     }
     setStatus('متصل بالسحابة ✅');
-  } catch (e) {
+  } catch(e) {
     setStatus('⚠️ تم الاعتماد على النسخة المحلية', '#f39c12');
-  } finally {
-    cloudLoading = false;
   }
 }
 
-// تُستخدم بعد إضافة/تعديل عميل واحد فقط: تحفظ محلياً فوراً، وتُجدول رفع هذا السجل وحده (وليس كل القائمة)
-function commitClientChange(client) {
-  persistLocal();
-  lsSet(LS_DIRTY, '1');
-  localVersion++;
-  pendingUpserts[client.id] = clientToRow(client);
-  delete pendingDeletes[client.id];
-  if (!urlIsSet()) return;
-  setStatus('💾 محفوظ محلياً، جاري الرفع...', '#f1c40f');
-  clearTimeout(cloudTimer);
-  cloudTimer = setTimeout(pushIncrementalToCloud, 700);   // دمج التعديلات المتتالية على نفس العميل برفعة واحدة
-}
-
-// تُستخدم بعد حذف عميل: تُجدول حذف هذا السجل وحده من السحابة
-function commitClientDelete(id) {
-  persistLocal();
-  lsSet(LS_DIRTY, '1');
-  localVersion++;
-  pendingDeletes[id] = true;
-  delete pendingUpserts[id];
-  if (!urlIsSet()) return;
-  setStatus('💾 محفوظ محلياً، جاري الرفع...', '#f1c40f');
-  clearTimeout(cloudTimer);
-  cloudTimer = setTimeout(pushIncrementalToCloud, 700);
-}
-
-async function pushIncrementalToCloud() {
-  if (!urlIsSet()) return;
-  if (cloudSaving) { cloudPending = true; return; }
-  const upsertIds = Object.keys(pendingUpserts);
-  const deleteIds = Object.keys(pendingDeletes);
-  if (upsertIds.length === 0 && deleteIds.length === 0) return;
-
-  cloudSaving = true;
-  const versionAtStart = localVersion;
-  const upsertsSent = { ...pendingUpserts };
-  const deletesSent = { ...pendingDeletes };
-
-  try {
-    await fetchWithTimeout(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        token: getSyncToken(),
-        upserts: Object.values(upsertsSent),   // فقط السجلات المتغيرة
-        deletes: Object.keys(deletesSent)      // فقط المعرّفات المطلوب حذفها
-      })
-    }, 20000);
-    // إزالة العناصر التي أُرسلت بنجاح فقط (قد تكون هناك تعديلات جديدة وصلت أثناء الرفع)
-    Object.keys(upsertsSent).forEach(id => { if (pendingUpserts[id] === upsertsSent[id]) delete pendingUpserts[id]; });
-    Object.keys(deletesSent).forEach(id => { delete pendingDeletes[id]; });
-    if (versionAtStart === localVersion) {
-      lsDel(LS_DIRTY);
-      setStatus('محدث بالسحابة ✅', '#2ecc71');
-    } else {
-      setStatus('💾 محفوظ محلياً، جاري الرفع...', '#f1c40f');
-    }
-  } catch (e) {
-    setStatus('⚠️ حفظ محلي (فشل الرفع)', '#e74c3c');
-    showToast('⚠️ تم الحفظ محلياً فقط، سيُعاد الرفع لاحقاً', 'yellow');
-  } finally {
-    cloudSaving = false;
-    if (cloudPending || Object.keys(pendingUpserts).length || Object.keys(pendingDeletes).length) {
-      cloudPending = false;
-      pushIncrementalToCloud();
-    }
-  }
-}
-
-function retryPendingSync() {
-  if (Object.keys(pendingUpserts).length || Object.keys(pendingDeletes).length) {
-    pushIncrementalToCloud();
-  } else if (lsGet(LS_DIRTY) === '1') {
-    // حالة احتياطية نادرة: علامة تعديل معلّقة بدون طابور محدد، نلجأ لاستبدال كامل حفاظاً على البيانات
-    pushFullReplaceToCloud();
-  }
-}
-
-// عملية استبدال كامل — تُستخدم فقط عند استيراد نسخة احتياطية كاملة بقرار صريح من المستخدم
 function saveToCloud() {
-  persistLocal();
-  lsSet(LS_DIRTY, '1');
-  localVersion++;
-  if (!urlIsSet()) return;
-  setStatus('💾 محفوظ محلياً، جاري الرفع...', '#f1c40f');
-  clearTimeout(cloudTimer);
-  cloudTimer = setTimeout(pushFullReplaceToCloud, 700);
+  lsSet(LS_KEY, JSON.stringify(clients));
+  if (!SCRIPT_URL.startsWith('https://')) return;
+  setStatus('💾 جاري الحفظ بالسحابة...', '#f1c40f');
+  const rows = [["ID", "الاسم", "الجوال", "الكفيل", "جوال_الكفيل", "الإجمالي", "القسط", "المسدد", "المتبقي", "تاريخ_البداية", "يوم_الاستحقاق", "الملاحظات", "PaymentsLog", "Discounts"]];
+  clients.forEach(c => rows.push([c.id, c.name, c.phone||'', c.guarantor||'', c.guarantorPhone||'', c.total, c.monthly, c.paid, c.remaining, c.startDate, c.dueDay||'', c.notes||'', JSON.stringify(c.paymentsLog||[]), JSON.stringify(c.discounts||[])]));
+  fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify({ bulkReplace: rows }) })
+    .then(() => setStatus('محدث بالسحابة ✅', '#2ecc71'))
+    .catch(() => setStatus('⚠️ حفظ محلي', '#e74c3c'));
 }
 
-async function pushFullReplaceToCloud() {
-  if (!urlIsSet()) return;
-  if (cloudSaving) { cloudPending = true; return; }
-  cloudSaving = true;
-  const versionAtStart = localVersion;
-
-  const rows = [
-    ["ID", "الاسم", "الجوال", "الكفيل", "جوال_الكفيل", "الإجمالي", "القسط", "المسدد", "المتبقي", "تاريخ_البداية", "يوم_الاستحقاق", "الملاحظات", "PaymentsLog", "Discounts", "قفل_التحصيل_حتى"]
-  ];
-  clients.forEach(c => rows.push(clientToRow(c)));
-
-  try {
-    await fetchWithTimeout(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ token: getSyncToken(), bulkReplace: rows })
-    }, 20000);
-    if (versionAtStart === localVersion) {
-      lsDel(LS_DIRTY);
-      setStatus('محدث بالسحابة ✅', '#2ecc71');
-    }
-  } catch (e) {
-    setStatus('⚠️ حفظ محلي (فشل الرفع)', '#e74c3c');
-    showToast('⚠️ تم الحفظ محلياً فقط، سيُعاد الرفع لاحقاً', 'yellow');
-  } finally {
-    cloudSaving = false;
-    if (cloudPending) { cloudPending = false; pushFullReplaceToCloud(); }
-  }
-}
-
-/* ---------- النسخ الاحتياطي ---------- */
-function exportBackupJSON() {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients, null, 2));
-  const a = document.createElement('a');
-  a.setAttribute("href", dataStr);
-  a.setAttribute("download", `Almohammadiyah_Backup_${new Date().toISOString().split('T')[0]}.json`);
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  showToast('✅ تم تصدير النسخة الاحتياطية بنجاح', 'green');
-}
-
-function importBackupJSON(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const imported = JSON.parse(e.target.result);
-      if (!Array.isArray(imported)) { showToast('⚠️ ملف النسخة الاحتياطية غير صالح', 'red'); return; }
-      const valid = imported.filter(c => c && c.id !== undefined && c.name);
-      if (valid.length === 0) { showToast('⚠️ الملف لا يحتوي على عملاء صالحين', 'red'); return; }
-      if (confirm(`هل أنت متأكد من استيراد ${valid.length} عميل؟ سيتم استبدال البيانات الحالية.`)) {
-        clients = valid;
-        saveToCloud();
-        renderAll();
-        showToast('✅ تم استعادة البيانات بنجاح', 'green');
-      }
-    } catch (err) {
-      showToast('⚠️ خطأ في قراءة الملف', 'red');
-    }
-    event.target.value = '';
-  };
-  reader.readAsText(file, "UTF-8");
-}
-
-/* ---------- الجدول الزمني والحالة ---------- */
-function generateSchedule(client) {
-  const schedule = [];
-  const start = new Date(client.startDate);
-  if (isNaN(start)) return schedule;
-  const dueDay = client.dueDay || start.getDate();
-  const log = client.paymentsLog || [];
-
-  let remaining = client.total;
-  let month = new Date(start.getFullYear(), start.getMonth(), 1);
-  let idx = 0;
-
-  while (remaining > 0.001 || idx < log.length) {
-    const dueDate = new Date(month.getFullYear(), month.getMonth(),
-      Math.min(dueDay, new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()));
-
-    const paid = idx < log.length;
-    const logEntry = paid ? (typeof log[idx] === 'string' ? { date: log[idx], amount: client.monthly } : log[idx]) : null;
-    const amount = paid ? (logEntry.amount || 0) : Math.min(client.monthly, remaining);
-    if (!paid && !(amount > 0)) break;   // قسط صفري: لا فائدة من المتابعة
-
-    remaining = parseFloat((remaining - amount).toFixed(2));
-    schedule.push({ idx, dueDate, amount, paid, payDate: paid ? logEntry.date : null, monthName: MONTHS_AR[dueDate.getMonth()] + ' ' + dueDate.getFullYear() });
-    month = new Date(month.getFullYear(), month.getMonth() + 1, 1);
-    idx++;
-    if (idx > 240) break;
-  }
-  return schedule;
-}
-
-// تحليل واحد لكل عميل (كان يُحسب 3 مرات أو أكثر)
-function analyze(client) {
-  const schedule = generateSchedule(client);
-  const now = Date.now();
-  const delayed = schedule.filter(s => !s.paid && s.dueDate.getTime() < now);
-  const status = client.remaining <= 0.001 ? 'completed' : (delayed.length > 0 ? 'delayed' : 'on-track');
-  return { schedule, delayed, status };
-}
-
-function analyzeAll(list) {
-  return list.map(c => ({ c, info: analyze(c) }));
-}
-
-/* ---------- واجهة ---------- */
-let toastTimer = null;
-function showToast(msg, type = '') {
+function showToast(msg, type='') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.className = 'toast', 2800);
+  t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 2800);
 }
 
 function switchTab(tab) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + tab).classList.add('active');
-  const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
-  if (btn) btn.classList.add('active');
+  document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
   if (tab === 'home') renderHome();
   if (tab === 'clients') renderClients();
   if (tab === 'reports') renderReports();
 }
 
-function renderAll() {
-  renderHome();
-  renderClients();
-  renderReports();
+function renderAll() { renderHome(); renderClients(); renderReports(); }
+
+function analyze(client) {
+  const start = new Date(client.startDate);
+  const schedule = [];
+  if (isNaN(start)) return { schedule, delayed: [], status: client.remaining <= 0.001 ? 'completed' : 'on-track' };
+  const dueDay = client.dueDay || start.getDate();
+  const log = client.paymentsLog || [];
+  let remaining = client.total, month = new Date(start.getFullYear(), start.getMonth(), 1), idx = 0;
+  while (remaining > 0.001 || idx < log.length) {
+    const dueDate = new Date(month.getFullYear(), month.getMonth(), Math.min(dueDay, new Date(month.getFullYear(), month.getMonth()+1, 0).getDate()));
+    const paid = idx < log.length;
+    const logEntry = paid ? (typeof log[idx] === 'string' ? { date: log[idx], amount: client.monthly } : log[idx]) : null;
+    const amount = paid ? (logEntry.amount || 0) : Math.min(client.monthly, remaining);
+    remaining = parseFloat((remaining - amount).toFixed(2));
+    schedule.push({ idx, dueDate, amount, paid, monthName: MONTHS_AR[dueDate.getMonth()] + ' ' + dueDate.getFullYear() });
+    month = new Date(month.getFullYear(), month.getMonth()+1, 1);
+    idx++;
+    if (idx > 240) break;
+  }
+  const now = Date.now();
+  const delayed = schedule.filter(s => !s.paid && s.dueDate.getTime() < now);
+  const status = client.remaining <= 0.001 ? 'completed' : (delayed.length > 0 ? 'delayed' : 'on-track');
+  return { schedule, delayed, status };
 }
 
 function renderHome() {
   let totalRem = 0, totalPaid = 0;
   clients.forEach(c => { totalRem += c.remaining; totalPaid += c.paid; });
-  const delayedItems = analyzeAll(clients).filter(x => x.info.status === 'delayed');
-
+  const delayedItems = clients.map(c => ({c, info: analyze(c)})).filter(x => x.info.status === 'delayed');
   document.getElementById('stats-strip').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-label">المتبقي الإجمالي</div>
-      <div class="stat-value gold">${fmt(totalRem)} <span class="stat-unit">ر.س</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">إجمالي المسدد</div>
-      <div class="stat-value green">${fmt(totalPaid)} <span class="stat-unit">ر.س</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">إجمالي العقود</div>
-      <div class="stat-value">${clients.length}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">متأخرون</div>
-      <div class="stat-value red">${delayedItems.length}</div>
-    </div>
+    <div class="stat-card"><div class="stat-label">المتبقي الإجمالي</div><div class="stat-value gold">${fmt(totalRem)} <span class="stat-unit">ر.س</span></div></div>
+    <div class="stat-card"><div class="stat-label">إجمالي المسدد</div><div class="stat-value green">${fmt(totalPaid)} <span class="stat-unit">ر.س</span></div></div>
+    <div class="stat-card"><div class="stat-label">إجمالي العقود</div><div class="stat-value">${clients.length}</div></div>
+    <div class="stat-card"><div class="stat-label">متأخرون</div><div class="stat-value red">${delayedItems.length}</div></div>
   `;
-
-  const dl = document.getElementById('delayed-list');
-  if (delayedItems.length === 0) {
-    dl.innerHTML = `<div style="text-align:center;padding:32px;color:var(--ink-soft)"><div style="font-size:40px;margin-bottom:10px">🎉</div><p>لا يوجد عملاء متأخرون حالياً</p></div>`;
-    return;
-  }
-  dl.innerHTML = delayedItems.map(x => clientCardHTML(x.c, x.info)).join('');
+  document.getElementById('delayed-list').innerHTML = delayedItems.length === 0 ? '<div style="text-align:center;padding:32px;color:var(--ink-soft)">🎉 لا يوجد عملاء متأخرون حالياً</div>' : delayedItems.map(x => clientCardHTML(x.c, x.info)).join('');
 }
 
-function setFilter(el, val) {
-  currentFilter = val;
-  shownCount = PAGE_SIZE;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  renderClients();
-}
-
-let searchTimer = null;
-function debouncedSearch() {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => { shownCount = PAGE_SIZE; renderClients(); }, 250);
-}
-
-function showMore() {
-  shownCount += PAGE_SIZE;
-  renderClients();
-}
+function setFilter(el, val) { currentFilter = val; shownCount = PAGE_SIZE; document.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); renderClients(); }
+function debouncedSearch() { setTimeout(() => { shownCount = PAGE_SIZE; renderClients(); }, 250); }
 
 function renderClients() {
   const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
   let list = clients;
-  if (q) {
-    list = list.filter(c =>
-      (c.name || '').toLowerCase().includes(q) ||
-      (c.phone || '').includes(q) ||
-      (c.guarantor || '').toLowerCase().includes(q) ||
-      (c.guarantorPhone || '').includes(q)
-    );
-  }
-  let items = analyzeAll(list);
+  if (q) list = list.filter(c => (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q));
+  let items = list.map(c => ({c, info: analyze(c)}));
   if (currentFilter !== 'all') items = items.filter(x => x.info.status === currentFilter);
-
   const container = document.getElementById('clients-list');
-  if (items.length === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:32px;color:var(--ink-soft)"><div style="font-size:40px;margin-bottom:10px">📋</div><p>لا توجد نتائج مطابقة</p></div>`;
-    return;
-  }
-  const visible = items.slice(0, shownCount);
-  let html = visible.map(x => clientCardHTML(x.c, x.info)).join('');
-  if (items.length > shownCount) {
-    html += `<button class="btn-secondary" onclick="showMore()">عرض المزيد (${items.length - shownCount} متبقي)</button>`;
-  }
-  container.innerHTML = html;
+  if (items.length === 0) { container.innerHTML = '<div style="text-align:center;padding:32px;color:var(--ink-soft)">📋 لا توجد نتائج</div>'; return; }
+  container.innerHTML = items.slice(0, shownCount).map(x => clientCardHTML(x.c, x.info)).join('');
 }
 
 function clientCardHTML(client, info) {
-  info = info || analyze(client);
-  const status = info.status;
   const statusLabels = { completed: ['مكتمل','badge-completed'], delayed: ['متأخر','badge-delayed'], 'on-track': ['منتظم','badge-on-track'] };
-  const [label, badgeClass] = statusLabels[status];
-  const pct = client.total > 0 ? Math.max(0, Math.min(100, (client.paid / client.total) * 100)).toFixed(0) : '0';
-  const delayed = info.delayed;
-  const locked = isPaymentLocked(client);
-
-  return `<div class="client-card ${status}">
-    <div class="client-head">
-      <div>
-        <div class="client-name">${esc(client.name)}</div>
-        ${client.phone ? `<div class="client-phone">📱 العميل: <a href="tel:${esc(client.phone)}">${esc(client.phone)}</a></div>` : ''}
-        ${client.guarantor ? `<div class="client-phone">🤝 الكفيل: ${esc(client.guarantor)}${client.guarantorPhone ? ` (<a href="tel:${esc(client.guarantorPhone)}">${esc(client.guarantorPhone)}</a>)` : ''}</div>` : ''}
-      </div>
-      <span class="status-badge ${badgeClass}">${label}</span>
-    </div>
+  const [label, badgeClass] = statusLabels[info.status];
+  const pct = client.total > 0 ? ((client.paid / client.total) * 100).toFixed(0) : '0';
+  return `<div class="client-card ${info.status}">
+    <div class="client-head"><div><div class="client-name">${esc(client.name)}</div>${client.phone ? `<div class="client-phone">📱 ${esc(client.phone)}</div>` : ''}</div><span class="status-badge ${badgeClass}">${label}</span></div>
     <div class="client-body">
-      <div class="progress-wrap">
-        <div class="progress-labels">
-          <span>المسدد ${fmt(client.paid)} ر.س</span>
-          <span>${pct}%</span>
-        </div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-      </div>
+      <div class="progress-wrap"><div class="progress-labels"><span>المسدد ${fmt(client.paid)} ر.س</span><span>${pct}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>
       <div class="info-grid">
         <div class="info-item"><div class="lbl">الإجمالي</div><div class="val">${fmt(client.total)} ر.س</div></div>
         <div class="info-item"><div class="lbl">القسط</div><div class="val">${fmt(client.monthly)} ر.س</div></div>
         <div class="info-item"><div class="lbl">المتبقي</div><div class="val danger">${fmt(client.remaining)} ر.س</div></div>
-        <div class="info-item" style="grid-column:1/-1"><div class="lbl">الأشهر المتأخرة</div><div class="val ${delayed.length > 0 ? 'danger' : 'success'}">${delayed.length > 0 ? `⚠️ ${delayed.length} شهر (${delayed.map(d => d.monthName).join('، ')})` : 'لا توجد تأخيرات'}</div></div>
       </div>
     </div>
     <div class="client-actions">
-      ${status !== 'completed' ? (locked
-        ? `<button class="action-btn btn-pay" style="opacity:0.55;cursor:not-allowed;" onclick="showLockedToast('${esc(client.id)}')">🔒 حتى ${dateLabel(client.paymentLockUntil)}</button>`
-        : `<button class="action-btn btn-pay" onclick="payInstallment('${esc(client.id)}')">💵 تحصيل</button>`
-      ) : ''}
-      <button class="action-btn btn-discount" onclick="addDiscount('${esc(client.id)}')">🏷️ خصم</button>
-      <button class="action-btn btn-details" onclick="openDetail('${esc(client.id)}')">📋 التفاصيل</button>
-      <button class="action-btn btn-edit" onclick="openEditModal('${esc(client.id)}')">✏️ تعديل</button>
-      <button class="action-btn btn-del" onclick="deleteClient('${esc(client.id)}')">🗑️</button>
+      ${info.status !== 'completed' ? `<button class="action-btn btn-pay" onclick="payInstallment('${client.id}')">💵 تحصيل</button>` : ''}
+      <button class="action-btn btn-discount" onclick="addDiscount('${client.id}')">🏷️ خصم</button>
+      <button class="action-btn btn-details" onclick="openDetail('${client.id}')">📋 التفاصيل</button>
+      <button class="action-btn btn-edit" onclick="openEditModal('${client.id}')">✏️</button>
+      <button class="action-btn btn-del" onclick="deleteClient('${client.id}')">🗑️</button>
     </div>
   </div>`;
 }
 
-function statusLabel(status) {
-  return status === 'completed' ? 'مكتمل' : (status === 'delayed' ? 'متأخر' : 'منتظم');
-}
-
-function openAllClientsSummary() {
-  if (clients.length === 0) {
-    showToast('⚠️ لا توجد عملاء مسجلون حالياً', 'red');
-    return;
-  }
-  const items = analyzeAll(clients);
-  document.getElementById('all-clients-table-body').innerHTML = items.map((x, idx) => {
-    const c = x.c;
-    return `<tr>
-      <td>${idx + 1}</td>
-      <td style="text-align:right;font-weight:700">${esc(c.name)}<br><small>${esc(c.phone || '')}</small></td>
-      <td style="text-align:right">${esc(c.guarantor || '—')}<br><small>${esc(c.guarantorPhone || '')}</small></td>
-      <td><b>${fmt(c.monthly)} ر.س</b></td>
-      <td style="color:var(--red)"><b>${fmt(c.remaining)} ر.س</b></td>
-      <td>${statusLabel(x.info.status)}</td>
-    </tr>`;
-  }).join('');
-  document.getElementById('all-clients-modal').classList.add('open');
-}
-
-function closeAllClientsModal() {
-  document.getElementById('all-clients-modal').classList.remove('open');
-}
-
-/* ---------- تصدير PDF ---------- */
-let pdfBusy = false;
-async function exportAllClientsPDF() {
-  if (clients.length === 0 || pdfBusy) return;
-  if (!window.jspdf || !window.html2canvas) {
-    showToast('⚠️ مكتبة PDF لم تُحمَّل بعد، تحقق من الاتصال وأعد المحاولة', 'red');
-    return;
-  }
-  pdfBusy = true;
-  const btn = document.getElementById('pdf-btn');
-  if (btn) btn.disabled = true;
-  showToast('⏳ جاري إنشاء ملف PDF...', '');
-
-  const renderArea = document.getElementById('pdf-render-area');
-  try {
-    const items = analyzeAll(clients);
-    const ROWS_PER_PAGE = 15;
-    const pages = [];
-    for (let i = 0; i < items.length; i += ROWS_PER_PAGE) pages.push(items.slice(i, i + ROWS_PER_PAGE));
-    const dateStr = new Date().toLocaleDateString('ar-SA');
-
-    renderArea.innerHTML = pages.map((pageItems, pIdx) => `
-      <div class="pdf-page" id="pdf-full-page-${pIdx}">
-        <div class="pdf-header">
-          <h1>التقرير الشامل لجميع العملاء والكفلاء</h1>
-          <div class="pdf-sub">نظام المحمدية</div>
-          <div class="pdf-meta">تاريخ التقرير: ${dateStr} &nbsp;|&nbsp; إجمالي العملاء: ${clients.length} &nbsp;|&nbsp; صفحة ${pIdx + 1} من ${pages.length}</div>
-        </div>
-        <table class="pdf-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th style="text-align:right;">اسم العميل والجوال</th>
-              <th style="text-align:right;">الكفيل وجواله</th>
-              <th>القسط الشهري</th>
-              <th>المتبقي</th>
-              <th>الحالة</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${pageItems.map((x, i) => {
-              const c = x.c;
-              return `<tr>
-                <td>${pIdx * ROWS_PER_PAGE + i + 1}</td>
-                <td style="text-align:right;font-weight:700">${esc(c.name)}<br><small>${esc(c.phone || '')}</small></td>
-                <td style="text-align:right">${esc(c.guarantor || '—')}<br><small>${esc(c.guarantorPhone || '')}</small></td>
-                <td><b>${fmt(c.monthly)} ر.س</b></td>
-                <td>${fmt(c.remaining)} ر.س</td>
-                <td>${statusLabel(x.info.status)}</td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>
-        <div class="pdf-footer">
-          <span>نظام المحمدية لإدارة الأقساط</span>
-          <span>صفحة ${pIdx + 1} من ${pages.length}</span>
-        </div>
-      </div>
-    `).join('');
-
-    // انتظار تحميل الخطوط قبل التصوير
-    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
-    await new Promise(r => setTimeout(r, 120));
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-
-    for (let pIdx = 0; pIdx < pages.length; pIdx++) {
-      showToast(`⏳ جاري إنشاء PDF (${pIdx + 1}/${pages.length})...`, '');
-      await new Promise(r => setTimeout(r, 0));   // إفساح المجال للواجهة
-      const pageEl = document.getElementById(`pdf-full-page-${pIdx}`);
-      const canvas = await html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-      const imgData = canvas.toDataURL('image/jpeg', 0.85);
-      if (pIdx > 0) doc.addPage();
-      doc.addImage(imgData, 'JPEG', 0, 0, 297, 210);
-    }
-
-    doc.save(`التقرير_الشامل_${new Date().toISOString().split('T')[0]}.pdf`);
-    showToast('✅ تم تحميل ملف PDF الشامل', 'green');
-  } catch (err) {
-    showToast('⚠️ تعذر إنشاء ملف PDF', 'red');
-  } finally {
-    renderArea.innerHTML = '';
-    pdfBusy = false;
-    if (btn) btn.disabled = false;
-  }
-}
-
-/* ---------- مُصدِّر PDF عام (يُستخدم في التقارير الثلاثة الجديدة) ---------- */
-async function exportGenericPDF(opts) {
-  const { title, headers, rowsHtml, rowCount, filenamePrefix } = opts;
-  if (!rowCount || pdfBusy) return;
-  if (!window.jspdf || !window.html2canvas) {
-    showToast('⚠️ مكتبة PDF لم تُحمَّل بعد، تحقق من الاتصال وأعد المحاولة', 'red');
-    return;
-  }
-  pdfBusy = true;
-  showToast('⏳ جاري إنشاء ملف PDF...', '');
-  const renderArea = document.getElementById('pdf-render-area');
-  try {
-    const ROWS_PER_PAGE = 16;
-    const pages = [];
-    for (let i = 0; i < rowsHtml.length; i += ROWS_PER_PAGE) pages.push(rowsHtml.slice(i, i + ROWS_PER_PAGE));
-    const dateStr = new Date().toLocaleDateString('ar-SA');
-
-    renderArea.innerHTML = pages.map((pageRows, pIdx) => `
-      <div class="pdf-page" id="pdf-generic-page-${pIdx}">
-        <div class="pdf-header">
-          <h1>${esc(title)}</h1>
-          <div class="pdf-sub">نظام المحمدية</div>
-          <div class="pdf-meta">تاريخ التقرير: ${dateStr} &nbsp;|&nbsp; إجمالي السجلات: ${rowCount} &nbsp;|&nbsp; صفحة ${pIdx + 1} من ${pages.length}</div>
-        </div>
-        <table class="pdf-table">
-          <thead><tr>${headers.map(h => `<th${h.align === 'right' ? ' style="text-align:right;"' : ''}>${esc(h.label)}</th>`).join('')}</tr></thead>
-          <tbody>${pageRows.join('')}</tbody>
-        </table>
-        <div class="pdf-footer">
-          <span>نظام المحمدية</span>
-          <span>صفحة ${pIdx + 1} من ${pages.length}</span>
-        </div>
-      </div>
-    `).join('');
-
-    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
-    await new Promise(r => setTimeout(r, 120));
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    for (let pIdx = 0; pIdx < pages.length; pIdx++) {
-      showToast(`⏳ جاري إنشاء PDF (${pIdx + 1}/${pages.length})...`, '');
-      await new Promise(r => setTimeout(r, 0));
-      const pageEl = document.getElementById(`pdf-generic-page-${pIdx}`);
-      const canvas = await html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-      const imgData = canvas.toDataURL('image/jpeg', 0.85);
-      if (pIdx > 0) doc.addPage();
-      doc.addImage(imgData, 'JPEG', 0, 0, 297, 210);
-    }
-    doc.save(`${filenamePrefix}_${new Date().toISOString().split('T')[0]}.pdf`);
-    showToast('✅ تم تحميل الملف بنجاح', 'green');
-  } catch (err) {
-    showToast('⚠️ تعذر إنشاء ملف PDF', 'red');
-  } finally {
-    renderArea.innerHTML = '';
-    pdfBusy = false;
-  }
-}
-
-/* ---------- 1) تقرير متابعة العملاء (اسم/جوال العميل - الكفيل وجواله - القسط الشهري - ملاحظات) ---------- */
-function openFollowUpReport() {
-  if (clients.length === 0) { showToast('⚠️ لا توجد عملاء مسجلون حالياً', 'red'); return; }
-  document.getElementById('followup-table-body').innerHTML = clients.map((c, idx) => `
-    <tr>
-      <td>${idx + 1}</td>
-      <td style="text-align:right;font-weight:700">${esc(c.name)}<br><small>${esc(c.phone || '—')}</small></td>
-      <td style="text-align:right">${esc(c.guarantor || '—')}<br><small>${esc(c.guarantorPhone || '')}</small></td>
-      <td><b>${fmt(c.monthly)} ر.س</b></td>
-      <td style="text-align:right;font-size:11.5px">${esc(c.notes || '—')}</td>
-    </tr>`).join('');
-  document.getElementById('followup-modal').classList.add('open');
-}
-function closeFollowUpModal() { document.getElementById('followup-modal').classList.remove('open'); }
-
-function exportFollowUpPDF() {
-  if (clients.length === 0) return;
-  const rowsHtml = clients.map((c, idx) => `<tr>
-    <td>${idx + 1}</td>
-    <td style="text-align:right;font-weight:700">${esc(c.name)}<br><small>${esc(c.phone || '')}</small></td>
-    <td style="text-align:right">${esc(c.guarantor || '—')}<br><small>${esc(c.guarantorPhone || '')}</small></td>
-    <td><b>${fmt(c.monthly)} ر.س</b></td>
-    <td style="text-align:right;font-size:12px">${esc(c.notes || '—')}</td>
-  </tr>`);
-  exportGenericPDF({
-    title: 'تقرير متابعة العملاء',
-    headers: [
-      { label: '#' },
-      { label: 'اسم العميل وجواله', align: 'right' },
-      { label: 'اسم الكفيل وجواله', align: 'right' },
-      { label: 'القسط الشهري' },
-      { label: 'ملاحظات', align: 'right' }
-    ],
-    rowsHtml, rowCount: clients.length, filenamePrefix: 'تقرير_متابعة_العملاء'
-  });
-}
-
-/* ---------- 2) تقرير المبيعات الآجلة (مرتبطة بالمبالغ الإجمالية لعقود العملاء) ---------- */
-function openDeferredSalesReport() {
-  if (clients.length === 0) { showToast('⚠️ لا توجد عملاء مسجلون حالياً', 'red'); return; }
-  let totalSum = 0, totalRem = 0;
-  clients.forEach(c => { totalSum += c.total; totalRem += c.remaining; });
-  document.getElementById('deferred-stats').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-label">إجمالي المبيعات الآجلة</div>
-      <div class="stat-value gold">${fmt(totalSum)} <span class="stat-unit">ر.س</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">المتبقي من الآجل</div>
-      <div class="stat-value red">${fmt(totalRem)} <span class="stat-unit">ر.س</span></div>
-    </div>
-  `;
-  document.getElementById('deferred-table-body').innerHTML = clients.map((c, idx) => `
-    <tr>
-      <td>${idx + 1}</td>
-      <td style="text-align:right;font-weight:700">${esc(c.name)}</td>
-      <td><b>${fmt(c.total)} ر.س</b></td>
-      <td style="color:var(--green)">${fmt(c.paid)} ر.س</td>
-      <td style="color:var(--red)"><b>${fmt(c.remaining)} ر.س</b></td>
-    </tr>`).join('');
-  document.getElementById('deferred-modal').classList.add('open');
-}
-function closeDeferredModal() { document.getElementById('deferred-modal').classList.remove('open'); }
-
-function exportDeferredPDF() {
-  if (clients.length === 0) return;
-  const rowsHtml = clients.map((c, idx) => `<tr>
-    <td>${idx + 1}</td>
-    <td style="text-align:right;font-weight:700">${esc(c.name)}</td>
-    <td><b>${fmt(c.total)} ر.س</b></td>
-    <td>${fmt(c.paid)} ر.س</td>
-    <td>${fmt(c.remaining)} ر.س</td>
-  </tr>`);
-  exportGenericPDF({
-    title: 'تقرير المبيعات الآجلة',
-    headers: [
-      { label: '#' },
-      { label: 'اسم العميل', align: 'right' },
-      { label: 'المبلغ الإجمالي' },
-      { label: 'المسدد' },
-      { label: 'المتبقي' }
-    ],
-    rowsHtml, rowCount: clients.length, filenamePrefix: 'تقرير_المبيعات_الآجلة'
-  });
-}
-
-/* ---------- 3) المبيعات الشهرية: وحدة بيانات مستقلة تماماً عن جدول العملاء والعقود ---------- */
-const MS_KEY = 'iqsat_monthly_sales_v1';   // مفتاح تخزين منفصل تماماً - لا علاقة له بـ LS_KEY
-function loadMonthlySales() {
-  const raw = lsGet(MS_KEY);
-  return raw ? safeParse(raw, []) : [];
-}
-let monthlySales = loadMonthlySales();
-function saveMonthlySalesLocal() { lsSet(MS_KEY, JSON.stringify(monthlySales)); }
-
-function openMonthlySalesReport() {
-  renderMonthlySales();
-  document.getElementById('monthly-sales-modal').classList.add('open');
-}
-function closeMonthlySalesModal() { document.getElementById('monthly-sales-modal').classList.remove('open'); }
-
-function renderMonthlySales() {
-  // عداد خاص بالمبيعات الشهرية فقط (عدد العمليات + الإجمالي) - غير مرتبط بأي عداد آخر في النظام
-  const count = monthlySales.length;
-  const total = monthlySales.reduce((s, m) => s + (parseFloat(m.totalAmount) || 0), 0);
-  document.getElementById('ms-count').textContent = count;
-  document.getElementById('ms-total').textContent = fmt(total) + ' ر.س';
-
-  const tbody = document.getElementById('monthly-sales-table-body');
-  if (count === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="padding:20px;color:var(--ink-soft)">لا توجد عمليات بيع مسجلة بعد</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = monthlySales.map((m, idx) => `
-    <tr>
-      <td>${idx + 1}</td>
-      <td style="text-align:right;font-weight:700">${esc(m.name)}</td>
-      <td>${fmt(m.baseAmount)} ر.س</td>
-      <td><b>${fmt(m.totalAmount)} ر.س</b></td>
-      <td style="font-size:11px">${dateLabel(m.date)}</td>
-      <td><button class="action-btn btn-del" style="min-width:32px;padding:5px" onclick="deleteMonthlySale('${m.id}')">🗑️</button></td>
-    </tr>`).join('');
-}
-
-function addMonthlySale() {
-  const name = document.getElementById('ms-name').value.trim();
-  const base = parseFloat(document.getElementById('ms-base').value) || 0;
-  const full = parseFloat(document.getElementById('ms-full').value) || 0;
-  if (!name || !full) { showToast('⚠️ يرجى إدخال اسم العميل والمبلغ الإجمالي', 'red'); return; }
-
-  monthlySales.push({
-    id: Date.now(),
-    name, baseAmount: base, totalAmount: full,
-    date: new Date().toISOString().split('T')[0]
-  });
-  saveMonthlySalesLocal();
-
-  document.getElementById('ms-name').value = '';
-  document.getElementById('ms-base').value = '';
-  document.getElementById('ms-full').value = '';
-  renderMonthlySales();
-  showToast('✅ تمت إضافة عملية البيع', 'green');
-}
-
-function deleteMonthlySale(id) {
-  if (!confirm('هل تريد حذف هذه العملية؟')) return;
-  monthlySales = monthlySales.filter(m => String(m.id) !== String(id));
-  saveMonthlySalesLocal();
-  renderMonthlySales();
-  showToast('🗑️ تم الحذف', 'green');
-}
-
-function exportMonthlySalesPDF() {
-  if (monthlySales.length === 0) return;
-  const rowsHtml = monthlySales.map((m, idx) => `<tr>
-    <td>${idx + 1}</td>
-    <td style="text-align:right;font-weight:700">${esc(m.name)}</td>
-    <td>${fmt(m.baseAmount)} ر.س</td>
-    <td><b>${fmt(m.totalAmount)} ر.س</b></td>
-    <td>${dateLabel(m.date)}</td>
-  </tr>`);
-  exportGenericPDF({
-    title: 'تقرير المبيعات الشهرية',
-    headers: [
-      { label: '#' },
-      { label: 'اسم العميل', align: 'right' },
-      { label: 'المبلغ الأساسي' },
-      { label: 'المبلغ الإجمالي' },
-      { label: 'التاريخ' }
-    ],
-    rowsHtml, rowCount: monthlySales.length, filenamePrefix: 'تقرير_المبيعات_الشهرية'
-  });
-}
-
-/* ---------- 4) تقرير المسددين: كل عملية سداد فعلية عبر كل العملاء، مرتبة بالأحدث أولاً ---------- */
-function getSettledEntries() {
-  const entries = [];
-  clients.forEach(c => {
-    normalizePaymentsLog(c);
-    c.paymentsLog.forEach(p => {
-      entries.push({ clientName: c.name, date: p.date, amount: parseFloat(p.amount) || 0, notes: p.notes || '' });
-    });
-  });
-  entries.sort((a, b) => new Date(b.date) - new Date(a.date));   // الأحدث أولاً
-  return entries;
-}
-
-function openSettledReport() {
-  const entries = getSettledEntries();
-  if (entries.length === 0) { showToast('⚠️ لا توجد عمليات سداد مسجلة بعد', 'red'); return; }
-  const totalSettled = entries.reduce((s, e) => s + e.amount, 0);
-  document.getElementById('settled-stats').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-label">عدد عمليات السداد</div>
-      <div class="stat-value gold">${entries.length}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">إجمالي المسدد</div>
-      <div class="stat-value green">${fmt(totalSettled)} <span class="stat-unit">ر.س</span></div>
-    </div>
-  `;
-  document.getElementById('settled-table-body').innerHTML = entries.map((e, idx) => `
-    <tr>
-      <td>${idx + 1}</td>
-      <td style="text-align:right;font-weight:700">${esc(e.clientName)}</td>
-      <td>${dateLabel(e.date)}</td>
-      <td><b>${fmt(e.amount)} ر.س</b></td>
-      <td style="text-align:right;font-size:11.5px">${esc(e.notes || '—')}</td>
-    </tr>`).join('');
-  document.getElementById('settled-modal').classList.add('open');
-}
-function closeSettledModal() { document.getElementById('settled-modal').classList.remove('open'); }
-
-function exportSettledPDF() {
-  const entries = getSettledEntries();
-  if (entries.length === 0) return;
-  const rowsHtml = entries.map((e, idx) => `<tr>
-    <td>${idx + 1}</td>
-    <td style="text-align:right;font-weight:700">${esc(e.clientName)}</td>
-    <td>${dateLabel(e.date)}</td>
-    <td><b>${fmt(e.amount)} ر.س</b></td>
-    <td style="text-align:right;font-size:12px">${esc(e.notes || '—')}</td>
-  </tr>`);
-  exportGenericPDF({
-    title: 'تقرير المسددين',
-    headers: [
-      { label: '#' },
-      { label: 'اسم العميل', align: 'right' },
-      { label: 'تاريخ السداد الفعلي' },
-      { label: 'المبلغ المسدد' },
-      { label: 'ملاحظات', align: 'right' }
-    ],
-    rowsHtml, rowCount: entries.length, filenamePrefix: 'تقرير_المسددين'
-  });
-}
-
-/* ---------- العمليات ---------- */
 function addClient() {
   const name = document.getElementById('f-name').value.trim();
-  const phone = document.getElementById('f-phone').value.trim();
-  const guarantor = document.getElementById('f-guarantor').value.trim();
-  const guarantorPhone = document.getElementById('f-guarantor-phone').value.trim();
   const total = parseFloat(document.getElementById('f-total').value) || 0;
   const monthly = parseFloat(document.getElementById('f-monthly').value) || 0;
   const startDate = document.getElementById('f-start').value;
-  const dueDay = parseInt(document.getElementById('f-day').value) || 1;
-  const notes = document.getElementById('f-notes').value.trim();
-
-  if (!name || !total || !monthly || !startDate) {
-    showToast('⚠️ يرجى ملء الحقول المطلوبة', 'red'); return;
-  }
-
-  const newClient = {
-    id: Date.now(), name, phone, guarantor, guarantorPhone, total, monthly,
-    remaining: total, paid: 0, startDate, dueDay,
-    notes, paymentsLog: [], discounts: [], paymentLockUntil: ''
-  };
-  clients.push(newClient);
-  commitClientChange(newClient);   // يرفع هذا العميل فقط، وليس القائمة كاملة
-
-  ['f-name','f-phone','f-guarantor','f-guarantor-phone','f-total','f-monthly','f-start','f-day','f-notes'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  showToast('✅ تم حفظ العقد', 'green');
-  switchTab('clients');
+  if (!name || !total || !monthly || !startDate) { showToast('⚠️ يرجى ملء الحقول المطلوبة', 'red'); return; }
+  clients.push({ id: Date.now(), name, phone: document.getElementById('f-phone').value.trim(), guarantor: document.getElementById('f-guarantor').value.trim(), guarantorPhone: document.getElementById('f-guarantor-phone').value.trim(), total, monthly, remaining: total, paid: 0, startDate, dueDay: parseInt(document.getElementById('f-day').value)||1, notes: document.getElementById('f-notes').value.trim(), paymentsLog: [], discounts: [] });
+  saveToCloud(); renderAll(); switchTab('clients'); showToast('✅ تم حفظ العقد', 'green');
 }
 
-function openEditModal(id) {
+function payInstallment(id) {
   const c = clients.find(x => String(x.id) === String(id));
   if (!c) return;
-  document.getElementById('e-id').value = c.id;
-  document.getElementById('e-name').value = c.name;
-  document.getElementById('e-phone').value = c.phone || '';
-  document.getElementById('e-guarantor').value = c.guarantor || '';
-  document.getElementById('e-guarantor-phone').value = c.guarantorPhone || '';
-  document.getElementById('e-total').value = c.total;
-  document.getElementById('e-monthly').value = c.monthly;
-  document.getElementById('e-start').value = c.startDate;
-  document.getElementById('e-day').value = c.dueDay || '';
-  document.getElementById('e-paid').value = c.paid;
-  document.getElementById('e-lock-until').value = c.paymentLockUntil || '';
-  document.getElementById('e-notes').value = c.notes || '';
-  document.getElementById('edit-modal').classList.add('open');
-}
-
-function closeEditModal() { document.getElementById('edit-modal').classList.remove('open'); }
-
-function saveClientEdit() {
-  const id = document.getElementById('e-id').value;
-  const name = document.getElementById('e-name').value.trim();
-  const phone = document.getElementById('e-phone').value.trim();
-  const guarantor = document.getElementById('e-guarantor').value.trim();
-  const guarantorPhone = document.getElementById('e-guarantor-phone').value.trim();
-  const total = parseFloat(document.getElementById('e-total').value) || 0;
-  const monthly = parseFloat(document.getElementById('e-monthly').value) || 0;
-  const startDate = document.getElementById('e-start').value;
-  const dueDay = parseInt(document.getElementById('e-day').value) || 1;
-  const paid = parseFloat(document.getElementById('e-paid').value) || 0;
-  const paymentLockUntil = document.getElementById('e-lock-until').value || '';
-  const notes = document.getElementById('e-notes').value.trim();
-
-  if (!name || !total || !monthly || !startDate) {
-    showToast('⚠️ يرجى ملء الحقول المطلوبة', 'red'); return;
-  }
-
-  let updatedClient = null;
-  clients = clients.map(c => {
-    if (String(c.id) !== String(id)) return c;
-    const totalDiscount = (c.discounts || []).reduce((s, d) => s + d.amount, 0);
-    updatedClient = {
-      ...c, name, phone, guarantor, guarantorPhone, total, monthly, startDate, dueDay, notes,
-      paymentLockUntil,
-      paid: parseFloat(paid.toFixed(2)),
-      remaining: parseFloat((total - paid - totalDiscount).toFixed(2))
-    };
-    return updatedClient;
-  });
-
-  if (updatedClient) commitClientChange(updatedClient);   // يرفع هذا العميل فقط
-  closeEditModal();
-  renderHome();
-  renderClients();
-  showToast('✅ تم حفظ التعديلات', 'green');
-}
-
-/* ---------- تطبيع سجل التحصيلات وإعادة حساب الأرصدة (يدعم التعديل والحذف بأمان) ---------- */
-function normalizePaymentsLog(client) {
-  client.paymentsLog = (client.paymentsLog || []).map(entry =>
-    typeof entry === 'string' ? { date: entry, amount: client.monthly, notes: '' } : entry
-  );
-}
-function recomputeClientTotals(client) {
-  normalizePaymentsLog(client);
-  const paid = client.paymentsLog.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
-  const totalDiscount = (client.discounts || []).reduce((s, d) => s + (parseFloat(d.amount) || 0), 0);
-  client.paid = parseFloat(paid.toFixed(2));
-  client.remaining = parseFloat((client.total - client.paid - totalDiscount).toFixed(2));
-}
-
-/* ---------- قفل زر "تحصيل" لمدة أيام بعد كل عملية تحصيل جديدة (لمنع تكرار التحصيل بالخطأ) ---------- */
-const PAYMENT_LOCK_DAYS = 20;
-
-function isPaymentLocked(client) {
-  if (!client.paymentLockUntil) return false;
-  const lockDate = new Date(client.paymentLockUntil);
-  if (isNaN(lockDate)) return false;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  lockDate.setHours(0, 0, 0, 0);
-  return today <= lockDate;
-}
-
-function showLockedToast(id) {
-  const client = clients.find(x => String(x.id) === String(id));
-  const untilLabel = client ? dateLabel(client.paymentLockUntil) : '';
-  showToast(`🔒 زر التحصيل مقفل حتى ${untilLabel}. لفكّه قبل موعده افتح "✏️ تعديل" وامسح تاريخ القفل.`, 'yellow');
-}
-
-/* ---------- 4) تحصيل الأقساط عبر نافذة مخصصة (بدل prompt) ---------- */
-function payInstallment(id) { openPaymentModal(id); }   // اسم قديم محفوظ لتوافق أزرار البطاقات
-
-function openPaymentModal(id) {
-  const client = clients.find(x => String(x.id) === String(id));
-  if (!client) return;
-  if (isPaymentLocked(client)) { showLockedToast(id); return; }   // حماية إضافية حتى لو استُدعيت الدالة من مكان آخر
-  document.getElementById('pm-client-id').value = client.id;
-  document.getElementById('pm-entry-index').value = '';
-  document.getElementById('payment-client-label').textContent = client.name;
-  const suggested = Math.min(client.monthly, client.remaining > 0 ? client.remaining : client.monthly);
-  document.getElementById('pm-amount').value = suggested > 0 ? suggested.toFixed(2) : '';
+  document.getElementById('pm-client-id').value = c.id;
+  document.getElementById('payment-client-label').textContent = c.name;
+  document.getElementById('pm-amount').value = Math.min(c.monthly, c.remaining).toFixed(2);
   document.getElementById('pm-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('pm-notes').value = '';
   document.getElementById('payment-modal').classList.add('open');
 }
 function closePaymentModal() { document.getElementById('payment-modal').classList.remove('open'); }
-
-function openEditPaymentEntry(clientId, idx) {
-  const client = clients.find(x => String(x.id) === String(clientId));
-  if (!client) return;
-  normalizePaymentsLog(client);
-  const entry = client.paymentsLog[idx];
-  if (!entry) return;
-  document.getElementById('pm-client-id').value = client.id;
-  document.getElementById('pm-entry-index').value = idx;
-  document.getElementById('payment-client-label').textContent = client.name + ' — تعديل تحصيل';
-  document.getElementById('pm-amount').value = entry.amount;
-  document.getElementById('pm-date').value = entry.date;
-  document.getElementById('pm-notes').value = entry.notes || '';
-  document.getElementById('payment-modal').classList.add('open');
-}
-
 function confirmPayment() {
   const id = document.getElementById('pm-client-id').value;
-  const entryIdxStr = document.getElementById('pm-entry-index').value;
-  const client = clients.find(x => String(x.id) === String(id));
-  if (!client) return;
-  const amount = parseFloat(document.getElementById('pm-amount').value);
+  const c = clients.find(x => String(x.id) === String(id));
+  const amt = parseFloat(document.getElementById('pm-amount').value);
   const date = document.getElementById('pm-date').value;
-  const notes = document.getElementById('pm-notes').value.trim();
-  if (isNaN(amount) || amount <= 0) { showToast('⚠️ مبلغ غير صالح', 'red'); return; }
-  if (!date) { showToast('⚠️ يرجى تحديد التاريخ', 'red'); return; }
-
-  normalizePaymentsLog(client);
-  const entry = { date, amount: parseFloat(amount.toFixed(2)), notes };
-  const isNewCollection = (entryIdxStr === '');
-  if (!isNewCollection) {
-    client.paymentsLog[parseInt(entryIdxStr)] = entry;   // تعديل تحصيل سابق: لا نجدّد القفل
-  } else {
-    client.paymentsLog.push(entry);
-    // قفل زر "تحصيل" تلقائياً لمدة 20 يوماً لمنع تسجيل تحصيل ثانٍ بالخطأ
-    const lockDate = new Date();
-    lockDate.setDate(lockDate.getDate() + PAYMENT_LOCK_DAYS);
-    client.paymentLockUntil = lockDate.toISOString().split('T')[0];
-  }
-  recomputeClientTotals(client);
-  commitClientChange(client);
-  closePaymentModal();
-  renderHome();
-  renderClients();
-  if (document.getElementById('detail-modal').classList.contains('open')) openDetail(client.id);
-  showToast(isNewCollection ? `✅ تم تسجيل التحصيل، وقُفل الزر تلقائياً حتى ${dateLabel(client.paymentLockUntil)}` : '✅ تم حفظ التعديل', 'green');
+  if (!c || isNaN(amt) || amt <= 0) return;
+  if (!c.paymentsLog) c.paymentsLog = [];
+  c.paymentsLog.push({ date, amount: amt });
+  c.paid = parseFloat((c.paid + amt).toFixed(2));
+  c.remaining = parseFloat((c.total - c.paid - (c.discounts||[]).reduce((s,d)=>s+d.amount,0)).toFixed(2));
+  saveToCloud(); closePaymentModal(); renderAll(); showToast('✅ تم التحصيل', 'green');
 }
 
-/* ---------- 7) إمكانية تعديل/حذف تحصيل مسجّل بالخطأ، مع إعادة حساب المتبقي تلقائياً ---------- */
-function deletePaymentEntry(clientId, idx) {
-  const client = clients.find(x => String(x.id) === String(clientId));
-  if (!client) return;
-  if (!confirm('هل تريد حذف هذا التحصيل؟ سيتم تعديل الرصيد المتبقي تلقائياً.')) return;
-  normalizePaymentsLog(client);
-  client.paymentsLog.splice(idx, 1);
-  recomputeClientTotals(client);
-  commitClientChange(client);
-  renderHome();
-  renderClients();
-  openDetail(client.id);
-  showToast('🗑️ تم حذف التحصيل وتحديث الرصيد', 'green');
-}
-
-/* ---------- 4) الخصومات عبر نافذة مخصصة (بدل prompt) ---------- */
-function addDiscount(id) { openDiscountModal(id); }   // اسم قديم محفوظ لتوافق أزرار البطاقات
-
-function openDiscountModal(id) {
-  const client = clients.find(x => String(x.id) === String(id));
-  if (!client) return;
-  document.getElementById('dm-client-id').value = client.id;
-  document.getElementById('dm-entry-index').value = '';
-  document.getElementById('discount-client-label').textContent = client.name;
+function addDiscount(id) {
+  const c = clients.find(x => String(x.id) === String(id));
+  if (!c) return;
+  document.getElementById('dm-client-id').value = c.id;
+  document.getElementById('discount-client-label').textContent = c.name;
   document.getElementById('dm-amount').value = '';
   document.getElementById('dm-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('dm-reason').value = '';
   document.getElementById('discount-modal').classList.add('open');
 }
 function closeDiscountModal() { document.getElementById('discount-modal').classList.remove('open'); }
-
-function openEditDiscountEntry(clientId, idx) {
-  const client = clients.find(x => String(x.id) === String(clientId));
-  if (!client || !client.discounts || !client.discounts[idx]) return;
-  const entry = client.discounts[idx];
-  document.getElementById('dm-client-id').value = client.id;
-  document.getElementById('dm-entry-index').value = idx;
-  document.getElementById('discount-client-label').textContent = client.name + ' — تعديل خصم';
-  document.getElementById('dm-amount').value = entry.amount;
-  document.getElementById('dm-date').value = entry.date;
-  document.getElementById('dm-reason').value = entry.reason || '';
-  document.getElementById('discount-modal').classList.add('open');
-}
-
 function confirmDiscount() {
   const id = document.getElementById('dm-client-id').value;
-  const entryIdxStr = document.getElementById('dm-entry-index').value;
-  const client = clients.find(x => String(x.id) === String(id));
-  if (!client) return;
-  const amount = parseFloat(document.getElementById('dm-amount').value);
+  const c = clients.find(x => String(x.id) === String(id));
+  const amt = parseFloat(document.getElementById('dm-amount').value);
   const date = document.getElementById('dm-date').value;
-  const reason = document.getElementById('dm-reason').value.trim() || 'خصم';
-  if (isNaN(amount) || amount <= 0) { showToast('⚠️ مبلغ غير صالح', 'red'); return; }
-  if (!date) { showToast('⚠️ يرجى تحديد التاريخ', 'red'); return; }
-
-  if (!client.discounts) client.discounts = [];
-  const entry = { date, amount: parseFloat(amount.toFixed(2)), reason };
-  if (entryIdxStr !== '') {
-    client.discounts[parseInt(entryIdxStr)] = entry;
-  } else {
-    client.discounts.push(entry);
-  }
-  recomputeClientTotals(client);
-  commitClientChange(client);
-  closeDiscountModal();
-  renderHome();
-  renderClients();
-  if (document.getElementById('detail-modal').classList.contains('open')) openDetail(client.id);
-  showToast('✅ تم حفظ الخصم', 'green');
-}
-
-/* ---------- 7) إمكانية تعديل/حذف خصم مسجّل بالخطأ، مع إعادة حساب المتبقي تلقائياً ---------- */
-function deleteDiscountEntry(clientId, idx) {
-  const client = clients.find(x => String(x.id) === String(clientId));
-  if (!client || !client.discounts) return;
-  if (!confirm('هل تريد حذف هذا الخصم؟ سيتم تعديل الرصيد المتبقي تلقائياً.')) return;
-  client.discounts.splice(idx, 1);
-  recomputeClientTotals(client);
-  commitClientChange(client);
-  renderHome();
-  renderClients();
-  openDetail(client.id);
-  showToast('🗑️ تم حذف الخصم وتحديث الرصيد', 'green');
+  if (!c || isNaN(amt) || amt <= 0) return;
+  if (!c.discounts) c.discounts = [];
+  c.discounts.push({ date, amount: amt });
+  c.remaining = parseFloat((c.total - c.paid - c.discounts.reduce((s,d)=>s+d.amount,0)).toFixed(2));
+  saveToCloud(); closeDiscountModal(); renderAll(); showToast('✅ تم الخصم', 'green');
 }
 
 function deleteClient(id) {
   if (!confirm('هل أنت متأكد من الحذف؟')) return;
   clients = clients.filter(x => String(x.id) !== String(id));
-  commitClientDelete(id);   // يحذف هذا السجل فقط من السحابة، وليس القائمة كاملة
-  renderHome();
-  renderClients();
-  showToast('🗑️ تم الحذف', 'green');
+  saveToCloud(); renderAll(); showToast('🗑️ تم الحذف', 'green');
 }
 
-function openDetail(id) {
-  const c = clients.find(x => String(x.id) === String(id));
-  if (!c) return;
-  normalizePaymentsLog(c);
-  document.getElementById('modal-client-name').textContent = c.name;
-  const schedule = generateSchedule(c);
-  const now = Date.now();
-  const rows = schedule.map(s => {
-    const late = s.dueDate.getTime() < now;
-    return `
-    <tr class="${s.paid ? 'paid-row' : (late ? 'delayed-row' : 'upcoming-row')}">
-      <td>${s.idx + 1}</td>
-      <td>${dateLabel(s.dueDate)}</td>
-      <td>${fmt(s.amount)} ر.س</td>
-      <td>${s.paid ? '✅ مدفوع' : (late ? '⚠️ متأخر' : '🔜 قادم')}</td>
-    </tr>`;
-  }).join('');
-
-  const paymentsHtml = c.paymentsLog.length === 0
-    ? `<div style="font-size:12px;color:var(--ink-soft);padding:6px 0;">لا توجد تحصيلات مسجلة بعد</div>`
-    : c.paymentsLog.map((p, idx) => `
-      <div class="log-entry">
-        <div class="le-main">
-          <div class="le-amount">${fmt(p.amount)} ر.س</div>
-          <div class="le-date">${dateLabel(p.date)}${p.notes ? ' — ' + esc(p.notes) : ''}</div>
-        </div>
-        <div class="le-actions">
-          <button class="le-btn" onclick="openEditPaymentEntry('${esc(c.id)}', ${idx})">✏️</button>
-          <button class="le-btn le-del" onclick="deletePaymentEntry('${esc(c.id)}', ${idx})">🗑️</button>
-        </div>
-      </div>`).join('');
-
-  const discountsHtml = (!c.discounts || c.discounts.length === 0)
-    ? `<div style="font-size:12px;color:var(--ink-soft);padding:6px 0;">لا توجد خصومات مسجلة</div>`
-    : c.discounts.map((d, idx) => `
-      <div class="log-entry">
-        <div class="le-main">
-          <div class="le-amount">${fmt(d.amount)} ر.س</div>
-          <div class="le-date">${dateLabel(d.date)}${d.reason ? ' — ' + esc(d.reason) : ''}</div>
-        </div>
-        <div class="le-actions">
-          <button class="le-btn" onclick="openEditDiscountEntry('${esc(c.id)}', ${idx})">✏️</button>
-          <button class="le-btn le-del" onclick="deleteDiscountEntry('${esc(c.id)}', ${idx})">🗑️</button>
-        </div>
-      </div>`).join('');
-
-  document.getElementById('modal-body').innerHTML = `
-    ${c.guarantor ? `<div>🤝 الكفيل: <b>${esc(c.guarantor)}</b> (${esc(c.guarantorPhone || 'بدون جوال')})</div><br>` : ''}
-    <table class="month-table">
-      <thead><tr><th>#</th><th>التاريخ</th><th>المبلغ</th><th>الحالة</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <div class="subsection-title">سجل التحصيلات (قابل للتعديل والحذف)</div>
-    ${paymentsHtml}
-    <div class="subsection-title">سجل الخصومات (قابل للتعديل والحذف)</div>
-    ${discountsHtml}
-  `;
-  document.getElementById('detail-modal').classList.add('open');
+function exportBackupJSON() {
+  const a = document.createElement('a');
+  a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients, null, 2));
+  a.download = `Almohammadiyah_Backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click(); a.remove();
+  showToast('✅ تم التصدير', 'green');
+}
+function importBackupJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = (ev) => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (Array.isArray(imported)) { clients = imported; saveToCloud(); renderAll(); showToast('✅ تم الاستعادة بنجاح', 'green'); }
+    } catch(err) { showToast('⚠️ خطأ بالملف', 'red'); }
+    e.target.value = '';
+  };
+  r.readAsText(file, "UTF-8");
 }
 
-function closeModal() { document.getElementById('detail-modal').classList.remove('open'); }
-
-function renderReports() {
-  let totalRem = 0, totalPaid = 0, totalSum = 0;
-  clients.forEach(c => { totalRem += c.remaining; totalPaid += c.paid; totalSum += c.total; });
-
-  document.getElementById('reports-content').innerHTML = `
-    <div style="display:grid;gap:10px;font-size:14px; margin-bottom:16px;">
-      <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>إجمالي العقود:</span><strong>${clients.length}</strong></div>
-      <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>إجمالي المبالغ:</span><strong>${fmt(totalSum)} ر.س</strong></div>
-      <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>المسدد فعلياً:</span><strong style="color:var(--green);">${fmt(totalPaid)} ر.س</strong></div>
-      <div style="padding:12px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;"><span>المتبقي:</span><strong style="color:var(--red);">${fmt(totalRem)} ر.س</strong></div>
-    </div>
-    <button class="btn-primary" onclick="openAllClientsSummary()">📋 عرض وعمل PDF التقرير الشامل</button>
-  `;
-}
-
-/* ---------- التشغيل ---------- */
 function init() {
   document.getElementById('today-date').textContent = new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', calendar: 'gregory' });
-  loadSyncTokenIntoField();
-  renderAll();          // عرض فوري من النسخة المحلية
-  loadDataFromCloud();  // ثم مزامنة في الخلفية دون انتظار
+  renderAll();
+  loadDataFromCloud();
 }
-
-// محاولة رفع أي تعديل معلّق عند عودة الاتصال أو عند العودة للتطبيق
-window.addEventListener('online', () => { if (lsGet(LS_DIRTY) === '1') retryPendingSync(); });
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && lsGet(LS_DIRTY) === '1') retryPendingSync();
-});
-
 initLock();
 </script>
 </body>
