@@ -552,7 +552,7 @@
 <div id="pdf-render-area"></div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5XWXHnam0Hi67s03pme7s0uNEPWdlll7mtn3IBh0CnhpuSPN7lrlxCYP2p8-q/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxDJiw1h2R7YpUelYx4e8tQioyIA4woXpPnImzK7By3IEbaEqJ1HDalBnJSLLVbAlIO/exec";
 
 const LS_KEY = 'iqsat_v3';
 const LS_DIRTY = 'iqsat_v3_dirty';   // علامة: توجد تعديلات محلية لم تُرفع بعد
@@ -1123,7 +1123,7 @@ function clientCardHTML(client, info) {
       <button class="action-btn btn-edit" onclick="openEditModal('${esc(client.id)}')">✏️ تعديل</button>
       <button class="action-btn btn-del" onclick="deleteClient('${esc(client.id)}')">🗑️</button>
     </div>
-  `;
+  </div>`;
 }
 
 function statusLabel(status) {
