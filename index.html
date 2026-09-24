@@ -368,37 +368,63 @@ function esc(s) { return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;',
 function fmt(n) { return new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(n || 0)); }
 function dateLabel(d) { if (!d) return '—'; const dt = new Date(d); return isNaN(dt) ? '—' : new Intl.DateTimeFormat('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', calendar: 'gregory' }).format(dt); }
 
+let cloudReady = false;   // لا نكتب للسحابة إلا بعد نجاح أول جلب (حماية من مسح البيانات)
+let cloudSaving = false, cloudPending = false;
+
+function rowToClient(r) {
+  return {
+    id: r[0], name: String(r[1] ?? ''), phone: r[2] ? String(r[2]) : '', guarantor: r[3] ? String(r[3]) : '', guarantorPhone: r[4] ? String(r[4]) : '',
+    total: parseFloat(r[5]) || 0, monthly: parseFloat(r[6]) || 0, paid: parseFloat(r[7]) || 0, remaining: parseFloat(r[8]) || 0,
+    startDate: r[9] || '', dueDay: parseInt(r[10]) || 1, notes: r[11] || '',
+    paymentsLog: r[12] ? safeParse(r[12], []) : [], discounts: r[13] ? safeParse(r[13], []) : []
+  };
+}
+
+// جلب آمن: يدمج ولا يحذف أي عميل محلي، ثم يرفع ما ينقص السحابة
 async function loadDataFromCloud(manual) {
   if (!SCRIPT_URL.startsWith('https://')) return;
   setStatus('⏳ جاري جلب البيانات...', '#f1c40f');
   try {
     const res = await fetch(SCRIPT_URL, { method: 'GET', mode: 'cors' });
     const rows = await res.json();
-    if (Array.isArray(rows) && rows.length > 1) {
-      clients = rows.slice(1).filter(r => r[0] !== '' && r[1] !== '').map(r => ({
-        id: r[0], name: String(r[1] ?? ''), phone: r[2] ? String(r[2]) : '', guarantor: r[3] ? String(r[3]) : '', guarantorPhone: r[4] ? String(r[4]) : '',
-        total: parseFloat(r[5]) || 0, monthly: parseFloat(r[6]) || 0, paid: parseFloat(r[7]) || 0, remaining: parseFloat(r[8]) || 0,
-        startDate: r[9] || '', dueDay: parseInt(r[10]) || 1, notes: r[11] || '', paymentsLog: r[12] ? safeParse(r[12], []) : [], discounts: r[13] ? safeParse(r[13], []) : []
-      }));
-      lsSet(LS_KEY, JSON.stringify(clients));
-      renderAll();
-      if (manual) showToast('✅ تمت المزامنة وجلب البيانات بنجاح', 'green');
-    }
-    setStatus('متصل بالسحابة ✅');
+    if (!Array.isArray(rows)) { setStatus('⚠️ السكربت رجّع خطأ', '#e74c3c'); return; }
+    const cloud = rows.slice(1).filter(r => r[0] !== '' && r[1] !== '').map(rowToClient);
+    const localIds = new Set(clients.map(c => String(c.id)));
+    const cloudIds = new Set(cloud.map(c => String(c.id)));
+    let added = 0, missing = 0;
+    cloud.forEach(c => { if (!localIds.has(String(c.id))) { clients.push(c); added++; } });
+    clients.forEach(c => { if (!cloudIds.has(String(c.id))) missing++; });
+    cloudReady = true;
+    lsSet(LS_KEY, JSON.stringify(clients));
+    renderAll();
+    if (missing > 0) saveToCloud(); else setStatus('متصل بالسحابة ✅');
+    if (manual) showToast('✅ تمت المزامنة (جديد من السحابة: ' + added + '، مرفوع: ' + missing + ')', 'green');
   } catch(e) {
     setStatus('⚠️ تم الاعتماد على النسخة المحلية', '#f39c12');
   }
 }
 
-function saveToCloud() {
+async function saveToCloud() {
   lsSet(LS_KEY, JSON.stringify(clients));
   if (!SCRIPT_URL.startsWith('https://')) return;
+  if (!cloudReady) { setStatus('⚠️ محفوظ محلياً (لم تتم المزامنة بعد)', '#f39c12'); return; }
+  if (cloudSaving) { cloudPending = true; return; }
+  cloudSaving = true;
   setStatus('💾 جاري الحفظ بالسحابة...', '#f1c40f');
   const rows = [["ID", "الاسم", "الجوال", "الكفيل", "جوال_الكفيل", "الإجمالي", "القسط", "المسدد", "المتبقي", "تاريخ_البداية", "يوم_الاستحقاق", "الملاحظات", "PaymentsLog", "Discounts"]];
   clients.forEach(c => rows.push([c.id, c.name, c.phone||'', c.guarantor||'', c.guarantorPhone||'', c.total, c.monthly, c.paid, c.remaining, c.startDate, c.dueDay||'', c.notes||'', JSON.stringify(c.paymentsLog||[]), JSON.stringify(c.discounts||[])]));
-  fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify({ bulkReplace: rows }) })
-    .then(() => setStatus('محدث بالسحابة ✅', '#2ecc71'))
-    .catch(() => setStatus('⚠️ حفظ محلي', '#e74c3c'));
+  try {
+    const res = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify({ bulkReplace: rows }) });
+    const out = await res.json();
+    if (out && (out.ok || out.status === 'success')) setStatus('محدث بالسحابة ✅', '#2ecc71');
+    else throw new Error((out && out.error) || 'server');
+  } catch(e) {
+    setStatus('⚠️ حفظ محلي فقط (فشل الرفع)', '#e74c3c');
+    showToast('⚠️ لم يُرفع للسحابة، تحقق من نشر السكربت', 'red');
+  } finally {
+    cloudSaving = false;
+    if (cloudPending) { cloudPending = false; saveToCloud(); }
+  }
 }
 
 function showToast(msg, type='') {
