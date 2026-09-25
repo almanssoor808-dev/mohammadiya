@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#14532d">
-<title>نظام المحمدية - نسخة نظيفة محمية</title>
+<title>نظام المحمدية - جاهز</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#f7f9f5;color:#14532d}
 header{background:#14532d;color:#fff;padding:16px;position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center}
@@ -31,7 +31,7 @@ input,textarea{padding:11px;border:1px solid #d6e4d7;border-radius:10px;width:10
 </head>
 <body>
 <header>
-<div><b>نظام المحمدية</b><br><small style="opacity:.8">نسخة نظيفة - بدون بيانات داخل الكود</small></div>
+<div><b>نظام المحمدية</b><br><small>مربوط بالسحابة ومحمي</small></div>
 <div class="cloud-status"><span id="cloudDot" class="cloud-dot"></span><span id="cloudStatus">جاري...</span></div>
 </header>
 <div class="container">
@@ -42,7 +42,6 @@ input,textarea{padding:11px;border:1px solid #d6e4d7;border-radius:10px;width:10
 <button data-tab="reports" onclick="showTab('reports')">📊 التقارير</button>
 <button data-tab="backup" onclick="showTab('backup')">💾 النسخ</button>
 </nav>
-
 <section id="home" class="tab">
 <div class="grid">
 <div class="stat"><small>العقود</small><b id="sContracts">0</b></div>
@@ -51,14 +50,12 @@ input,textarea{padding:11px;border:1px solid #d6e4d7;border-radius:10px;width:10
 <div class="stat"><small>المتبقي</small><b id="sRemain">0</b></div>
 </div>
 </section>
-
 <section id="clients" class="tab hidden">
 <div class="card">
 <input id="search" placeholder="ابحث بالاسم أو الجوال" oninput="renderClients()" style="margin-bottom:10px">
 <div id="clientCards"></div>
 </div>
 </section>
-
 <section id="add" class="tab hidden">
 <div class="card">
 <h3 id="formTitle">إضافة عقد جديد</h3>
@@ -77,7 +74,6 @@ input,textarea{padding:11px;border:1px solid #d6e4d7;border-radius:10px;width:10
 <div style="margin-top:12px"><button class="btn primary" onclick="saveContract()">💾 حفظ</button> <button class="btn" onclick="resetForm()">تفريغ</button></div>
 </div>
 </section>
-
 <section id="reports" class="tab hidden">
 <div class="card">
 <h3>📊 التقارير</h3>
@@ -86,146 +82,25 @@ input,textarea{padding:11px;border:1px solid #d6e4d7;border-radius:10px;width:10
 </div>
 </div>
 </section>
-
 <section id="backup" class="tab hidden">
 <div class="card">
 <h3>النسخ الاحتياطي</h3>
-<p style="font-size:13px;color:#666">البيانات الآن محمية - لا يمكن مسح السحابة إذا كانت البيانات المحلية فاضية.</p>
 <div style="display:flex;gap:8px;flex-wrap:wrap">
-<button class="btn green" onclick="syncToCloud()">☁️ رفع محمي إلى الشيت</button>
+<button class="btn green" onclick="syncToCloud()">☁️ رفع محمي</button>
 <button class="btn" onclick="syncFromCloud()">☁️ تحميل من الشيت</button>
 <button class="btn primary" onclick="exportJSON()">📤 تصدير JSON</button>
-<button class="btn red" onclick="clearAllData()">🗑️ مسح المحلي فقط</button>
+<button class="btn red" onclick="clearAllData()">🗑️ مسح المحلي</button>
 </div>
 <div id="cloudInfo" style="margin-top:14px;font-size:13px"></div>
 </div>
 </section>
 </div>
-
 <div id="toast" class="toast"></div>
 <script>
 "use strict";
-const STORAGE_KEY = "mohammedia_app_v2_clean";
-const SCRIPT_URL = https://script.google.com/macros/s/AKfycbxaQrSfVN02svPsFHSrih2FJNJJ3bCzEzrpcg61Lg9_t4sBS-kAmjazdqz4iufdC-cX/exec
+const STORAGE_KEY = "mohammedia_app_v2_clean_final";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGKJKvQVI9axJF9JZTdpoma2eKB5j84reafvdepM8x-uoh54YlHMQyqP1jf-cSrOnb/exec";
 const SYNC_TOKEN = "";
 let isSyncing=false;
 const HEADERS = ["ID","الاسم","الجوال","الكفيل","جوال_الكفيل","الإجمالي","القسط","المسدد","المتبقي","تاريخ_البداية","يوم_الاستحقاق","الملاحظات"];
-
-function emptyState(){return {contracts:[],updatedAt:new Date().toISOString()}}
-function loadState(){
-  try{
-    const raw=localStorage.getItem(STORAGE_KEY);
-    if(raw) return JSON.parse(raw);
-  }catch(e){}
-  return emptyState();
-}
-let state=loadState();
-
-function saveState(){
-  state.updatedAt=new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  renderAll();
-  scheduleAutoSync();
-}
-
-function showTab(id){
-  document.querySelectorAll(".tab").forEach(x=>x.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));
-}
-function val(id){return document.getElementById(id).value.trim()}
-function money(n){return Number(n||0).toLocaleString("ar-SA")+" ر.س"}
-function uid(){return Date.now().toString()}
-function nextNo(){return "M-"+new Date().getFullYear()+"-"+String(state.contracts.length+1).padStart(4,"0")}
-
-function saveContract(){
-  const name=val("name"), total=Number(val("total")), monthly=Number(val("monthly"));
-  if(!name||!total||!monthly){alert("أكمل الحقول *");return}
-  const eid=document.getElementById("editingId").value;
-  if(eid){
-    const c=state.contracts.find(x=>x.id===eid); if(!c) return;
-    Object.assign(c,{name,phone:val("phone"),guarantor:val("guarantor"),guarantorPhone:val("guarantorPhone"),total,monthly,startDate:val("startDate"),dueDay:Number(val("dueDay")||1),notes:val("notes"),remaining:(total - (c.paid||0))});
-  }else{
-    state.contracts.push({id:uid(),contractNo:nextNo(),name,phone:val("phone"),guarantor:val("guarantor"),guarantorPhone:val("guarantorPhone"),total,monthly,paid:0,remaining:total,startDate:val("startDate")||new Date().toISOString(),dueDay:Number(val("dueDay")||1),notes:val("notes")});
-  }
-  resetForm(); saveState(); showTab("clients"); toast("تم الحفظ - سيتم الرفع تلقائيا");
-}
-function resetForm(){document.getElementById("editingId").value="";["name","phone","guarantor","guarantorPhone","total","monthly","startDate","notes"].forEach(i=>document.getElementById(i).value="");document.getElementById("dueDay").value="1";}
-function renderAll(){renderHome();renderClients();renderReports();}
-function renderHome(){
-  let tot=0,paid=0; state.contracts.forEach(c=>{tot+=Number(c.total||0); paid+=Number(c.paid||0);});
-  document.getElementById("sContracts").textContent=state.contracts.length;
-  document.getElementById("sTotal").textContent=money(tot);
-  document.getElementById("sPaid").textContent=money(paid);
-  document.getElementById("sRemain").textContent=money(tot-paid);
-}
-function renderClients(){
-  const q=(document.getElementById("search").value||"").toLowerCase();
-  const box=document.getElementById("clientCards"); box.innerHTML="";
-  state.contracts.filter(c=>!q||c.name.toLowerCase().includes(q)||String(c.phone).includes(q)).forEach(c=>{
-    const div=document.createElement("div"); div.className="client-card";
-    div.innerHTML=`<b>${c.name}</b> - ${c.contractNo}<br><small>${c.phone||""} | متبقي: ${money(c.remaining)}</small><br><div style="margin-top:6px"><button class="btn" onclick="editContract('${c.id}')">تعديل</button> <button class="btn red" onclick="deleteContract('${c.id}')">حذف</button> <button class="btn green" onclick="addPayment('${c.id}')">تحصيل</button></div>`;
-    box.appendChild(div);
-  });
-}
-function editContract(id){const c=state.contracts.find(x=>x.id===id);if(!c)return;document.getElementById("editingId").value=c.id;document.getElementById("name").value=c.name;document.getElementById("phone").value=c.phone||"";document.getElementById("guarantor").value=c.guarantor||"";document.getElementById("guarantorPhone").value=c.guarantorPhone||"";document.getElementById("total").value=c.total;document.getElementById("monthly").value=c.monthly;document.getElementById("dueDay").value=c.dueDay||1;document.getElementById("notes").value=c.notes||"";showTab("add");}
-function deleteContract(id){if(!confirm("حذف؟"))return;state.contracts=state.contracts.filter(x=>x.id!==id);saveState();}
-function addPayment(id){
-  const c=state.contracts.find(x=>x.id===id); if(!c) return;
-  const amt=Number(prompt("مبلغ التحصيل؟",""+(c.monthly||0)));
-  if(!amt) return;
-  c.paid=(Number(c.paid||0)+amt); c.remaining=Number(c.total||0)-c.paid;
-  if(c.remaining<0) c.remaining=0;
-  saveState(); toast("تم التحصيل "+money(amt));
-}
-function renderReports(){
-  const b=document.getElementById("reportBody"); if(!b) return; b.innerHTML="";
-  state.contracts.forEach(c=>{b.innerHTML+=`<tr><td>${c.name}</td><td>${c.phone||""}</td><td>${money(c.monthly)}</td><td>${money(c.remaining)}</td><td>${c.guarantor||""}</td></tr>`});
-}
-function toast(m){const t=document.getElementById("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",3000)}
-function setCloudStatus(txt,cls){document.getElementById("cloudStatus").textContent=txt;document.getElementById("cloudDot").className="cloud-dot "+(cls||"");}
-
-let autoTimer=null;
-function scheduleAutoSync(){clearTimeout(autoTimer); autoTimer=setTimeout(()=>syncToCloud(),4000);}
-
-async function syncToCloud(){
-  if(isSyncing) return;
-  if(!SCRIPT_URL || SCRIPT_URL.includes("ضع_رابطك")){setCloudStatus("ضع رابط السكربت","err");return;}
-  if(!state.contracts || state.contracts.length===0){
-    setCloudStatus("حماية: لن أرفع بيانات فاضية","err");
-    return;
-  }
-  isSyncing=true; setCloudStatus("جاري الرفع المحمي...","busy");
-  try{
-    const rows=[HEADERS].concat(state.contracts.map(c=>[c.id,c.name,c.phone||"",c.guarantor||"",c.guarantorPhone||"",c.total||0,c.monthly||0,c.paid||0,c.remaining||0,c.startDate||"",c.dueDay||1,c.notes||""]));
-    const res=await fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify({token:SYNC_TOKEN,bulkReplace:rows})});
-    const j=await res.json();
-    if(j.ok){setCloudStatus("تم الحفظ بالسحابة ✅ "+j.count+" عقد","ok"); document.getElementById("cloudInfo").textContent="آخر رفع: "+new Date().toLocaleString("ar-SA");}
-    else{setCloudStatus("خطأ: "+j.error,"err");}
-  }catch(e){setCloudStatus("فشل: "+e.message,"err");}
-  isSyncing=false;
-}
-
-async function syncFromCloud(){
-  if(!SCRIPT_URL || SCRIPT_URL.includes("ضع_رابطك")){alert("ضع الرابط أولا");return;}
-  isSyncing=true; setCloudStatus("جاري التحميل...","busy");
-  try{
-    const res=await fetch(SCRIPT_URL+"?token="+SYNC_TOKEN);
-    const data=await res.json();
-    if(Array.isArray(data) && data.length>1){
-      const list=data.slice(1).map(r=>({id:String(r[0]),name:r[1]||"",phone:String(r[2]||""),guarantor:r[3]||"",guarantorPhone:r[4]||"",total:Number(r[5]||0),monthly:Number(r[6]||0),paid:Number(r[7]||0),remaining:Number(r[8]||0),startDate:r[9]||"",dueDay:Number(r[10]||1),notes:r[11]||"",contractNo:"M-IMPORT"}));
-      if(list.length>0){state.contracts=list; saveState(); setCloudStatus("تم التحميل ✅ "+list.length,"ok"); toast("تم تحميل "+list.length+" عقد");}
-      else{setCloudStatus("الشيت فاضي - لا يوجد ما نحمله","err");}
-    }else{setCloudStatus("الشيت فاضي","err");}
-  }catch(e){setCloudStatus("فشل: "+e.message,"err");}
-  isSyncing=false;
-}
-
-function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="backup-"+Date.now()+".json";a.click();}
-function clearAllData(){if(!confirm("مسح البيانات المحلية فقط؟ السحابة محمية ولن تنمسح."))return;localStorage.removeItem(STORAGE_KEY);state=emptyState();renderAll();setCloudStatus("تم مسح المحلي - السحابة آمنة","err");}
-
-renderAll();
-setCloudStatus(SCRIPT_URL.includes("ضع_رابطك")?"ضع رابط السكربت أولا":"جاهز - حماية المسح مفعلة","ok");
-</script>
-</body>
-</html>
+function emptyState(){return {contracts:[],updatedAt:new Date().to
