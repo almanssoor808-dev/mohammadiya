@@ -200,6 +200,7 @@ hr{border:0;border-top:1px solid #e7efe8;margin:18px 0}
   <div class="card">
     <h2>النسخ الاحتياطي والاستعادة</h2>
     <p>يتم حفظ نسخة JSON تحتوي على بيانات العملاء والعقود والمدفوعات وسجل النشاط.</p>
+    <p class="muted">☁️ المزامنة مع Google Sheets الآن <b>تلقائية</b>: بعد أي تعديل (إضافة/سداد/تسوية) تُرفع البيانات وحدها خلال ثوانٍ. الأزرار أدناه تبقى متاحة للرفع أو التحميل اليدوي عند الحاجة.</p>
     <div class="actions">
       <button class="btn blue" onclick="exportJSON()">📤 تصدير JSON</button>
       <button class="btn green" onclick="importJSON()">📥 استعادة JSON</button>
@@ -253,6 +254,7 @@ function saveState(){
   state.updatedAt=new Date().toISOString();
   localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
   refresh();
+  scheduleAutoSync();
 }
 
 function money(n){
@@ -355,7 +357,7 @@ function lockIsActive(c){
 function renderFollowUpReport(){
   const rows=state.contracts.filter(c=>!c.deletedAt);
   const el=document.getElementById("followUpRows");
-  if(el) el.innerHTML=rows.length?rows.map(c=>`<tr>
+  el.innerHTML=rows.length?rows.map(c=>`<tr>
     <td>${esc(c.name)}</td>
     <td>${esc(c.phone||"")}</td>
     <td>${esc(c.guarantor||"")}</td>
@@ -368,11 +370,17 @@ function renderFollowUpReport(){
 function renderRemainingReport(){
   const rows=state.contracts.filter(c=>!c.deletedAt);
   const el=document.getElementById("remainingRows");
-  if(el) el.innerHTML=rows.length?rows.map(c=>`<tr>
+  el.innerHTML=rows.length?rows.map(c=>`<tr>
     <td>${esc(c.name)}</td>
     <td>${money(c.monthly)}</td>
     <td>${money(c.remaining)}</td>
   </tr>`).join(""):'<tr><td colspan="3">لا توجد عقود</td></tr>';
+}
+
+function printReports(){
+  renderFollowUpReport();
+  renderRemainingReport();
+  window.print();
 }
 
 function getLateMonths(c){
@@ -397,6 +405,8 @@ function getLateMonths(c){
     }
     cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);
   }
+  // The current outstanding balance limits the display to months actually due,
+  // while still showing the month names for every overdue installment.
   const maxMonths=Math.max(0,Math.ceil(Number(c.remaining||0)/Math.max(1,Number(c.monthly||1))));
   return result.slice(Math.max(0,result.length-maxMonths));
 }
@@ -408,15 +418,13 @@ function renderLateMonths(c){
 }
 
 function renderClients(){
-  const searchEl = document.getElementById("search");
-  const q=(searchEl ? searchEl.value : "").toLowerCase();
+  const q=(document.getElementById("search").value||"").toLowerCase();
   const rows=state.contracts.filter(c=>!c.deletedAt).filter(c=>{
     const matches=[c.name,c.phone,c.contractNo,c.guarantor,c.guarantorPhone].join(" ").toLowerCase().includes(q);
     const st=clientStatus(c);
     return matches && (currentStatusFilter==="all" || currentStatusFilter===st);
   });
   const el=document.getElementById("clientCards");
-  if(!el) return;
   if(!rows.length){el.innerHTML='<div class="empty">لا توجد بيانات مطابقة</div>';return}
   el.innerHTML=rows.map(c=>{
     const status=clientStatus(c);
@@ -433,7 +441,7 @@ function renderClients(){
         <div class="client-amount"><small>المتبقي</small><b>${money(c.remaining)}</b></div>
       </div>
       ${c.notes?`<div class="client-meta">📝 ${esc(c.notes)}</div>`:""}
-      ${c.guarantor?`<div class="client-meta">الكفيل: ${esc(c.guarantor)}${c.guarantorPhone?"· "+esc(c.guarantorPhone):""}</div>`:""}
+      ${c.guarantor?`<div class="client-meta">الكفيل: ${esc(c.guarantor)} ${c.guarantorPhone?"· "+esc(c.guarantorPhone):""}</div>`:""}
       ${locked?`<div class="lock-note" style="margin-top:9px">${lockText}</div>`:""}
       <div class="client-meta"><b>عدد الأشهر المتأخرة: ${getLateMonths(c).length}</b></div>
       <div class="actions">
@@ -624,7 +632,6 @@ function clearAllData(){
 
 function updateBackupInfo(){
   const el=document.getElementById("backupInfo");
-  if(!el) return;
   try{
     const x=JSON.parse(localStorage.getItem("mohammedia_last_backup")||"null");
     el.innerHTML=x?`آخر نسخة محلية: <b>${new Date(x.savedAt).toLocaleString("ar-SA")}</b>`:"لا توجد نسخة محلية محفوظة.";
@@ -637,35 +644,31 @@ function renderReports(){
 
   const follow = document.getElementById("followUpReportBody");
   const remain = document.getElementById("remainingReportBody");
-  if(follow){
-    follow.innerHTML = rows.length ? rows.map(c => `
-      <tr>
-        <td>${esc(c.name || "")}</td>
-        <td>${esc(c.phone || "")}</td>
-        <td>${esc(c.guarantor || "")}</td>
-        <td>${esc(c.guarantorPhone || "")}</td>
-        <td>${money(c.monthly)}</td>
-        <td></td>
-      </tr>
-    `).join("") : '<tr><td colspan="6" class="empty">لا توجد عقود</td></tr>';
-  }
+  if(!follow || !remain) return;
 
-  if(remain){
-    remain.innerHTML = rows.length ? rows.map(c => `
-      <tr>
-        <td>${esc(c.name || "")}</td>
-        <td>${money(c.monthly)}</td>
-        <td>${money(c.remaining)}</td>
-      </tr>
-    `).join("") : '<tr><td colspan="3" class="empty">لا توجد عقود</td></tr>';
-  }
+  follow.innerHTML = rows.length ? rows.map(c => `
+    <tr>
+      <td>${esc(c.name || "")}</td>
+      <td>${esc(c.phone || "")}</td>
+      <td>${esc(c.guarantor || "")}</td>
+      <td>${esc(c.guarantorPhone || "")}</td>
+      <td>${money(c.monthly)}</td>
+      <td></td>
+    </tr>
+  `).join("") : '<tr><td colspan="6" class="empty">لا توجد عقود</td></tr>';
+
+  remain.innerHTML = rows.length ? rows.map(c => `
+    <tr>
+      <td>${esc(c.name || "")}</td>
+      <td>${money(c.monthly)}</td>
+      <td>${money(c.remaining)}</td>
+    </tr>
+  `).join("") : '<tr><td colspan="3" class="empty">لا توجد عقود</td></tr>';
 }
 
 function printReports(){
   renderReports();
-  const reportsEl = document.getElementById("reports");
-  if(!reportsEl) return;
-  const box = reportsEl.innerHTML;
+  const box = document.getElementById("reports").innerHTML;
   const w = window.open("", "_blank");
   if(!w) return alert("اسمح بفتح النوافذ المنبثقة للطباعة");
   w.document.write(`<html dir="rtl"><head><title>تقارير نظام المحمدية</title>
@@ -682,23 +685,14 @@ function printReports(){
 }
 
 function refresh(){
-  const sContracts = document.getElementById("sContracts");
-  const sTotal = document.getElementById("sTotal");
-  const sPaid = document.getElementById("sPaid");
-  const sRemain = document.getElementById("sRemain");
-  const sLate = document.getElementById("sLate");
-  const sToday = document.getElementById("sToday");
-  const sDone = document.getElementById("sDone");
-  const sClients = document.getElementById("sClients");
-
-  if(sContracts) sContracts.textContent=state.contracts.filter(c=>!c.deletedAt).length;
-  if(sTotal) sTotal.textContent=money(state.contracts.filter(c=>!c.deletedAt).reduce((a,c)=>a+Number(c.total||0),0));
-  if(sPaid) sPaid.textContent=money(state.contracts.filter(c=>!c.deletedAt).reduce((a,c)=>a+Number(c.paid||0),0));
-  if(sRemain) sRemain.textContent=money(state.contracts.filter(c=>!c.deletedAt).reduce((a,c)=>a+Number(c.remaining||0),0));
-  if(sLate) sLate.textContent=state.contracts.filter(c=>!c.deletedAt&&isLate(c)).length;
-  if(sToday) sToday.textContent=state.contracts.filter(c=>!c.deletedAt&&Number(c.dueDay)===new Date().getDate()&&c.remaining>0).length;
-  if(sDone) sDone.textContent=state.contracts.filter(c=>!c.deletedAt&&c.remaining<=0).length;
-  if(sClients) sClients.textContent=new Set(state.contracts.filter(c=>!c.deletedAt).map(c=>c.phone||c.name)).size;
+  document.getElementById("sContracts").textContent=state.contracts.filter(c=>!c.deletedAt).length;
+  document.getElementById("sTotal").textContent=money(state.contracts.filter(c=>!c.deletedAt).reduce((a,c)=>a+Number(c.total||0),0));
+  document.getElementById("sPaid").textContent=money(state.contracts.filter(c=>!c.deletedAt).reduce((a,c)=>a+Number(c.paid||0),0));
+  document.getElementById("sRemain").textContent=money(state.contracts.filter(c=>!c.deletedAt).reduce((a,c)=>a+Number(c.remaining||0),0));
+  document.getElementById("sLate").textContent=state.contracts.filter(c=>!c.deletedAt&&isLate(c)).length;
+  document.getElementById("sToday").textContent=state.contracts.filter(c=>!c.deletedAt&&Number(c.dueDay)===new Date().getDate()&&c.remaining>0).length;
+  document.getElementById("sDone").textContent=state.contracts.filter(c=>!c.deletedAt&&c.remaining<=0).length;
+  document.getElementById("sClients").textContent=new Set(state.contracts.filter(c=>!c.deletedAt).map(c=>c.phone||c.name)).size;
   renderClients();
   renderReports();
   updateBackupInfo();
@@ -707,7 +701,7 @@ function refresh(){
 function closeModal(){document.getElementById("modal").classList.add("hidden")}
 
 function toast(msg){
-  const x=document.getElementById("toast");if(!x)return;x.textContent=msg;x.style.display="block";
+  const x=document.getElementById("toast");x.textContent=msg;x.style.display="block";
   clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display="none",2200);
 }
 
@@ -715,6 +709,11 @@ function esc(v){
   return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 }
 
+
+// ===============================
+// Google Sheets Cloud Sync
+// متوافق مع Apps Script الذي أرسلته
+// ===============================
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwrfQu2eBTKDHMw_FDIlBFF8WqOBL12M-rV2znAwwnqJiC7gfjlyr3JjnTLLh71r-5Z/exec";
 const SYNC_TOKEN = "";
 
@@ -728,6 +727,7 @@ function setCloudStatus(type, text){
 }
 
 function cloudRows(){
+  // تحويل بيانات النظام الحالية إلى أعمدة Google Sheets الـ15
   return state.contracts.filter(c=>!c.deletedAt).map(c=>[
     c.id,
     c.name,
@@ -742,8 +742,8 @@ function cloudRows(){
     c.dueDay,
     c.notes,
     JSON.stringify(state.payments.filter(p=>p.contractId===c.id)),
-    JSON.stringify([]),
-    ""
+    JSON.stringify(c.discounts||[]),
+    c.lockUntil||""
   ]);
 }
 
@@ -755,6 +755,16 @@ function rowsToState(rows){
   const contracts=[], payments=[], clients=[];
   rows.slice(1).forEach(r=>{
     if(!r[0]) return;
+    let paymentsLog=[];
+    try{
+      const ps=JSON.parse(String(r[12]||"[]"));
+      if(Array.isArray(ps)){ paymentsLog=ps; ps.forEach(p=>payments.push(Object.assign({},p,{contractId:String(r[0])}))); }
+    }catch(e){}
+    let discounts=[];
+    try{
+      const ds=JSON.parse(String(r[13]||"[]"));
+      if(Array.isArray(ds)) discounts=ds;
+    }catch(e){}
     const c={
       id:String(r[0]),
       contractNo:"", name:String(r[1]||""),
@@ -763,15 +773,21 @@ function rowsToState(rows){
       monthly:Number(r[6]||0), paid:Number(r[7]||0),
       remaining:Number(r[8]??(Number(r[5]||0)-Number(r[7]||0))),
       startDate:String(r[9]||"").slice(0,10), dueDay:Number(r[10]||1),
-      notes:String(r[11]||""), createdAt:new Date().toISOString(),
+      notes:String(r[11]||""), paymentsLog, discounts,
+      lockUntil:String(r[14]||"")||null,
+      createdAt:new Date().toISOString(),
       updatedAt:new Date().toISOString(), deletedAt:null
     };
-    try{
-      const ps=JSON.parse(String(r[12]||"[]"));
-      if(Array.isArray(ps)) ps.forEach(p=>payments.push(Object.assign({},p,{contractId:c.id})));
-    }catch(e){}
     contracts.push(c);
     clients.push({id:c.id,name:c.name,phone:c.phone});
+  });
+  // رقم العقد (contractNo) ليس عمودًا في جدول Google Sheets، لذلك نولّده هنا
+  // بترتيب الصفوف نفسه حتى لا يبقى فارغًا بعد كل تحميل من السحابة
+  const byYear={};
+  contracts.forEach(c=>{
+    const year=(c.startDate||"").slice(0,4)||String(new Date().getFullYear());
+    byYear[year]=(byYear[year]||0)+1;
+    c.contractNo="M-"+year+"-"+String(byYear[year]).padStart(4,"0");
   });
   return Object.assign(emptyState(),{contracts,clients,payments,activity:[],settings:{},updatedAt:new Date().toISOString()});
 }
@@ -787,6 +803,7 @@ async function cloudGet(){
 }
 
 async function cloudPost(payload){
+  // text/plain يمنع مشكلة CORS preflight مع Apps Script
   const res=await fetch(SCRIPT_URL,{
     method:"POST",
     headers:{"Content-Type":"text/plain;charset=utf-8"},
@@ -796,6 +813,34 @@ async function cloudPost(payload){
   const data=await res.json();
   if(!data.ok) throw new Error(data.error||"فشل رفع البيانات");
   return data;
+}
+
+// ===============================
+// مزامنة تلقائية صامتة (بدون تنبيهات)
+// تعمل بعد كل حفظ محلي بفارق زمني بسيط (debounce)
+// حتى لا نُرسل طلبًا لكل ضغطة زر مستقلة
+// ===============================
+const AUTO_SYNC_DELAY_MS = 2000;
+
+function scheduleAutoSync(){
+  clearTimeout(window._autoSyncTimer);
+  window._autoSyncTimer = setTimeout(autoSyncToCloud, AUTO_SYNC_DELAY_MS);
+}
+
+async function autoSyncToCloud(){
+  setCloudStatus("busy","جاري المزامنة التلقائية مع Google Sheets...");
+  try{
+    const rows=[["ID","الاسم","الجوال","الكفيل","جوال_الكفيل","الإجمالي","القسط","المسدد","المتبقي","تاريخ_البداية","يوم_الاستحقاق","الملاحظات","PaymentsLog","Discounts","قفل_التحصيل_حتى"],...cloudRows()];
+    const result=await cloudPost({bulkReplace:rows});
+    localStorage.setItem("mohammedia_last_cloud_sync",new Date().toISOString());
+    setCloudStatus("ok","متصل بالسحابة — تمت المزامنة التلقائية ("+(result.count??cloudRows().length)+" عقد)");
+    updateBackupInfo();
+  }catch(e){
+    console.error("auto sync failed:",e);
+    // لا نزعج المستخدم بتنبيه (alert) عند كل فشل مزامنة تلقائية بالخلفية،
+    // فقط نُحدّث نقطة/نص الحالة حتى يلاحظها المستخدم متى نظر للأعلى
+    setCloudStatus("err","تعذّرت المزامنة التلقائية — سيُعاد المحاولة عند أي تعديل قادم");
+  }
 }
 
 async function syncToCloud(){
